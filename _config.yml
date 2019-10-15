@@ -19,6 +19,8 @@ projects:
   sort_by: pushed
   limit: 9
   exclude:
+    archived: true
+    forks: false
     projects:
       - personal-website
       - app-version-history
@@ -41,3 +43,7 @@ topics:
   - name: Gradle
     web_url: https://github.com/topics/gradle
     image_url: https://raw.githubusercontent.com/github/explore/e63ac6ef59c5c316574b0d31942f0534e51265a8/topics/gradle/gradle.png
+
+  - name: Firebase
+    web_url: https://github.com/topics/firebase
+    image_url: https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/firebase/firebase.png

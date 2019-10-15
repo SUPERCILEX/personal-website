@@ -3,5 +3,6 @@
 .sass-cache
 _site/
 Gemfile.lock
+**/.ruby-version
 .idea
 *.iml
