@@ -25,6 +25,11 @@ projects:
       - personal-website
       - app-version-history
       - issue-mcve
+  include:
+    - Triple-T/gradle-play-publisher
+    - firebase/FirebaseUI-Android
+    - googlesamples/easypermissions
+    - yshrsmz/LicenseAdapter
 
 social_media:
   twitter: SUPERCILEX
