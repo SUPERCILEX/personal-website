@@ -25,6 +25,7 @@ projects:
       - personal-website
       - app-version-history
       - issue-mcve
+      - poi-android
   include:
     - Triple-T/gradle-play-publisher
     - firebase/FirebaseUI-Android
