@@ -27,6 +27,39 @@
 </div>
 <p class="f4 mb-4 {% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %}">GitHub repositories I've helped build.</p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
+  <script>
+      function loadRepo(path) {
+          const request = new XMLHttpRequest();
+          request.open("GET", `https://api.github.com/repos/${path}`, true);
+          request.onload = onResponse;
+          request.send(null);
+
+          function onResponse() {
+              const response = JSON.parse(request.responseText);
+
+              document.getElementById(`${path}-url`).href = response.html_url;
+              document.getElementById(`${path}-url`).innerHTML += response.name;
+              document.getElementById(`${path}-desc`).innerHTML = response.description;
+
+              if (response.language) {
+                  document.getElementById(`${path}-lang`).innerHTML += response.language;
+
+                  const lang = {{ site.data.colors | jsonify }}[response.language];
+                  document.getElementById(`${path}-lang-wrapper`).href = lang.url;
+                  document.getElementById(`${path}-lang-style`).style.backgroundColor = lang.color;
+              } else {
+                  document.getElementById(`${path}-lang-wrapper`).remove();
+              }
+
+              document.getElementById(`${path}-stargazers`).href = response.stargazers_url;
+              document.getElementById(`${path}-stargazers`).innerHTML += response.stargazers_count;
+
+              document.getElementById(`${path}-forks`).href = response.forks_url;
+              document.getElementById(`${path}-forks`).innerHTML += response.forks_count;
+          }
+      }
+  </script>
+
   {% for repository in site.projects.include %}
     <div class="col-sm-6 col-md-12 col-lg-6 col-xl-4 mb-3">
       {% include dynamic-repo-card.html %}
