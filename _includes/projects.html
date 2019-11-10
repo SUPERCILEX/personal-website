@@ -29,35 +29,29 @@
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   <link href="https://api.github.com" rel="preconnect" crossorigin>
   <script>
-      function loadRepo(path) {
-          const request = new XMLHttpRequest();
-          request.open("GET", `https://api.github.com/repos/${path}`, true);
-          request.onload = onResponse;
-          request.send(null);
+      async function loadRepo(path) {
+          const response = await fetch(`https://api.github.com/repos/${path}`);
+          const repo = await response.json();
 
-          function onResponse() {
-              const response = JSON.parse(request.responseText);
+          document.getElementById(`${path}-url`).href = repo.html_url;
+          document.getElementById(`${path}-url`).innerHTML += repo.name;
+          document.getElementById(`${path}-desc`).innerHTML = repo.description;
 
-              document.getElementById(`${path}-url`).href = response.html_url;
-              document.getElementById(`${path}-url`).innerHTML += response.name;
-              document.getElementById(`${path}-desc`).innerHTML = response.description;
+          if (repo.language) {
+              document.getElementById(`${path}-lang`).innerHTML += repo.language;
 
-              if (response.language) {
-                  document.getElementById(`${path}-lang`).innerHTML += response.language;
-
-                  const lang = {{ site.data.colors | jsonify }}[response.language];
-                  document.getElementById(`${path}-lang-wrapper`).href = lang.url;
-                  document.getElementById(`${path}-lang-style`).style.backgroundColor = lang.color;
-              } else {
-                  document.getElementById(`${path}-lang-wrapper`).remove();
-              }
-
-              document.getElementById(`${path}-stargazers`).href = response.stargazers_url;
-              document.getElementById(`${path}-stargazers`).innerHTML += response.stargazers_count;
-
-              document.getElementById(`${path}-forks`).href = response.forks_url;
-              document.getElementById(`${path}-forks`).innerHTML += response.forks_count;
+              const lang = {{ site.data.colors | jsonify }}[repo.language];
+              document.getElementById(`${path}-lang-wrapper`).href = lang.url;
+              document.getElementById(`${path}-lang-style`).style.backgroundColor = lang.color;
+          } else {
+              document.getElementById(`${path}-lang-wrapper`).remove();
           }
+
+          document.getElementById(`${path}-stargazers`).href = repo.stargazers_url;
+          document.getElementById(`${path}-stargazers`).innerHTML += repo.stargazers_count;
+
+          document.getElementById(`${path}-forks`).href = repo.forks_url;
+          document.getElementById(`${path}-forks`).innerHTML += repo.forks_count;
       }
   </script>
 
