@@ -9,19 +9,19 @@ What does your workspace look like? Do you have dozens of Chrome tabs crammed in
 your desktop splattered with icons left and right? Is your editor desperately fighting for space
 against an army of toolbars and windows?
 
-If your eyes have had enough and are in need of breathing room, you’re in the right place. I’ll show
+If your eyes have had enough and are in need of breathing room, you're in the right place. I'll show
 you how to declutter your workspace to maximize the laser focus you need to be productive.
 
 ## Fading away the operating system
 
-In an ideal world, my machine would come with Chrome, IntelliJ, and Git. And that’s it. Aside from a
-way to switch windows, I don’t need anything else 99% of the time.
+In an ideal world, my machine would come with Chrome, IntelliJ, and Git. And that's it. Aside from a
+way to switch windows, I don't need anything else 99% of the time.
 
-While you obviously need a proper OS to meet that 1%, it’s possible to fade away most of the clutter
-when you don’t need it. The first step on this journey is to make whichever apps you use the most
+While you obviously need a proper OS to meet that 1%, it's possible to fade away most of the clutter
+when you don't need it. The first step on this journey is to make whichever apps you use the most
 always available in the state you left them in, regardless of how your computer has started:
 
-1. For Chrome, you’ll want to have it
+1. For Chrome, you'll want to have it
    [continue where you left off](https://support.google.com/chrome/answer/95314). IntelliJ already
    does this by default.
 1. To make the experience completely seamless, your most used apps should start along with
@@ -40,13 +40,13 @@ vacation planning. Another for work related stuff like IntelliJ and Stack Overfl
 
 ## Decluttering the editor
 
-Now that you’ve followed the steps above, your primary apps should be front and center, always
+Now that you've followed the steps above, your primary apps should be front and center, always
 available, and in the state you left them in regardless of what the OS was doing.
 
-Your next move is to remove noise around the content you’re working on. For example, I keep the
+Your next move is to remove noise around the content you're working on. For example, I keep the
 toolbar hidden when editing a Google Doc. Similar improvements can be made for IntelliJ:
 
-1. If horizontal windows like Version Control or Logcat are visible, hide them while you’re coding.
+1. If horizontal windows like Version Control or Logcat are visible, hide them while you're coding.
 1. [Hide the sidebars](https://www.jetbrains.com/help/idea/manipulating-the-tool-windows.html#show-all)
    to access them too. Instead, use their individual `Alt + #` shortcuts, or the global `Ctrl + E`
    (`⌘ E`) one.
@@ -56,7 +56,7 @@ toolbar hidden when editing a Google Doc. Similar improvements can be made for I
 1. Bonus: use
    [font ligatures with Fira Code](https://github.com/tonsky/FiraCode/wiki/Intellij-products-instructions#version-20182).
 
-> Productivity tip: don’t be afraid to
+> Productivity tip: don't be afraid to
 [assign your own shortcuts](https://www.jetbrains.com/help/idea/configuring-keyboard-and-mouse-shortcuts.html).
 
 ### Before
@@ -69,7 +69,7 @@ toolbar hidden when editing a Google Doc. Similar improvements can be made for I
 <img src="/assets/general/minimalism-clean.webp" loading="lazy" width="100%" alt="Minimalist IDE"/>
 <div style="text-align: center" class="text-gray"><p class="caption">Just you and code</p></div>
 
-If you’re feeling truly adventurous, hide the project view. 😉
+If you're feeling truly adventurous, hide the project view. 😉
 
 <hr/>
 
