@@ -17,10 +17,10 @@
       document.getElementById(`${path}-lang-wrapper`).remove();
     }
 
-    document.getElementById(`${path}-stargazers`).href = repo.stargazers_url;
+    document.getElementById(`${path}-stargazers`).href = `https://github.com/${path}/stargazers`;
     document.getElementById(`${path}-stargazers`).innerHTML += repo.stargazers_count;
 
-    document.getElementById(`${path}-forks`).href = repo.forks_url;
+    document.getElementById(`${path}-forks`).href = `https://github.com/${path}/network/members`;
     document.getElementById(`${path}-forks`).innerHTML += repo.forks_count;
   }
 </script>
