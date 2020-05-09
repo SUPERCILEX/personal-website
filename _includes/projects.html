@@ -28,32 +28,7 @@
 <p class="f4 mb-4 {% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %}">GitHub repositories I've helped build.</p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   <link href="https://api.github.com" rel="preconnect" crossorigin>
-  <script>
-      async function loadRepo(path) {
-          const response = await fetch(`https://api.github.com/repos/${path}`);
-          const repo = await response.json();
-
-          document.getElementById(`${path}-url`).href = repo.html_url;
-          document.getElementById(`${path}-url`).innerHTML += repo.name;
-          document.getElementById(`${path}-desc`).innerHTML = repo.description;
-
-          if (repo.language) {
-              document.getElementById(`${path}-lang`).innerHTML += repo.language;
-
-              const lang = {{ site.data.colors | jsonify }}[repo.language];
-              document.getElementById(`${path}-lang-wrapper`).href = lang.url;
-              document.getElementById(`${path}-lang-style`).style.backgroundColor = lang.color;
-          } else {
-              document.getElementById(`${path}-lang-wrapper`).remove();
-          }
-
-          document.getElementById(`${path}-stargazers`).href = repo.stargazers_url;
-          document.getElementById(`${path}-stargazers`).innerHTML += repo.stargazers_count;
-
-          document.getElementById(`${path}-forks`).href = repo.forks_url;
-          document.getElementById(`${path}-forks`).innerHTML += repo.forks_count;
-      }
-  </script>
+  {% include repo-loader.html %}
 
   {% for repository in site.projects.include %}
     <div class="col-sm-6 col-md-12 col-lg-6 col-xl-4 mb-3">

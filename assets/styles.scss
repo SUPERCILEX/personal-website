@@ -2,11 +2,15 @@
 ---
 @import url('https://unpkg.com/primer/build/build.css');
 @import 'highlight-syntax';
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&display=swap');
 
+body {
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Noto Color Emoji;
+}
 
 // If a user adds a custom font, this component will stop it from bleeding into GitHub components:
 .github-component {
-  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol !important;
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Noto Color Emoji !important;
 }
 
 .repo-language-color {
@@ -26,9 +30,35 @@
 }
 
 .article {
-  h1, h2, h3, h4,
+  font-family: medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,"Noto Color Emoji",serif;
+
   .highlight {
-    margin-bottom: 16px;
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  .caption {
+    font-size: 16px;
+    margin: -1.5em 0 0;
+  }
+  .gist-caption {
+    font-size: 16px;
+    margin: -0.5em 0 0;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Noto Color Emoji";
+    margin: 1.5em 0 -0.5em;
+  }
+
+  p {
+    font-size: 21px;
+    margin: 0.95em 0 1.2em;
+  }
+
+  code {
+    font-family: "Fira Code", monospace;
+    font-size: 14px;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 4px;
   }
 
   blockquote {
@@ -38,12 +68,24 @@
     margin-bottom: 16px;
   }
 
+  div {
+    pre {
+      padding: 20px;
+
+      code {
+        background-color: transparent;
+      }
+    }
+  }
+
   ul, ol {
+    font-size: 21px;
     padding-left: 32px;
     margin-bottom: 16px;
   }
 
   li ul, li ol {
+    font-size: 21px;
     padding-left: 16px;
     margin-bottom: 0px;
   }
