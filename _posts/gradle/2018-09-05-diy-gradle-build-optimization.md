@@ -100,9 +100,11 @@ To give you a better idea of how your build should be performing compared to min
 [stats for my test project](https://api.codetabs.com/v1/loc?github=SUPERCILEX/Robot-Scouter).
 (~15 modules and ~20,000 lines of Android related code as of this writing.)
 
-{% include repo-loader.html %}
-{% assign repository="SUPERCILEX/Robot-Scouter" %}
-{% include dynamic-repo-card.html %}
+<div class="slim-title">
+{% assign repository = site.github.public_repositories | where: 'full_name', 'SUPERCILEX/Robot-Scouter' %}
+{% assign repository = repository[0] %}
+{% include repo-card.html %}
+</div>
 
 ## General optimization
 
