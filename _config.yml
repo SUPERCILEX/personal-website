@@ -2,9 +2,22 @@ layout: sidebar
 style: light
 
 plugins:
+  # GitHub Pages plugins
   - jekyll-octicons
   - jekyll-github-metadata
+  - jekyll-coffeescript
+  - jekyll-commonmark-ghpages
+  - jekyll-gist
+  - jekyll-paginate
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-default-layout
+  - jekyll-titles-from-headings
   - jemoji
+
+  # Other plugins
+  - jekyll-get-json
 
 permalink: /:year/:month/:day/:title/
 
@@ -26,11 +39,17 @@ projects:
       - app-version-history
       - issue-mcve
       - poi-android
-  include:
-    - Triple-T/gradle-play-publisher
-    - firebase/FirebaseUI-Android
-    - googlesamples/easypermissions
-    - yshrsmz/LicenseAdapter
+
+# External repositories
+jekyll_get_json:
+  - data: Triple-T/gradle-play-publisher
+    json: 'https://api.github.com/repos/Triple-T/gradle-play-publisher'
+  - data: firebase/FirebaseUI-Android
+    json: 'https://api.github.com/repos/firebase/FirebaseUI-Android'
+  - data: googlesamples/easypermissions
+    json: 'https://api.github.com/repos/googlesamples/easypermissions'
+  - data: yshrsmz/LicenseAdapter
+    json: 'https://api.github.com/repos/yshrsmz/LicenseAdapter'
 
 social_media:
   twitter: SUPERCILEX
