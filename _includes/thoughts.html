@@ -1,6 +1,6 @@
 <h2 id="posts" {% if site.style == 'dark' %}class="text-white"{% endif %}>Blog posts</h2>
 <p class="f4 mb-4 {% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %}">
-  Articles I've <a href="/blog">written</a>.
+  Articles I've <a href="{{ '/blog' | absolute_url }}">written</a>.
 </p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   {% for post in site.posts limit: 6 %}
