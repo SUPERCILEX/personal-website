@@ -3,7 +3,12 @@ layout: compress
 ---
 
 {% include header.html %}
-<link href="{{ '/css/article-styles.css' | absolute_url }}" rel="stylesheet" type="text/css">
+<style>
+  {% capture styles %}
+    {% include article-styles.scss %}
+  {% endcapture %}
+  {{ styles | scssify }}
+</style>
 
 {% capture post_body %}
   <div class="article">

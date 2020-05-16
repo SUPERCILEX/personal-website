@@ -29,7 +29,14 @@
     <meta property="og:image" content="{{ avatar_url }}" />
     <meta property="og:description" content="{{ meta_description }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="{{ '/css/styles.css' | absolute_url }}" rel="stylesheet" type="text/css">
     <link rel="icon" href="{{ avatar_url }}" type="image/x-icon">
   </head>
+
+  <style>
+    {% capture styles %}
+      {% include styles.scss %}
+    {% endcapture %}
+    {{ styles | scssify }}
+  </style>
+
   <body class="bg-white min-height-full" {% if site.style == 'dark' %}style="background-color: #2f363d !important"{% endif %}>
