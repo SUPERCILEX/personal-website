@@ -32,7 +32,9 @@ layout: compress
             <span style="font-family: 'Fira Code', monospace;">
               {{ post.date | date: "%b %d, %Y" }}
               &nbsp;
-              <a href="{{ post.url }}">{{ post.title }}</a>
+              <a href="{{ site.baseurl | append: post.url | append: '#article' | absolute_url }}">
+                {{ post.title }}
+              </a>
             </span>
           </li>
           {% endfor %}
