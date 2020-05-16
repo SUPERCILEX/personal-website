@@ -9,6 +9,7 @@
 {% assign posts_total = site.posts | size %}
 
 {% assign user = site.github.owner %}
+{% assign avatar_url = '/assets/me.webp' | absolute_url %}
 
 {% if page.path contains '_posts' %}
   {% assign page_title = page.title %}
@@ -25,10 +26,10 @@
     <title>{{ page_title }}</title>
     <meta name="description" content="{{ meta_description }}" />
     <meta property="og:title" content="{{ user.name }}" />
-    <meta property="og:image" content="{{ user.avatar_url }}" />
+    <meta property="og:image" content="{{ avatar_url }}" />
     <meta property="og:description" content="{{ meta_description }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="{{ '/css/styles.css' | absolute_url }}" rel="stylesheet" type="text/css">
-    <link rel="icon" href="{{ user.avatar_url }}" type="image/x-icon">
+    <link rel="icon" href="{{ avatar_url }}" type="image/x-icon">
   </head>
   <body class="bg-white min-height-full" {% if site.style == 'dark' %}style="background-color: #2f363d !important"{% endif %}>
