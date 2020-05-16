@@ -65,16 +65,16 @@ social_media:
 topics:
   - name: Android
     web_url: https://github.com/topics/android
-    image_url: https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/android/android.png
+    image_url: /assets/android/logo.svg
 
   - name: Kotlin
     web_url: https://github.com/topics/kotlin
-    image_url: https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/kotlin/kotlin.png
+    image_url: /assets/kotlin/logo.svg
 
   - name: Gradle
     web_url: https://github.com/topics/gradle
-    image_url: https://raw.githubusercontent.com/github/explore/59009b1589a883459c0ae19044e3e7e3ec0c4e0a/topics/gradle/gradle.png
+    image_url: /assets/gradle/logo.svg
 
   - name: Firebase
     web_url: https://github.com/topics/firebase
-    image_url: https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/firebase/firebase.png
+    image_url: /assets/firebase/logo.svg
