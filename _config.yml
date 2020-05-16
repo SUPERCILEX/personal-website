@@ -28,6 +28,9 @@ defaults:
     values:
       layout: "post"
 
+sass:
+  style: compressed
+
 projects:
   sort_by: pushed
   limit: 9
