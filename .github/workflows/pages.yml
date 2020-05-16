@@ -20,7 +20,12 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
-      - uses: helaili/jekyll-action@2.0.2
+      - name: Generate resume
+        run: |
+          curl --fail --output resume/AlexSaveau.pdf \
+            --url https://docs.google.com/document/d/11sHvpwRaWoafEr2k8w5uXaJB0_VuMCtSxQNsErnpet0/export?format=pdf
+      - name: Build and deploy
+        uses: helaili/jekyll-action@2.0.2
         env:
           JEKYLL_PAT: ${{ secrets.USER_TOKEN }}
           JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
