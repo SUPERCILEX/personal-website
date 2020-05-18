@@ -1,0 +1,40 @@
+---
+title: Customize GitHub's code font
+subtitle: 😋 code reviews
+---
+
+It occurred to me yesterday that I've spent way too much time nitpicking over my IDE's font, but
+then come time for code reviews... not a ligature in sight. Here's a quick guide to change that.
+
+## Perquisites
+
+Install [Refined GitHub](https://github.com/sindresorhus/refined-github#install). It's probably a
+sin at this point to not use that extension. 😉
+
+## Change your font
+
+In Refined GitHub's settings (`chrome://extensions/?options=hlepfoohegkhhmjieoechaddaejaokhf`),
+paste in this custom CSS:
+
+```css
+/*
+The wght@450 part is the font weight.
+If you want less or more boldness, decrease or increase this number.
+*/
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@450&display=swap");
+
+pre, code, .blob-code, .blob-code-marker {
+  font-family: 'Fira Code', monospace !important;
+}
+```
+
+I personally love Fira Code, but you can change this to whatever you want as long as the font is
+hosted somewhere.
+
+| Before | After |
+| --- | --- |
+| <img src="/assets/general/default-github-code-font.webp" loading="lazy" width="100%" alt="Default GitHub font"/> | <img src="/assets/general/custom-github-code-font.webp" loading="lazy" width="100%" alt="Custom GitHub code font"/> |
+
+<hr/>
+
+That's it! Enjoy.
