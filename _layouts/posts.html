@@ -3,6 +3,12 @@ layout: compress
 ---
 
 {% include header.html %}
+<style>
+  {% capture styles %}
+    {% include article-styles.scss %}
+  {% endcapture %}
+  {{ styles | scssify }}
+</style>
 
 {% if site.layout == 'stacked' %}
 <div class="container-lg py-6 p-responsive text-center">
