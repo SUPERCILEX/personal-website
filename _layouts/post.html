@@ -3,12 +3,7 @@ layout: compress
 ---
 
 {% include header.html %}
-<style>
-  {% capture styles %}
-    {% include article-styles.scss %}
-  {% endcapture %}
-  {{ styles | scssify }}
-</style>
+{% include article-styling.html %}
 
 {% capture post_body %}
   <div class="article">

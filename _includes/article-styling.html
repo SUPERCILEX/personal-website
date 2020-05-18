@@ -1,0 +1,8 @@
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@475&display=swap" rel="preload" as="font" crossorigin="anonymous" onload="this.rel='stylesheet'">
+<style>
+  {% capture styles %}
+    {% include article-styles.scss %}
+  {% endcapture %}
+  {{ styles | scssify }}
+</style>
