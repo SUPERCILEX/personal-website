@@ -21,6 +21,7 @@ plugins:
 
   # Other plugins
   - jekyll-get-json
+  - jekyll-feed
 
 permalink: /:year/:month/:day/:title/
 
@@ -30,6 +31,8 @@ defaults:
     type: "posts"
     values:
       layout: "post"
+
+author: "Alex Saveau"
 
 sass:
   style: compressed

@@ -79,6 +79,8 @@ GEM
       rouge (>= 2.0, < 4.0)
     jekyll-default-layout (0.1.4)
       jekyll (~> 3.0)
+    jekyll-feed (0.13.0)
+      jekyll (>= 3.7, < 5.0)
     jekyll-get-json (0.0.1)
       deep_merge (~> 1.2)
       jekyll (~> 3.0)
@@ -175,6 +177,7 @@ DEPENDENCIES
   jekyll-coffeescript
   jekyll-commonmark-ghpages
   jekyll-default-layout
+  jekyll-feed
   jekyll-get-json
   jekyll-gist
   jekyll-github-metadata

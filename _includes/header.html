@@ -25,11 +25,17 @@
     <meta charset="utf-8">
     <title>{{ page_title }}</title>
     <meta name="description" content="{{ meta_description }}" />
-    <meta property="og:title" content="{{ user.name }}" />
+    {% if page.path contains '_posts' %}
+    <meta property="og:type" content="article" />
+    {% endif %}
+    <meta property="og:url" content="{{ page.url | absolute_url }}" />
+    <meta property="og:title" content="{{ page_title }}" />
     <meta property="og:image" content="{{ avatar_url }}" />
     <meta property="og:description" content="{{ meta_description }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" href="{{ avatar_url }}" type="image/x-icon">
+
+    {% feed_meta %}
   </head>
 
   <style>

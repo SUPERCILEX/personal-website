@@ -17,4 +17,5 @@ gem "jemoji"
 
 # Other plugins
 gem "jekyll-get-json"
+gem "jekyll-feed"
 gem 'dotenv-rails', groups: [:development, :test]
