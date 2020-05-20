@@ -2,8 +2,7 @@
 title: "Survival guide: how to migrate from the Firebase Realtime Database to Cloud Firestore"
 ---
 
-<img src="/assets/firebase/firestore-banner.webp" loading="lazy" width="100%" alt="Firestore Banner"/>
-<div style="text-align: center" class="text-gray"><p class="caption">The long-awaited database revamp is here!</p></div>
+{% include article-image.html src="/assets/firebase/firestore-banner.webp" alt="Firestore Banner" caption="The long-awaited database revamp is here!" %}
 
 Ever since Google's new mobile SDKs were
 [announced](https://firebase.googleblog.com/2016/05/firebase-expands-to-become-unified-app-platform.html)
@@ -48,8 +47,7 @@ near-infinite scalability and powerful querying abilities. The Firebase-branded 
 the expected realtime capabilities and, of course, integration with other Firebase services such as
 Authentication and Cloud Functions.
 
-<img src="/assets/firebase/gcp-data-flowchart.webp" loading="lazy" width="100%" alt="GCP Data Flowchart"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Pre-Firestore flow chart. You now get the best of both Firebase and Datastore!</p></div>
+{% include article-image.html src="/assets/firebase/gcp-data-flowchart.webp" alt="GCP Data Flowchart" caption="Pre-Firestore flow chart. You now get the best of both Firebase and Datastore!" %}
 
 For database fans, Cloud Datastore is a multi-region, synchronously-replicated database that uses
 ACID transactions. This means that once Google says your write is committed, a dinosaur-age meteor
@@ -111,8 +109,7 @@ I put the word **shallow** in quotes because technically, you could nest a huge 
 your documents. But we'll talk about why you shouldn't do that later. Wait a sec, what's a document?
 Cloud Firestore has two basic building blocks: **collections** and **documents**.
 
-<img src="/assets/firebase/firestore-anatomy.webp" loading="lazy" width="100%" alt="Anatomy of Firestore Data"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Cloud Firestore's fundamental building blocks</p></div>
+{% include article-image.html src="/assets/firebase/firestore-anatomy.webp" alt="Anatomy of Firestore Data" caption="Cloud Firestore's fundamental building blocks" %}
 
 Collections in Firestore are the equivalent of a ref in the RTDB with a huge list of child nodes
 that each contain objects. If you scroll back up to the Firestore data structure, you'll notice that
@@ -340,8 +337,7 @@ I did some more digging and found a few other things. For example, GRCP devs
 [really like enums](https://github.com/grpc/grpc-java/blob/16c07ba434787f68e256fc50cece1425f421b03e/okhttp/third_party/okhttp/java/io/grpc/okhttp/internal/CipherSuite.java#L36-L357).
 You know what they say, "If something is bad for you, do more of it!"
 
-<img src="/assets/firebase/minified-enums.webp" loading="lazy" width="100%" alt="gRPC Enums"/>
-<div style="text-align: center" class="text-gray"><p class="caption">There are 95 enums in here — that must be some kind of record!</p></div>
+{% include article-image.html src="/assets/firebase/minified-enums.webp" alt="gRPC Enums" caption="There are 95 enums in here — that must be some kind of record!" %}
 
 With that aside, let's explore our first method: `DocumentReference#get()`. This is the simplest and
 most basic way to retrieve data: it replaces the RTBD's `addListenerForSingleValueEvent()` method

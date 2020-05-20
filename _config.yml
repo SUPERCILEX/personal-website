@@ -22,6 +22,7 @@ plugins:
   # Other plugins
   - jekyll-get-json
   - jekyll-feed
+  - jekyll-image-size
 
 permalink: /:year/:month/:day/:title/
 

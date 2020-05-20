@@ -2,8 +2,7 @@
 title: Android development for the Minimalist
 ---
 
-<img src="/assets/general/minimalism.webp" loading="lazy" width="100%" alt="Abstract Minimalism"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Focus</p></div>
+{% include article-image.html src="/assets/general/minimalism.webp" alt="Abstract Minimalism" caption="Focus" %}
 
 What does your workspace look like? Do you have dozens of Chrome tabs crammed in a single window? Is
 your desktop splattered with icons left and right? Is your editor desperately fighting for space
@@ -35,8 +34,7 @@ always available in the state you left them in, regardless of how your computer 
 > Organizational tip: use two virtual desktops. One for personal stuff like social media and
 vacation planning. Another for work related stuff like IntelliJ and Stack Overflow.
 
-<img src="/assets/general/minimalism-article-screenshot.webp" loading="lazy" width="100%" alt="Screenshot of this article"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Me writing this article — Chrome steals the show</p></div>
+{% include article-image.html src="/assets/general/minimalism-article-screenshot.webp" alt="Screenshot of this article" caption="Me writing this article — Chrome steals the show" %}
 
 ## Decluttering the editor
 
@@ -61,13 +59,11 @@ toolbar hidden when editing a Google Doc. Similar improvements can be made for I
 
 ### Before
 
-<img src="/assets/general/minimalism-cluttered.webp" loading="lazy" width="100%" alt="Cluttered IDE"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Painfully cluttered</p></div>
+{% include article-image.html src="/assets/general/minimalism-cluttered.webp" alt="Cluttered IDE" caption="Painfully cluttered" %}
 
 ### After
 
-<img src="/assets/general/minimalism-clean.webp" loading="lazy" width="100%" alt="Minimalist IDE"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Just you and code</p></div>
+{% include article-image.html src="/assets/general/minimalism-clean.webp" alt="Minimalist IDE" caption="Just you and code" %}
 
 If you're feeling truly adventurous, hide the project view. 😉
 

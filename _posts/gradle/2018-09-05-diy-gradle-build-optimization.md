@@ -3,8 +3,7 @@ title: DIY Gradle build optimization
 subtitle: The definitive guide to Gradle build performance optimization
 ---
 
-<img src="/assets/gradle/abstract-build.webp" loading="lazy" width="100%" alt="Abstract Gradle Builds"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Beautiful builds. Source: <a href="https://gradle.com">gradle.com</a></p></div>
+{% include article-image.html src="/assets/gradle/abstract-build.webp" alt="Abstract Gradle Builds" caption='Beautiful builds. Source: <a href="https://gradle.com">gradle.com</a>' %}
 
 If you're anything like me a few months ago, you've hit a breaking point. You're feeling something
 akin to desperation and you don't know what to do. You've already tried all the classic tricks like
@@ -131,13 +130,11 @@ day, crappy hardware equals crappy performance. The only solution there is getti
 
 Getting back to business, you should have a build scan that looks something like this:
 
-<img src="/assets/gradle/build-scan-summary.webp" loading="lazy" width="100%" alt="Build Scan Summary"/>
-<div style="text-align: center" class="text-gray"><p class="caption">The Summary tab</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-summary.webp" alt="Build Scan Summary" caption="The Summary tab" %}
 
 Drilling down into the Performance tab, you'll find all sorts of details about your build:
 
-<img src="/assets/gradle/build-scan-performance.webp" loading="lazy" width="100%" alt="Build Scan Performance"/>
-<div style="text-align: center" class="text-gray"><p class="caption">The Performance overview tab</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-performance.webp" alt="Build Scan Performance" caption="The Performance overview tab" %}
 
 If your configuration time is above 10 seconds (and you don't have 300+ modules), something is
 wrong. Otherwise, as long as you're happy with your configuration time, feel free to skip this section.
@@ -155,8 +152,7 @@ If you're doing [this](https://stackoverflow.com/a/14804849/4548500), scroll up 
 
 Check the network activity tab and make sure there were no requests:
 
-<img src="/assets/gradle/build-scan-network.webp" loading="lazy" width="100%" alt="Build Scan Network Activity"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Zero is my hero</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-network.webp" alt="Build Scan Network Activity" caption="Zero is my hero" %}
 
 ### Don't do expensive operations
 
@@ -167,8 +163,7 @@ at *configuration* time.
 Aside from my slow `afterEvaluate` block (caused by that Kotlin bug I mentioned earlier), everything
 else passes the test with flying colors:
 
-<img src="/assets/gradle/build-scan-script-configuration.webp" loading="lazy" width="100%" alt="Build Scan Script Configuration"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Example script configuration time</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-script-configuration.webp" alt="Build Scan Script Configuration" caption="Example script configuration time" %}
 
 ### Don't use the old task APIs
 
@@ -200,8 +195,7 @@ $ ./gradle-profiler --profile jfr --project-dir "..." help
 For example, you can see how naughty the Kotlin plugin is (`o.j.kotlin.g.i.AndroidSubplugin` is
 forcing Gradle to resolve artifacts):
 
-<img src="/assets/gradle/build-flame-graph.png" loading="lazy" width="100%" alt="Build Profile Flame Graph"/>
-<div style="text-align: center" class="text-gray"><p class="caption">🔥</p></div>
+{% include article-image.html src="/assets/gradle/build-flame-graph.png" alt="Build Profile Flame Graph" caption="🔥" %}
 
 And if you can't figure out whose fault it is but don't think it's yours, the Gradle team is always
 happy to take a look at the profiling snapshots: [performance@gradle.com](mailto:performance@gradle.com).
@@ -227,8 +221,7 @@ you want it to be "perfectly balanced, as all things should be." Minus all the k
 Now look for "Total garbage collection time" and make sure it doesn't account for more than 5% of
 your build:
 
-<img src="/assets/gradle/build-scan-gc-performance.webp" loading="lazy" width="100%" alt="Build Scan GC Performance"/>
-<div style="text-align: center" class="text-gray"><p class="caption">4/124 = 3.2%, looks good</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-gc-performance.webp" alt="Build Scan GC Performance" caption="4/124 = 3.2%, looks good" %}
 
 If it's anything more than that, give the Daemon another GB. Rinse & repeat.
 
@@ -237,8 +230,7 @@ If it's anything more than that, give the Daemon another GB. Rinse & repeat.
 If a single task is dominating your build, something is wrong. For example, the Firebase Performance
 plugin is notoriously slow — something that's painfully obvious in the timeline view:
 
-<img src="/assets/gradle/build-scan-timeline-bad.webp" loading="lazy" width="100%" alt="Build Scan Timeline"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Ouch</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-timeline-bad.webp" alt="Build Scan Timeline" caption="Ouch" %}
 
 When the task isn't needed for your dev builds, don't run it. You can do that by either not applying
 the plugin, or disabling the task itself:
@@ -248,8 +240,7 @@ the plugin, or disabling the task itself:
 Now, you'll have an evenly spread out timeline with the longest tasks rightfully being those like
 `compileDebugKotlin`:
 
-<img src="/assets/gradle/build-scan-timeline-good.webp" loading="lazy" width="100%" alt="Build Scan Timeline"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Balance</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-timeline-good.webp" alt="Build Scan Timeline" caption="Balance" %}
 
 Here's another example: I noticed that builds running `installDebug` were excessively slow because
 of `makeApkFromBundleForDebug`, so I
@@ -267,8 +258,7 @@ If you haven't changed anything, nothing should happen when you rerun a build. T
 doing a great job on this front, but the Play Services team sadly still hasn't made their
 `GoogleServicesTask` incremental:
 
-<img src="/assets/gradle/build-scan-incremental-timeline.webp" loading="lazy" width="100%" alt="Build Scan Incremental Timeline"/>
-<div style="text-align: center" class="text-gray"><p class="caption">C'mon, we're sooo close!</p></div>
+{% include article-image.html src="/assets/gradle/build-scan-incremental-timeline.webp" alt="Build Scan Incremental Timeline" caption="C'mon, we're sooo close!" %}
 
 If there are tasks you don't think should be running, click on them to see why the cache was
 invalidated. You're most likely configuring your build non-deterministically and accidentally

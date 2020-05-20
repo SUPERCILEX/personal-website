@@ -16,8 +16,7 @@ cheaper to run a job every day and take full advantage of that free quota. As an
 be able to better predict your monthly bill because you'll be spreading out Firestore usage over
 each day.
 
-<img src="/assets/chris-pratt.gif" loading="lazy" width="100%" alt="Chris Pratt Happy"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Free money?</p></div>
+{% include article-image.html src="/assets/chris-pratt.gif" alt="Chris Pratt Happy" caption="Free money?" %}
 
 ## Running daily jobs
 
@@ -26,8 +25,7 @@ Running a daily CRON job is ridiculously easy to do: simply create a
 (`0 3 * * *`) that publishes an empty data payload (`{}`) to a topic of your choice (`daily-tick`).
 It'll look something like this:
 
-<img src="/assets/firebase/daily-tick.webp" loading="lazy" width="100%" alt="GCP Scheduler Daily Tick"/>
-<div style="text-align: center" class="text-gray"><p class="caption">This tick is completely free!</p></div>
+{% include article-image.html src="/assets/firebase/daily-tick.webp" alt="GCP Scheduler Daily Tick" caption="This tick is completely free!" %}
 
 In your functions' index file, subscribe to the `daily-tick` pubsub event and you're good to go.
 

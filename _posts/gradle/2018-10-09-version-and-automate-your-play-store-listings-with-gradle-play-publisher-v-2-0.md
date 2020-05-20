@@ -2,8 +2,7 @@
 title: Version and automate your Play Store listings with Gradle Play Publisher v2.0
 ---
 
-<img src="/assets/gradle/gpp.webp" loading="lazy" width="100%" alt="Gradle Play Publisher Logo"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Android App Bundles, Gradle cache and incremental compilation, version conflict resolution strategies, massive API improvements, and everything in between now available in v2.0</p></div>
+{% include article-image.html src="/assets/gradle/gpp.webp" alt="Gradle Play Publisher Logo" caption="Android App Bundles, Gradle cache and incremental compilation, version conflict resolution strategies, massive API improvements, and everything in between now available in v2.0" %}
 
 Have you ever wanted to keep track of changes going into your Play Store listings? Are you on a big
 team where managing "who has access to what" is a nightmare? Or, are you perhaps managing dozens of

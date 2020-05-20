@@ -18,4 +18,5 @@ gem "jemoji"
 # Other plugins
 gem "jekyll-get-json"
 gem "jekyll-feed"
+gem "jekyll-image-size"
 gem 'dotenv-rails', groups: [:development, :test]

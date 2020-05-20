@@ -45,6 +45,7 @@ GEM
     execjs (2.7.0)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
+    fastimage (2.1.7)
     ffi (1.12.2)
     forwardable-extended (2.6.0)
     gemoji (3.0.1)
@@ -89,6 +90,9 @@ GEM
     jekyll-github-metadata (2.13.0)
       jekyll (>= 3.4, < 5.0)
       octokit (~> 4.0, != 4.4.0)
+    jekyll-image-size (1.2.1)
+      fastimage (>= 1.8)
+      jekyll (>= 3.7)
     jekyll-octicons (9.6.0)
       jekyll (>= 3.6, < 5.0)
       octicons (= 9.6.0)
@@ -181,6 +185,7 @@ DEPENDENCIES
   jekyll-get-json
   jekyll-gist
   jekyll-github-metadata
+  jekyll-image-size
   jekyll-octicons
   jekyll-optional-front-matter
   jekyll-paginate

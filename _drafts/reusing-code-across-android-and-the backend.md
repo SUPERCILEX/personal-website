@@ -3,8 +3,7 @@ title: Reusing code across Android and the backend
 subtitle: Firebase Cloud Functions + Kotlin = 💖
 ---
 
-<img src="/assets/kotlin/kotlin-firebase-pacman.webp" loading="lazy" width="100%" alt="Pacman Kotlin eating Firebase"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Nom nom nom</p></div>
+{% include article-image.html src="/assets/kotlin/kotlin-firebase-pacman.webp" alt="Pacman Kotlin eating Firebase" caption="Nom nom nom" %}
 
 Kotlin is all the rage in the Android community, and for a good reason: the language has made
 Android development fun and engaging again. Kotlin's feature set is tasteful and bloat free, aimed

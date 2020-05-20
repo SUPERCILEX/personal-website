@@ -3,8 +3,7 @@ title: Advanced Kotlin Coroutines tips and tricks
 subtitle: Learn about a few snags and how to get around them
 ---
 
-<img src="/assets/kotlin/kotlin-banner.webp" loading="lazy" width="100%" alt="Kotlin Banner"/>
-<div style="text-align: center" class="text-gray"><p class="caption">Coroutines are stable as of 1.3!</p></div>
+{% include article-image.html src="/assets/kotlin/kotlin-banner.webp" alt="Kotlin Banner" caption="Coroutines are stable as of 1.3!" %}
 
 Kotlin Coroutines starts off incredibly simple: just put some long running operation in `launch` and
 you're good, right? For simple cases, sure. But pretty soon, the complexity inherent to concurrency

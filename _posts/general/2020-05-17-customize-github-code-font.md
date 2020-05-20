@@ -31,9 +31,16 @@ pre, code, .blob-code, .blob-code-marker {
 I personally love Fira Code, but you can change this to whatever you want as long as the font is
 hosted somewhere.
 
+{% capture before %}
+    {% include article-image.html src="/assets/general/default-github-code-font.webp" alt="Default GitHub font" %}
+{% endcapture %}
+{% capture after %}
+    {% include article-image.html src="/assets/general/custom-github-code-font.webp" alt="Custom GitHub code font" %}
+{% endcapture %}
+
 | Before | After |
 | --- | --- |
-| <img src="/assets/general/default-github-code-font.webp" loading="lazy" width="100%" alt="Default GitHub font"/> | <img src="/assets/general/custom-github-code-font.webp" loading="lazy" width="100%" alt="Custom GitHub code font"/> |
+| {{ before | strip_newlines }} | {{ after | strip_newlines }} |
 
 <hr/>
 
