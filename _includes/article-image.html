@@ -1,12 +1,16 @@
 {% if include.caption %}
+<a href="{{ include.src | absolute_url }}">
   <img class="article-image" src="{{ include.src | absolute_url }}"
        width="{% imagesize include.src:width %}"
        height="{% imagesize include.src:height %}"
        alt="{{ include.alt }}" loading="lazy" />
-  <div class="text-gray"><p class="caption">{{ include.caption }}</p></div>
+</a>
+<div class="text-gray"><p class="caption">{{ include.caption }}</p></div>
 {% else %}
+<a href="{{ include.src | absolute_url }}">
   <img class="article-image" src="{{ include.src | absolute_url }}"
        width="{% imagesize include.src:width %}"
        height="{% imagesize include.src:height %}"
        alt="{{ include.alt }}" loading="lazy" />
+</a>
 {% endif %}
