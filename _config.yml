@@ -1,5 +1,7 @@
 url: https://alexsaveau.dev
 baseurl: ""
+title: Alex Saveau
+author: Alex Saveau
 
 layout: sidebar
 style: light
@@ -32,8 +34,6 @@ defaults:
     type: "posts"
     values:
       layout: "post"
-
-author: "Alex Saveau"
 
 sass:
   style: compressed
