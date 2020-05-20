@@ -65,9 +65,9 @@ surprise! GPP does this for you. It's as simple as running the bootstrap task:
 Sadly, there's a caveat to the `bootstrap` task: the Android Publisher API only returns image
 previews — not all that helpful if you're trying to turn around and republish them:
 
-<iframe src="https://cdn.embedly.com/widgets/media.html?type=text%2Fhtml&amp;key=a19fcc184b9711e1b4764040d3dc5c07&amp;schema=twitter&amp;url=https%3A//twitter.com/supercilex/status/1010028428215513088&amp;image=https%3A//i.embed.ly/1/image%3Furl%3Dhttps%253A%252F%252Fpbs.twimg.com%252Fprofile_images%252F984942813426024451%252FLCKIEkHL_400x400.jpg%26key%3Da19fcc184b9711e1b4764040d3dc5c07" loading="lazy" allowfullscreen="" frameborder="0" width="100%" height="548" title="Alex Saveau on Twitter" scrolling="no"></iframe>
+<iframe src="https://cdn.embedly.com/widgets/media.html?type=text%2Fhtml&amp;key=a19fcc184b9711e1b4764040d3dc5c07&amp;schema=twitter&amp;url=https%3A//twitter.com/supercilex/status/1010028428215513088&amp;image=https%3A//i.embed.ly/1/image%3Furl%3Dhttps%253A%252F%252Fpbs.twimg.com%252Fprofile_images%252F984942813426024451%252FLCKIEkHL_400x400.jpg%26key%3Da19fcc184b9711e1b4764040d3dc5c07" loading="lazy" allowfullscreen="" frameborder="0" width="100%" height="586" title="Alex Saveau on Twitter" scrolling="no"></iframe>
 <p></p>
-<div style="text-align: center" class="text-gray"><p class="caption">Maybe with enough RTs Google will oblige?</p></div>
+<div class="text-gray"><p class="caption">Maybe with enough RTs Google will oblige?</p></div>
 
 So, how do we get around this? There are two solutions:
 
