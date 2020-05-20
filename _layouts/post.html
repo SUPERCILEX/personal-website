@@ -11,6 +11,15 @@ layout: compress
   </div>
 {% endcapture %}
 
+{% assign words_total = post_body | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
+{% assign words_without_code = post_body | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
+{% assign words_without_math = post_body | strip_html | number_of_words %}
+{% assign words_without_either = post_body | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | strip_html | number_of_words %}
+{% assign words_code = words_total | minus: words_without_code | divided_by: 2.0 %}
+{% assign words_math = words_total | minus: words_without_math | times: 2.0 %}
+{% assign words = words_without_either | plus: words_code | plus: words_math | round %}
+{% assign ert = words | divided_by:200 | at_least: 1 %}
+
 {% if site.layout == 'stacked' %}
   <div class="container-lg py-6 p-responsive text-center">
     {% include masthead.html metadata=false %}
@@ -19,7 +28,7 @@ layout: compress
       <p class="f5"><a href="/" class="d-flex flex-items-center">{% octicon chevron-left height:16 class:"mr-2 v-align-middle" fill:#0366d6 aria-label:Home %}Home</a></p>
       <h1 class="f00-light lh-condensed">{{ page.title }}</h1>
       <h2 class="f2-light text-gray lh-condensed">{{ page.subtitle }}</h2>
-      <p class="{% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %} mb-5">Published {{ page.date | date: "%b %d, %Y"}}</p>
+      <p class="{% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %} mb-5">Published {{ page.date | date: "%b %d, %Y"}} &#8226 {{ ert }} min read</p>
       {{ post_body }}
     </div>
   </div>
@@ -36,7 +45,7 @@ layout: compress
             <p class="f5"><a href="{{ site.url }}{{ site.baseurl | append:'/' }}" class="d-flex flex-items-center {% if site.style == 'dark' %}text-white{% endif %}">{% octicon chevron-left height:16 class:"mr-2 v-align-middle" fill:{{ icon_color }} aria-label:Home %}Home</a></p>
             <h1 class="f00-light lh-condensed">{{ page.title }}</h1>
             <h2 class="f2-light text-gray lh-condensed">{{ page.subtitle }}</h2>
-            <p class="{% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %} mb-5">Published {{ page.date | date: "%b %d, %Y"}}</p>
+            <p class="{% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %} mb-5">Published {{ page.date | date: "%b %d, %Y"}} &#8226 {{ ert }} min read</p>
             {{ post_body }}
           </div>
         </div>
