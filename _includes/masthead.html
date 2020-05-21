@@ -1,8 +1,4 @@
-{% if site.layout == 'stacked' %}
-  {% assign metadata_styles = 'd-md-inline-block mx-3 mb-1 mb-md-0' %}
-{% else %}
-  {% assign metadata_styles = 'd-flex flex-items-center mb-3' %}
-{% endif %}
+{% assign metadata_styles = 'd-flex flex-items-center mb-3' %}
 
 <img src="{{ avatar_url }}" loading="lazy" class="circle mb-3" width="150px" height="150px" alt="">
 <h1 class="{% if site.style == 'dark' %}text-white{% endif %} mb-2 lh-condensed">{% if user.name %}{{ user.name }}{% else %}{{ user.login }}{% endif %}</h1>
@@ -35,7 +31,7 @@
       </div>
     {% endif %}
     {% if site.social_media %}
-      <div class="d-flex flex-wrap flex-items-start {% if site.layout == 'stacked' %}flex-justify-center mt-1 mt-md-3{% endif %}">
+      <div class="d-flex flex-wrap flex-items-start">
         {% for account in site.social_media %}
           <div class="{% unless forloop.last == true %}mr-3{% endunless %} mb-3">
             {% assign service_shortname = account[0] %}
