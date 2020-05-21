@@ -29,6 +29,10 @@ body {
   min-height: 100vh;
 }
 
+.icon-color {
+  fill: #24292e !important;
+}
+
 @media (prefers-color-scheme: dark) {
   a {
     color: #599eff !important;

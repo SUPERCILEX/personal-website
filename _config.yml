@@ -68,7 +68,7 @@ social_media:
   stackoverflow: 4548500
   medium: SUPERCILEX
 
-topics:
+skills:
   - name: Android
     web_url: https://github.com/topics/android
     image_url: /assets/android/logo.svg

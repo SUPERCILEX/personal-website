@@ -1,9 +1,9 @@
 <h2 id="skills" class="text-defaults">Skills</h2>
 <p class="f4 mb-4 text-gray">Technologies I'm proficient in.</p>
 <div class="d-flex flex-wrap gutter-condensed mb-4">
-  {% for topic in site.topics %}
+  {% for topic in site.skills %}
     <div class="col-6 col-md-12 col-lg-6 col-xl-4 mb-3">
-      {% include topic-card.html %}
+      {% include skill-card.html %}
     </div>
   {% endfor %}
 </div>

@@ -7,39 +7,23 @@ layout: compress
 {% endcapture %}
 {% include header.html inject=article_styling %}
 
-{% capture post_body %}
-  <div class="article">
-    {{ content }}
-  </div>
-{% endcapture %}
-
-{% assign words_total = post_body | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
-{% assign words_without_code = post_body | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
-{% assign words_without_math = post_body | strip_html | number_of_words %}
-{% assign words_without_either = post_body | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | strip_html | number_of_words %}
+{% assign words_total = content | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
+{% assign words_without_code = content | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
+{% assign words_without_math = content | strip_html | number_of_words %}
+{% assign words_without_either = content | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | strip_html | number_of_words %}
 {% assign words_code = words_total | minus: words_without_code | divided_by: 2.0 %}
 {% assign words_math = words_total | minus: words_without_math | times: 2.0 %}
 {% assign words = words_without_either | plus: words_code | plus: words_math | round %}
 {% assign ert = words | divided_by:200 | at_least: 1 %}
 
-<div class="d-md-flex min-height-full border-md-bottom">
-  <div class="flex-self-stretch border-md-right border-gray-light bg-white col-md-5 col-lg-4 col-xl-3 px-4 px-md-6 px-lg-7 py-6 masthead">
-    {% include masthead.html metadata=true %}
+{% capture post_body %}
+  <h1 class="f00-light lh-condensed text-defaults">{{ page.title }}</h1>
+  <h2 class="f2-light text-gray lh-condensed">{{ page.subtitle }}</h2>
+  <p class="text-gray mb-5">Published {{ page.date | date: "%b %d, %Y"}} &bull; {{ ert }} min read</p>
+  <div class="article">
+    {{ content }}
   </div>
-
-  <div id="article" class="col-md-7 col-lg-8 col-xl-9 px-4 py-6 px-lg-7 border-top border-md-top-0 bg-gray-light">
-    <div class="mx-auto" style="max-width: 900px;">
-      <div class="f4 mb-6">
-        <div class="f4 scoped-text-defaults">
-          <p class="f5"><a href="{{ site.url }}{{ site.baseurl | append:'/' }}" class="d-flex flex-items-center text-defaults">{% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:Home %}Home</a></p>
-          <h1 class="f00-light lh-condensed text-defaults">{{ page.title }}</h1>
-          <h2 class="f2-light text-gray lh-condensed">{{ page.subtitle }}</h2>
-          <p class="text-gray mb-5">Published {{ page.date | date: "%b %d, %Y"}} &bull; {{ ert }} min read</p>
-          {{ post_body }}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{% endcapture %}
+{% include article-container.html content=post_body %}
 
 {% include footer.html %}

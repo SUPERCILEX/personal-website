@@ -10,7 +10,7 @@
   <div class="f4 mb-6">
     {% if user.name %}
       <div class="{{ metadata_styles }}">
-        {% octicon mark-github height:20 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:GitHub %}
+        {% octicon mark-github height:20 class:"mr-2 v-align-middle icon-color" aria-label:GitHub %}
         <a href="https://github.com/{{ user.login }}">
           @{{ user.login }}
         </a>
@@ -18,7 +18,7 @@
     {% endif %}
     {% if user.email %}
       <div class="{{ metadata_styles }}">
-        {% octicon mail height:20 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:email %}
+        {% octicon mail height:20 class:"mr-2 v-align-middle icon-color" aria-label:email %}
         <a href="mailto:{{ user.email }}">
           {{ user.email }}
         </a>
@@ -26,7 +26,7 @@
     {% endif %}
     {% if user.location %}
       <div class="{{ metadata_styles }}">
-        {% octicon location height:20 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:Location %}
+        {% octicon location height:20 class:"mr-2 v-align-middle icon-color" aria-label:Location %}
         {{ user.location }}
       </div>
     {% endif %}
