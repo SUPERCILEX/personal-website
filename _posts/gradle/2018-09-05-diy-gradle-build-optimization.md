@@ -96,7 +96,9 @@ thought it did.
 ### Project stats
 
 To give you a better idea of how your build should be performing compared to mine, here are the
+<div data-proofer-ignore>
 [stats for my test project](https://api.codetabs.com/v1/loc?github=SUPERCILEX/Robot-Scouter).
+</div>
 (~15 modules and ~20,000 lines of Android related code as of this writing.)
 
 <div class="slim-title">

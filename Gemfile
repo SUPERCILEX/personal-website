@@ -21,4 +21,6 @@ gem "jekyll-feed"
 gem "jekyll-image-size"
 gem "jekyll-last-modified-at"
 gem "jekyll-sitemap"
+
+gem "html-proofer"
 gem 'dotenv-rails', groups: [:development, :test]

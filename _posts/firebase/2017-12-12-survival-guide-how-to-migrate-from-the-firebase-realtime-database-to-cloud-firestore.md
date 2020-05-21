@@ -554,7 +554,7 @@ Here's what the simplest possible set of rules looks like:
 <div style="text-align: center" class="text-gray"><p class="gist-caption">Hmmm, boilerplate anyone?</p></div>
 
 Google actually has surprisingly good
-[documentation on security rules](https://firebase.google.com/docs/firestore/security/secure-data) —
+[documentation on security rules](https://firebase.google.com/docs/firestore/security/get-started) —
 I've personally been able to solve nearly all of my problems just by reading the docs. I will still
 go over a few gotchas from the RTDB developer's point of view (assuming you've at least skimmed the
 docs).

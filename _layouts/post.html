@@ -2,8 +2,10 @@
 layout: compress
 ---
 
-{% include header.html %}
-{% include article-styling.html %}
+{% capture article_styling %}
+  {% include article-styling.html %}
+{% endcapture %}
+{% include header.html inject=article_styling %}
 
 {% capture post_body %}
   <div class="article">
@@ -32,7 +34,7 @@ layout: compress
           <p class="f5"><a href="{{ site.url }}{{ site.baseurl | append:'/' }}" class="d-flex flex-items-center text-defaults">{% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:Home %}Home</a></p>
           <h1 class="f00-light lh-condensed text-defaults">{{ page.title }}</h1>
           <h2 class="f2-light text-gray lh-condensed">{{ page.subtitle }}</h2>
-          <p class="text-gray mb-5">Published {{ page.date | date: "%b %d, %Y"}} &#8226 {{ ert }} min read</p>
+          <p class="text-gray mb-5">Published {{ page.date | date: "%b %d, %Y"}} &bull; {{ ert }} min read</p>
           {{ post_body }}
         </div>
       </div>

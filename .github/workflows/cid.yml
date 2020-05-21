@@ -1,0 +1,32 @@
+name: CI/CD
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Ruby
+        uses: actions/setup-ruby@v1
+      - name: Gem Cache
+        uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Prep site
+        run: |
+          bundle config path vendor/bundle
+          bundle install
+          touch resume/AlexSaveau.pdf
+      - name: Validate HTML
+        run: |
+          bundle exec jekyll build
+          bundle exec jekyll serve --no-watch --detach --skip-initial-build
+          bundle exec htmlproofer --assume-extension \
+            --check-html --check-favicon --check-opengraph \
+            --report-eof-tags --report-mismatched-tags --report-invalid-tags --report-missing-names \
+            ./_site
