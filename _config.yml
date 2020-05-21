@@ -25,6 +25,8 @@ plugins:
   - jekyll-get-json
   - jekyll-feed
   - jekyll-image-size
+  - jekyll-last-modified-at
+  - jekyll-sitemap
 
 permalink: /:year/:month/:day/:title/
 

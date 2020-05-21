@@ -19,4 +19,6 @@ gem "jemoji"
 gem "jekyll-get-json"
 gem "jekyll-feed"
 gem "jekyll-image-size"
+gem "jekyll-last-modified-at"
+gem "jekyll-sitemap"
 gem 'dotenv-rails', groups: [:development, :test]
