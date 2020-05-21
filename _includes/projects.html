@@ -1,5 +1,5 @@
-<h2 id="projects" {% if site.style == 'dark' %}class="text-white"{% endif %}>Projects</h2>
-<p class="f4 mb-4 {% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %}">GitHub repositories I've built.</p>
+<h2 id="projects" class="text-defaults">Projects</h2>
+<p class="f4 mb-4 text-gray">GitHub repositories I've built.</p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   {% if site.projects.sort_by == 'stars' %}
     {% assign sort_order = 'stargazers_count', 'last' %}
@@ -25,7 +25,7 @@
     {% endunless %}
   {% endfor %}
 </div>
-<p class="f4 mb-4 {% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %}">GitHub repositories I've helped build.</p>
+<p class="f4 mb-4 text-gray">GitHub repositories I've helped build.</p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   {% for data in site.data %}
     {% for repository in data %}

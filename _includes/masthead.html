@@ -1,8 +1,8 @@
-{% assign metadata_styles = 'd-flex flex-items-center mb-3' %}
+{% assign metadata_styles = 'd-flex flex-items-center mb-3 text-defaults' %}
 
 <img src="{{ avatar_url }}" loading="lazy" class="circle mb-3" width="150px" height="150px" alt="">
-<h1 class="{% if site.style == 'dark' %}text-white{% endif %} mb-2 lh-condensed">{% if user.name %}{{ user.name }}{% else %}{{ user.login }}{% endif %}</h1>
-<p class="mb-3 f4 {% if site.style == 'dark' %}text-white{% else %}text-gray{% endif %}">
+<h1 class="mb-2 lh-condensed text-defaults">{% if user.name %}{{ user.name }}{% else %}{{ user.login }}{% endif %}</h1>
+<p class="mb-3 f4 text-gray">
   {{ user.bio }}
 </p>
 
@@ -10,23 +10,23 @@
   <div class="f4 mb-6">
     {% if user.name %}
       <div class="{{ metadata_styles }}">
-        {% octicon mark-github height:20 class:"mr-2 v-align-middle" fill:{{ icon_color }} aria-label:GitHub %}
-        <a href="https://github.com/{{ user.login }}" {% if site.style == 'dark' %}class="text-white"{% endif %}>
+        {% octicon mark-github height:20 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:GitHub %}
+        <a href="https://github.com/{{ user.login }}">
           @{{ user.login }}
         </a>
       </div>
     {% endif %}
     {% if user.email %}
       <div class="{{ metadata_styles }}">
-        {% octicon mail height:20 class:"mr-2 v-align-middle" fill:{{ icon_color }} aria-label:email %}
-        <a href="mailto:{{ user.email }}" {% if site.style == 'dark' %}class="text-white"{% endif %}>
+        {% octicon mail height:20 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:email %}
+        <a href="mailto:{{ user.email }}">
           {{ user.email }}
         </a>
       </div>
     {% endif %}
     {% if user.location %}
-      <div class="{{ metadata_styles }} {% if site.style == 'dark' %}text-white{% endif %}">
-        {% octicon location height:20 class:"mr-2 v-align-middle" fill:{{ icon_color }} aria-label:Location %}
+      <div class="{{ metadata_styles }}">
+        {% octicon location height:20 class:"mr-2 v-align-middle icon-color" fill:{{ icon_color }} aria-label:Location %}
         {{ user.location }}
       </div>
     {% endif %}

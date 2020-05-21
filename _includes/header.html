@@ -1,8 +1,4 @@
-{% if site.style == 'dark' %}
-  {% assign icon_color = "#ffffff" %}
-{% else %}
-  {% assign icon_color = "#24292e" %}
-{% endif %}
+{% assign icon_color = "#24292e" %}
 
 {% assign content = page.content %}
 
@@ -45,4 +41,4 @@
     {{ styles | scssify }}
   </style>
 
-  <body class="bg-white min-height-full" {% if site.style == 'dark' %}style="background-color: #2f363d !important"{% endif %}>
+  <body class="min-height-full">

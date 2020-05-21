@@ -88,3 +88,37 @@
     margin-bottom: 0px;
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  .article {
+    .caption {
+      color: #dadada !important;
+    }
+
+    p {
+      color: #ededed !important;
+    }
+
+    blockquote {
+      * {
+        color: #dadada !important;
+      }
+    }
+
+    code {
+      background-color: rgba(255,255,255,0.15) !important;
+    }
+
+  div {
+    pre {
+      code {
+        background-color: transparent !important;
+      }
+    }
+  }
+
+    img:not([src*=".svg"]) {
+      filter: grayscale(25%) brightness(0.9);
+    }
+  }
+}

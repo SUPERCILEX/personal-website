@@ -28,3 +28,54 @@ body {
 .min-height-full {
   min-height: 100vh;
 }
+
+@media (prefers-color-scheme: dark) {
+  a {
+    color: #599eff !important;
+  }
+
+  .bg-white {
+    background-color: #4f565d !important;
+  }
+
+  .bg-gray-light {
+    background-color: #2f363d !important;
+  }
+
+  .border-gray-light {
+    border-color: transparent !important;
+  }
+
+  .text-gray, .link-gray, .link-gray:hover {
+    color: #d0d8e1 !important;
+  }
+
+  .link-gray-dark {
+    color: #fff !important;
+  }
+
+  .link-gray-dark:hover {
+    color: #599eff !important;
+  }
+
+  .border, .border-md-bottom {
+    border: none !important;
+  }
+
+  .masthead {
+    background-color: #24292e !important;
+  }
+
+  .text-defaults {
+    color: #fff !important;
+    * { color: #fff !important; }
+  }
+
+  .scoped-text-defaults {
+    color: #fff !important;
+  }
+
+  .icon-color {
+    fill: #fff !important;
+  }
+}
