@@ -26,6 +26,14 @@ jobs:
         run: |
           curl --fail --output resume/AlexSaveau.pdf \
             --url https://docs.google.com/document/d/11sHvpwRaWoafEr2k8w5uXaJB0_VuMCtSxQNsErnpet0/export?format=pdf
+      - name: Hack timestamps
+        run: |
+          # The jekyll-last-modified-at plugin uses Git history to determine when stuff has been
+          # updated. This works fine for blog posts, but not for fully templated pages that change
+          # when other pages change.
+          echo >> index.md
+          echo >> blog/index.md
+          git -c "user.name=Hacker" -c "user.email=boo@hack.com" commit -am "Timestamp hack"
       - name: Build and deploy
         uses: helaili/jekyll-action@2.0.2
         env:
