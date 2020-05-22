@@ -86,7 +86,6 @@ jekyll_get_json:
 social_media:
   twitter: SUPERCILEX
   stackoverflow: 4548500
-  medium: SUPERCILEX
 
 skills:
   - name: Android
