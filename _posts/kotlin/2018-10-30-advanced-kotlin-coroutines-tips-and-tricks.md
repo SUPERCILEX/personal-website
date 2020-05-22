@@ -1,6 +1,7 @@
 ---
 title: Advanced Kotlin Coroutines tips and tricks
 subtitle: Learn about a few snags and how to get around them
+image: /assets/kotlin/kotlin-banner.webp
 ---
 
 {% include article-image.html src="/assets/kotlin/kotlin-banner.webp" alt="Kotlin Banner" caption="Coroutines are stable as of 1.3!" %}

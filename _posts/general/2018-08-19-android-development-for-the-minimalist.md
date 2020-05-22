@@ -1,5 +1,6 @@
 ---
 title: Android development for the Minimalist
+image: /assets/general/minimalism.webp
 ---
 
 {% include article-image.html src="/assets/general/minimalism.webp" alt="Abstract Minimalism" caption="Focus" %}

@@ -1,7 +1,17 @@
 url: https://alexsaveau.dev
 baseurl: ""
 title: Alex Saveau
-author: Alex Saveau
+author:
+  name: Alex Saveau
+  twitter: SUPERCILEX
+twitter:
+  username: SUPERCILEX
+social:
+  name: Alex Saveau
+  links:
+    - https://github.com/SUPERCILEX/
+    - https://twitter.com/SUPERCILEX
+    - https://stackoverflow.com/users/4548500/supercilex
 
 layout: sidebar
 style: light
@@ -27,15 +37,21 @@ plugins:
   - jekyll-image-size
   - jekyll-last-modified-at
   - jekyll-sitemap
+  - jekyll-seo-tag
 
 permalink: /:year/:month/:day/:title/
 
 defaults:
   - scope:
-      path: "" # an empty string here means all files in the project
+      path: ""
       type: "posts"
     values:
       layout: "post"
+  - scope:
+      path: ""
+    values:
+      image: /assets/me.webp
+      logo: /assets/me.webp
   - scope:
       path: "google1cff0bc53ad1c64c.html"
     values:

@@ -1,5 +1,6 @@
 ---
 title: Version and automate your Play Store listings with Gradle Play Publisher v2.0
+image: /assets/gradle/gpp.webp
 ---
 
 {% include article-image.html src="/assets/gradle/gpp.webp" alt="Gradle Play Publisher Logo" caption="Android App Bundles, Gradle cache and incremental compilation, version conflict resolution strategies, massive API improvements, and everything in between now available in v2.0" %}

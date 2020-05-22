@@ -3,33 +3,20 @@
 {% assign posts_total = site.posts | size %}
 
 {% assign user = site.github.owner %}
-{% assign avatar_url = '/assets/me.webp' | absolute_url %}
-
-{% if page.path contains '_posts' %}
-  {% assign page_title = page.title %}
-  {% assign meta_description = page.content | strip_html | strip_newlines | xml_escape | truncate: 300 %}
-{% else %}
-  {% assign page_title = user.name %}
-  {% assign meta_description = user.bio | strip_html | strip_newlines | xml_escape | truncate: 300 %}
-{% endif %}
 
 <!doctype html>
 <html class="min-height-full" lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{{ page_title }}</title>
-    <meta name="description" content="{{ meta_description }}" />
-    {% if page.path contains '_posts' %}
-    <meta property="og:type" content="article" />
-    {% endif %}
-    <meta property="og:url" content="{{ page.url | absolute_url }}" />
-    <meta property="og:title" content="{{ page_title }}" />
-    <meta property="og:image" content="{{ avatar_url }}" />
-    <meta property="og:description" content="{{ meta_description }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" href="{{ '/favicon.ico' | absolute_url }}" type="image/x-icon">
 
     {% feed_meta %}
+
+    {% capture seo_tags %}
+      {% seo %}
+    {% endcapture %}
+    {{ seo_tags | replace: 'DESCRIPTION_MARKER', user.bio }}
 
     <script async src="https://www.google-analytics.com/analytics.js"></script>
     <script>
