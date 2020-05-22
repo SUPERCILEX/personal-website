@@ -22,12 +22,57 @@ jobs:
           bundle config path vendor/bundle
           bundle install
           touch resume/AlexSaveau.pdf
+          echo "url: http://localhost:4000" > _config_ci.yml
       - name: Validate HTML
         run: |
-          bundle exec jekyll build
+          bundle exec jekyll build --config _config.yml,_config_ci.yml
           bundle exec jekyll serve --no-watch --detach --skip-initial-build
           bundle exec htmlproofer --assume-extension \
             --check-html --check-favicon --check-opengraph \
             --report-eof-tags --report-mismatched-tags --report-invalid-tags --report-missing-names \
             --file-ignore ./_site/google1cff0bc53ad1c64c.html \
             ./_site
+      - name: Upload site
+        uses: actions/upload-artifact@v1
+        with:
+          name: site
+          path: _site
+
+  perf:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install Ruby
+        uses: actions/setup-ruby@v1
+      - name: Gem Cache
+        uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Download site
+        uses: actions/download-artifact@v1
+        with:
+          name: site
+          path: ./_site
+      - name: Prep
+        run: |
+          bundle config path vendor/bundle
+          bundle install
+          npm install -g @lhci/cli@0.4.x
+
+          # Remove blank HTML files that will crash lighthouse
+          rm _site/resume/index.html
+      - name: Run Lighthouse
+        run: |
+          bundle exec jekyll serve --no-watch --detach --skip-initial-build
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
