@@ -1,6 +1,7 @@
 ---
 title: Customize GitHub's code font
 subtitle: 😋 code reviews
+categories: [Tips, GitHub]
 ---
 
 It occurred to me yesterday that I've spent way too much time nitpicking over my IDE's font, but
