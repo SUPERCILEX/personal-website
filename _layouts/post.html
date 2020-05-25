@@ -30,9 +30,8 @@ layout: compress
   const article = document.querySelector('#article');
   const progressBar = document.querySelector('#progress-bar');
   document.addEventListener('scroll', _ => {
-    const rootElement = document.documentElement;
-    const articleScroll = rootElement.scrollTop - article.offsetTop;
-    const height = rootElement.scrollHeight - rootElement.clientHeight - article.offsetTop;
+    const articleScroll = pageYOffset - article.offsetTop;
+    const height = document.documentElement.scrollHeight - innerHeight - article.offsetTop;
     const readPercent = articleScroll / height * 100;
 
     if (readPercent > 0) {
