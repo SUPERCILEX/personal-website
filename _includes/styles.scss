@@ -38,6 +38,13 @@ hr {
   fill: #24292e !important;
 }
 
+@media (min-width: 768px) {
+  #masthead {
+    position: fixed;
+    width: min-content;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: black;
