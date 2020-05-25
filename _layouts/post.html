@@ -26,4 +26,20 @@ layout: compress
 {% endcapture %}
 {% include article-container.html content=post_body %}
 
+<script>
+  const article = document.querySelector('#article');
+  const progressBar = document.querySelector('#progress-bar');
+  document.addEventListener('scroll', _ => {
+    const rootElement = document.documentElement;
+    const articleScroll = rootElement.scrollTop - article.offsetTop;
+    const height = rootElement.scrollHeight - rootElement.clientHeight - article.offsetTop;
+    const readPercent = articleScroll / height * 100;
+
+    if (readPercent > 0) {
+      progressBar.style.setProperty('--progress', `${readPercent}%`);
+    } else {
+      progressBar.style.setProperty('--progress', '0%');
+    }
+  })
+</script>
 {% include footer.html %}

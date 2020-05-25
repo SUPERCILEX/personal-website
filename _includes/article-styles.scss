@@ -1,5 +1,9 @@
 @import '../_sass/highlight-syntax';
 
+:root {
+  --progress-color: gray;
+}
+
 .article {
   font-family: medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,"Noto Color Emoji",serif;
 
@@ -89,7 +93,21 @@
   }
 }
 
+#progress-bar {
+  background: linear-gradient(to right, var(--progress-color) var(--progress), transparent 0);
+  top: 0;
+  border-radius: 1.5px;
+  position: sticky;
+  overflow: hidden;
+  width: 100%;
+  z-index: 1;
+}
+
 @media (prefers-color-scheme: dark) {
+  :root {
+    --progress-color: whitesmoke;
+  }
+
   .article {
     .caption {
       color: #dadada !important;

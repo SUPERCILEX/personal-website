@@ -3,12 +3,15 @@
     {% include masthead.html metadata=true %}
   </div>
 
-  <div id="article" class="col-md-7 col-lg-8 col-xl-9 px-4 py-6 px-lg-7 border-top border-md-top-0 bg-gray-light">
-    <div class="mx-auto" style="max-width: 900px;">
-      <div class="f4 mb-6">
-        <div class="f4 scoped-text-defaults">
-          <p class="f5"><a href="{{ site.url }}{{ site.baseurl | append:'/' }}" class="d-flex flex-items-center text-defaults">{% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" aria-label:Home %}Home</a></p>
-          {{ include.content }}
+  <div id="article" class="col-md-7 col-lg-8 col-xl-9 px-lg-7 border-top border-md-top-0 bg-gray-light">
+    <div id="progress-bar" style="height: 3px;"></div>
+    <div class="px-4 py-6" style="margin-top: -3px;">
+      <div class="mx-auto" style="max-width: 900px;">
+        <div class="f4 mb-6">
+          <div class="f4 scoped-text-defaults">
+            <p class="f5"><a href="{{ site.url }}{{ site.baseurl | append:'/' }}" class="d-flex flex-items-center text-defaults">{% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" aria-label:Home %}Home</a></p>
+            {{ include.content }}
+          </div>
         </div>
       </div>
     </div>
