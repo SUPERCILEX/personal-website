@@ -39,6 +39,10 @@ hr {
 }
 
 @media (prefers-color-scheme: dark) {
+  body {
+    background-color: black;
+  }
+
   a {
     color: #599eff !important;
   }
