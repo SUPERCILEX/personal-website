@@ -2,10 +2,16 @@
 
 :root {
   --progress-color: gray;
+  --blockquote-color: #6a737d;
+  --blockquote-boarder-color: #959da5;
+  --code-background-color: rgba(0, 0, 0, 0.05);
+
+  --body-font-family: medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,"Noto Color Emoji",serif;
+  --heading-font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Noto Color Emoji";
 }
 
 .article {
-  font-family: medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,"Noto Color Emoji",serif;
+  font-family: var(--body-font-family);
 
   .highlight {
     background-color: rgba(0, 0, 0, 0.05);
@@ -24,14 +30,18 @@
   }
   .slim-title {
     h1, h2, h3, h4 {
-      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Noto Color Emoji";
+      font-family: var(--heading-font-family);
       margin: 0;
     }
   }
 
   h1, h2, h3, h4 {
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Noto Color Emoji";
+    font-family: var(--heading-font-family);
     margin: 1.5em 0 -0.5em;
+  }
+
+  th {
+    font-family: var(--heading-font-family);
   }
 
   h1 { code { font-size: 28px } }
@@ -58,15 +68,18 @@
   code {
     font-family: "Fira Code", monospace;
     font-size: 14px;
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--code-background-color);
     padding: 2px 4px;
   }
 
   blockquote {
-    color: #6a737d;
-    border-left: 2px solid #959da5;
+    border-left: 2px solid var(--blockquote-boarder-color);
     padding-left: 16px;
     margin-bottom: 16px;
+
+    *:not(a) {
+      color: var(--blockquote-color);
+    }
   }
 
   div {
@@ -106,34 +119,19 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --progress-color: whitesmoke;
+    --blockquote-color: #dadada;
+    --blockquote-boarder-color: #dadada;
+    --code-background-color: rgba(255,255,255,0.15);
   }
 
   .article {
-    .caption {
-      color: #dadada !important;
+    .caption, .gist-caption {
+      color: #dadada;
     }
 
     p {
-      color: #ededed !important;
+      color: #ededed;
     }
-
-    blockquote {
-      * {
-        color: #dadada !important;
-      }
-    }
-
-    code {
-      background-color: rgba(255,255,255,0.15) !important;
-    }
-
-  div {
-    pre {
-      code {
-        background-color: transparent !important;
-      }
-    }
-  }
 
     img:not([src*=".svg"]) {
       filter: grayscale(25%) brightness(0.9);
