@@ -17,8 +17,8 @@ layout: compress
 {% assign ert = words | divided_by:200 | at_least: 1 %}
 
 {% capture post_body %}
-  <h1 class="f00-light lh-condensed text-defaults">{{ page.title }}</h1>
-  <h2 class="f2-light text-gray lh-condensed">{{ page.subtitle }}</h2>
+  <h1 class="f00-light lh-condensed text-defaults" style="font-weight: 600 !important;">{{ page.title }}</h1>
+  <h2 class="f2-light text-gray lh-condensed" style="font-weight: 400 !important;">{{ page.subtitle }}</h2>
   <p class="text-gray mb-5">Published {{ page.date | date: "%b %d, %Y"}} &bull; Last updated {{ page.last_modified_at | date: "%b %d, %Y" }} &bull; {{ ert }} min read</p>
   <div class="article">
     {{ content }}
