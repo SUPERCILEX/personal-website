@@ -7,7 +7,7 @@ categories: [Tips, GitHub]
 It occurred to me yesterday that I've spent way too much time nitpicking over my IDE's font, but
 then come time for code reviews... not a ligature in sight. Here's a quick guide to change that.
 
-## Perquisites
+## Prerequisites
 
 Install [Refined GitHub](https://github.com/sindresorhus/refined-github#install). It's probably a
 sin at this point to not use that extension. 😉
