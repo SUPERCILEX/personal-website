@@ -39,6 +39,7 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-redirect-from
+  - jekyll-archives
 
 defaults:
   - scope:
@@ -103,3 +104,17 @@ skills:
   - name: Firebase
     web_url: https://github.com/topics/firebase
     image_url: /assets/firebase/logo.svg
+
+jekyll-archives:
+  enabled: all
+  layout: posts
+  layouts:
+    year: posts-year
+    month: posts-month
+    day: posts-day
+  permalinks:
+    year: '/blog/:year/'
+    month: '/blog/:year/:month/'
+    day: '/blog/:year/:month/:day/'
+    tag: '/blog/:name/'
+    category: '/blog/:name/'
