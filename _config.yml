@@ -38,6 +38,7 @@ plugins:
   - jekyll-last-modified-at
   - jekyll-sitemap
   - jekyll-seo-tag
+  - jekyll-redirect-from
 
 defaults:
   - scope:

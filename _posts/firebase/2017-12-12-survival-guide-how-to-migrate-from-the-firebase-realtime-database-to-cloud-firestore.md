@@ -2,6 +2,8 @@
 title: "Survival guide: how to migrate from the Firebase Realtime Database to Cloud Firestore"
 image: /assets/firebase/firestore-banner.webp
 categories: [Firebase, Android]
+redirect_from:
+  - /blog/rtdb-to-firestore/
 ---
 
 {% include article-image.html src="/assets/firebase/firestore-banner.webp" alt="Firestore Banner" caption="The long-awaited database revamp is here!" %}

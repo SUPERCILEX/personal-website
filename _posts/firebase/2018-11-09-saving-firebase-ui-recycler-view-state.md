@@ -2,6 +2,8 @@
 title: Saving FirebaseUI RecyclerView state
 subtitle: Hot starts, cold starts, and even process deaths — your state is always restored
 categories: [Firebase, Android]
+redirect_from:
+  - /blog/fui-rv-state/
 ---
 
 FirebaseUI's database libraries are a great way to quickly and seamlessly bind data to the UI.

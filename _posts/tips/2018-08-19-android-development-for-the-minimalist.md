@@ -2,6 +2,8 @@
 title: Android development for the Minimalist
 image: /assets/general/minimalism.webp
 categories: [Tips, Android]
+redirect_from:
+  - /blog/anddev-minimalism/
 ---
 
 {% include article-image.html src="/assets/general/minimalism.webp" alt="Abstract Minimalism" caption="Focus" %}

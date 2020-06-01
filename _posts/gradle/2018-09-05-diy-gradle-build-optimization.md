@@ -3,6 +3,8 @@ title: DIY Gradle build optimization
 subtitle: The definitive guide to Gradle build performance optimization
 image: /assets/gradle/abstract-build.webp
 categories: [Gradle, Performance]
+redirect_from:
+  - /blog/gradle-perf/
 ---
 
 {% include article-image.html src="/assets/gradle/abstract-build.webp" alt="Abstract Gradle Builds" caption='Beautiful builds. Source: <a href="https://gradle.com">gradle.com</a>' %}
