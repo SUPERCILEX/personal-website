@@ -1,13 +1,17 @@
 @import '../_sass/external';
 
+:root {
+  --hr-color: gray;
+}
+
 body {
   font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Noto Color Emoji;
 }
 
 hr {
-  border: 1.5px solid gray;
+  border: 1.5px solid var(--hr-color);
   border-radius: 1.5px;
-  background-color: gray;
+  background-color: var(--hr-color);
 }
 
 // If a user adds a custom font, this component will stop it from bleeding into GitHub components:
@@ -47,6 +51,10 @@ hr {
 }
 
 @media (prefers-color-scheme: dark) {
+  :root {
+    --hr-color: whitesmoke;
+  }
+
   body {
     background-color: black;
   }
