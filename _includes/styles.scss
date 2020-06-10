@@ -5,8 +5,9 @@ body {
 }
 
 hr {
-  border: 1px solid gray;
-  border-radius: 1px;
+  border: 1.5px solid gray;
+  border-radius: 1.5px;
+  background-color: gray;
 }
 
 // If a user adds a custom font, this component will stop it from bleeding into GitHub components:
