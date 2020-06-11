@@ -27,6 +27,10 @@ layout: compress
 {% include article-container.html content=post_body %}
 
 <script>
+  if (!location.hash) {
+    location.replace('#article');
+  }
+
   const article = document.querySelector('#article');
   const progressBar = document.querySelector('#progress-bar');
   document.addEventListener('scroll', _ => {
