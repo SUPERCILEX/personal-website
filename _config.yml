@@ -125,3 +125,6 @@ webp:
   img_dir: ["/assets/"]
   nested: true
   webp_path: '/bin/linux-x64-cwebp'
+
+compress_html:
+  comments: "all"
