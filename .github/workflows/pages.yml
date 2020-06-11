@@ -37,7 +37,7 @@ jobs:
           echo >> blog/index.md
           git -c "user.name=Hacker" -c "user.email=boo@hack.com" commit -am "Timestamp hack"
       - name: Build and deploy
-        run: ./deploy_pages.sh
+        run: .build/deploy_pages.sh
         env:
           JEKYLL_PAT: ${{ secrets.USER_TOKEN }}
           JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
