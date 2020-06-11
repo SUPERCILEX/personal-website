@@ -28,7 +28,7 @@ Running a daily CRON job is ridiculously easy to do: simply create a
 (`0 3 * * *`) that publishes an empty data payload (`{}`) to a topic of your choice (`daily-tick`).
 It'll look something like this:
 
-{% include article-image.html src="/assets/firebase/daily-tick.webp" alt="GCP Scheduler Daily Tick" caption="This tick is completely free!" %}
+{% include article-image.html src="/assets/firebase/daily-tick.png" alt="GCP Scheduler Daily Tick" caption="This tick is completely free!" %}
 
 In your functions' index file, subscribe to the `daily-tick` pubsub event and you're good to go.
 

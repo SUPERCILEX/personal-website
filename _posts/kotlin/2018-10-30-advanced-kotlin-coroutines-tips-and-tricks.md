@@ -1,13 +1,13 @@
 ---
 title: Advanced Kotlin Coroutines tips and tricks
 subtitle: Learn about a few snags and how to get around them
-image: /assets/kotlin/kotlin-banner.webp
+image: /assets/kotlin/kotlin-banner.png
 categories: [Kotlin, Android]
 redirect_from:
   - /blog/advanced-coroutines/
 ---
 
-{% include article-image.html src="/assets/kotlin/kotlin-banner.webp" alt="Kotlin Banner" caption="Coroutines are stable as of 1.3!" %}
+{% include article-image.html src="/assets/kotlin/kotlin-banner.png" alt="Kotlin Banner" caption="Coroutines are stable as of 1.3!" %}
 
 Kotlin Coroutines starts off incredibly simple: just put some long running operation in `launch` and
 you're good, right? For simple cases, sure. But pretty soon, the complexity inherent to concurrency

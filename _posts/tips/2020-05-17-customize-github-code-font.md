@@ -35,10 +35,10 @@ I personally love Fira Code, but you can change this to whatever you want as lon
 hosted somewhere.
 
 {% capture before %}
-    {% include article-image.html src="/assets/general/default-github-code-font.webp" alt="Default GitHub font" %}
+    {% include article-image.html src="/assets/general/default-github-code-font.png" alt="Default GitHub font" %}
 {% endcapture %}
 {% capture after %}
-    {% include article-image.html src="/assets/general/custom-github-code-font.webp" alt="Custom GitHub code font" %}
+    {% include article-image.html src="/assets/general/custom-github-code-font.png" alt="Custom GitHub code font" %}
 {% endcapture %}
 
 | Before | After |

@@ -1,12 +1,12 @@
 ---
 title: Android development for the Minimalist
-image: /assets/general/minimalism.webp
+image: /assets/general/minimalism.jpeg
 categories: [Tips, Android]
 redirect_from:
   - /blog/anddev-minimalism/
 ---
 
-{% include article-image.html src="/assets/general/minimalism.webp" alt="Abstract Minimalism" caption="Focus" %}
+{% include article-image.html src="/assets/general/minimalism.jpeg" alt="Abstract Minimalism" caption="Focus" %}
 
 What does your workspace look like? Do you have dozens of Chrome tabs crammed in a single window? Is
 your desktop splattered with icons left and right? Is your editor desperately fighting for space
@@ -38,7 +38,7 @@ always available in the state you left them in, regardless of how your computer 
 > Organizational tip: use two virtual desktops. One for personal stuff like social media and
 vacation planning. Another for work related stuff like IntelliJ and Stack Overflow.
 
-{% include article-image.html src="/assets/general/minimalism-article-screenshot.webp" alt="Screenshot of this article" caption="Me writing this article — Chrome steals the show" %}
+{% include article-image.html src="/assets/general/minimalism-article-screenshot.png" alt="Screenshot of this article" caption="Me writing this article — Chrome steals the show" %}
 
 ## Decluttering the editor
 
@@ -63,11 +63,11 @@ toolbar hidden when editing a Google Doc. Similar improvements can be made for I
 
 ### Before
 
-{% include article-image.html src="/assets/general/minimalism-cluttered.webp" alt="Cluttered IDE" caption="Painfully cluttered" %}
+{% include article-image.html src="/assets/general/minimalism-cluttered.png" alt="Cluttered IDE" caption="Painfully cluttered" %}
 
 ### After
 
-{% include article-image.html src="/assets/general/minimalism-clean.webp" alt="Minimalist IDE" caption="Just you and code" %}
+{% include article-image.html src="/assets/general/minimalism-clean.png" alt="Minimalist IDE" caption="Just you and code" %}
 
 If you're feeling truly adventurous, hide the project view. 😉
 

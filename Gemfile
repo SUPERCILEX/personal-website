@@ -24,6 +24,7 @@ gem "jekyll-sitemap"
 gem "jekyll-seo-tag"
 gem "jekyll-redirect-from"
 gem "jekyll-archives"
+gem "jekyll-webp"
 
 gem "html-proofer"
 gem 'dotenv-rails', groups: [:development, :test]

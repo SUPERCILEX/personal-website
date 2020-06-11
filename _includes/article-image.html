@@ -1,16 +1,9 @@
+{% capture width %}{% imagesize include.src:width %}{% endcapture %}
+{% capture height %}{% imagesize include.src:height %}{% endcapture %}
+
 {% if include.caption %}
-  <a href="{{ include.src | absolute_url }}">
-    <img class="article-image" src="{{ include.src | absolute_url }}"
-         width="{% imagesize include.src:width %}"
-         height="{% imagesize include.src:height %}"
-         alt="{{ include.alt }}" loading="lazy" />
-  </a>
+  {% include image.html src=include.src href=include.src class="article-image" width=width height=height alt=include.alt %}
   <div class="text-gray"><p class="caption">{{ include.caption }}</p></div>
 {% else %}
-  <a href="{{ include.src | absolute_url }}">
-    <img class="article-image" src="{{ include.src | absolute_url }}"
-         width="{% imagesize include.src:width %}"
-         height="{% imagesize include.src:height %}"
-         alt="{{ include.alt }}" loading="lazy" />
-  </a>
+  {% include image.html src=include.src href=include.src class="article-image" width=width height=height alt=include.alt %}
 {% endif %}

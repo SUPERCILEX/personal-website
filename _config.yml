@@ -40,6 +40,7 @@ plugins:
   - jekyll-seo-tag
   - jekyll-redirect-from
   - jekyll-archives
+  - jekyll-webp
 
 defaults:
   - scope:
@@ -51,8 +52,8 @@ defaults:
   - scope:
       path: ""
     values:
-      image: /assets/me.webp
-      logo: /assets/me.webp
+      image: /assets/me.png
+      logo: /assets/me.png
   - scope:
       path: "google1cff0bc53ad1c64c.html"
     values:
@@ -118,3 +119,9 @@ jekyll-archives:
     day: '/blog/:year/:month/:day/'
     tag: '/blog/:name/'
     category: '/blog/:name/'
+
+webp:
+  enabled: true
+  img_dir: ["/assets/"]
+  nested: true
+  webp_path: '/bin/linux-x64-cwebp'
