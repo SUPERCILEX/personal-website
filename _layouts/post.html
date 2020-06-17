@@ -22,9 +22,8 @@ layout: compress
   <p class="text-gray mb-5">Published {{ page.date | date: "%b %d, %Y"}} &bull; Last updated {{ page.last_modified_at | date: "%b %d, %Y" }} &bull; {{ ert }} min read</p>
   <div class="article">
     {% if page.image and page.image_alt and page.image_caption %}
-      <p>
-        {% include article-image.html src=page.image alt=page.image_alt caption=page.image_caption %}
-      </p>
+      {% include article-image.html src=page.image alt=page.image_alt caption=page.image_caption %}
+      <br>
     {% endif %}
 
     {{ content }}

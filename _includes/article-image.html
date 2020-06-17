@@ -2,7 +2,7 @@
 {% capture height %}{% imagesize include.src:height %}{% endcapture %}
 
 {% if include.caption %}
-  {% include image.html src=include.src href=include.src class="article-image" width=width height=height alt=include.alt %}
+  <p>{% include image.html src=include.src href=include.src class="article-image" width=width height=height alt=include.alt %}</p>
   <div class="text-gray"><p class="caption">{{ include.caption }}</p></div>
 {% else %}
   {% include image.html src=include.src href=include.src class="article-image" width=width height=height alt=include.alt %}
