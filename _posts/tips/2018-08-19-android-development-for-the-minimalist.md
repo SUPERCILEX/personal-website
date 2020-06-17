@@ -1,12 +1,14 @@
 ---
 title: Android development for the Minimalist
+
 image: /assets/general/minimalism.jpeg
+image_alt: Abstract Minimalism
+image_caption: Focus
+
 categories: [Tips, Android]
 redirect_from:
   - /blog/anddev-minimalism/
 ---
-
-{% include article-image.html src="/assets/general/minimalism.jpeg" alt="Abstract Minimalism" caption="Focus" %}
 
 What does your workspace look like? Do you have dozens of Chrome tabs crammed in a single window? Is
 your desktop splattered with icons left and right? Is your editor desperately fighting for space

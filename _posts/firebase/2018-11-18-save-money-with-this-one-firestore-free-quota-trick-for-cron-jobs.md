@@ -1,6 +1,7 @@
 ---
 title: Save money with this one Firestore free quota trick for CRON jobs
 subtitle: No, seriously!
+
 categories: Firebase
 redirect_from:
   - /blog/firebase-quota-hack/

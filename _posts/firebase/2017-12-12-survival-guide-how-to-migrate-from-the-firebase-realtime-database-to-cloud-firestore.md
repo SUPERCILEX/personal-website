@@ -1,12 +1,14 @@
 ---
 title: "Survival guide: how to migrate from the Firebase Realtime Database to Cloud Firestore"
+
 image: /assets/firebase/firestore-banner.png
+image_alt: Firestore Banner
+image_caption: The long-awaited database revamp is here!
+
 categories: [Firebase, Android]
 redirect_from:
   - /blog/rtdb-to-firestore/
 ---
-
-{% include article-image.html src="/assets/firebase/firestore-banner.png" alt="Firestore Banner" caption="The long-awaited database revamp is here!" %}
 
 Ever since Google's new mobile SDKs were
 [announced](https://firebase.googleblog.com/2016/05/firebase-expands-to-become-unified-app-platform.html)

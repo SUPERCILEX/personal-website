@@ -21,6 +21,12 @@ layout: compress
   <h2 class="f2-light text-gray lh-condensed" style="font-weight: 400 !important;">{{ page.subtitle }}</h2>
   <p class="text-gray mb-5">Published {{ page.date | date: "%b %d, %Y"}} &bull; Last updated {{ page.last_modified_at | date: "%b %d, %Y" }} &bull; {{ ert }} min read</p>
   <div class="article">
+    {% if page.image and page.image_alt and page.image_caption %}
+      <p>
+        {% include article-image.html src=page.image alt=page.image_alt caption=page.image_caption %}
+      </p>
+    {% endif %}
+
     {{ content }}
   </div>
 {% endcapture %}

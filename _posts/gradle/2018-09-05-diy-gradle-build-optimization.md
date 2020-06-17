@@ -1,13 +1,15 @@
 ---
 title: DIY Gradle build optimization
 subtitle: The definitive guide to Gradle build performance optimization
+
 image: /assets/gradle/abstract-build.png
+image_alt: Abstract Gradle Builds
+image_caption: 'Beautiful builds. Source: <a href="https://gradle.com">gradle.com</a>'
+
 categories: [Gradle, Performance]
 redirect_from:
   - /blog/gradle-perf/
 ---
-
-{% include article-image.html src="/assets/gradle/abstract-build.png" alt="Abstract Gradle Builds" caption='Beautiful builds. Source: <a href="https://gradle.com">gradle.com</a>' %}
 
 If you're anything like me a few months ago, you've hit a breaking point. You're feeling something
 akin to desperation and you don't know what to do. You've already tried all the classic tricks like
