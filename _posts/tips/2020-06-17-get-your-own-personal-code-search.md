@@ -57,7 +57,7 @@ jobs:
       - name: Sync
         uses: TG908/fork-sync@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
           # TODO(you): change this to the upstream repository owner. In this case, I'm mirroring
           # https://github.com/gradle/gradle to https://github.com/SUPERCILEX/gradle and telling
           # the action that `gradle` is the upstream repo to pull from.
