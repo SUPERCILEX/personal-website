@@ -57,7 +57,11 @@ jobs:
       - name: Sync
         uses: TG908/fork-sync@v1
         with:
-          github_token: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+          # You can't use the built-in GITHUB_TOKEN because it doesn't have write access in forks:
+          # https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token#permissions-for-the-github_token
+          # Your personal token will only need the public_repo scope.
+          # TODO(you): add your personal token in the repo's secrets page.
+          github_token: {% raw %}${{ secrets.TOKEN }}{% endraw %}
           # TODO(you): change this to the upstream repository owner. In this case, I'm mirroring
           # https://github.com/gradle/gradle to https://github.com/SUPERCILEX/gradle and telling
           # the action that `gradle` is the upstream repo to pull from.
