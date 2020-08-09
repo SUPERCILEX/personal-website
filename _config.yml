@@ -1,6 +1,7 @@
 url: https://alexsaveau.dev
 baseurl: ""
 title: Alex Saveau
+destination: build/
 author:
   name: Alex Saveau
   twitter: SUPERCILEX

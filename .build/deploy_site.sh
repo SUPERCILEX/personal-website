@@ -36,7 +36,7 @@ touch .nojekyll
 # Is this a regular repo or an org.github.io type of repo
 case "${GITHUB_REPOSITORY}" in
   *.github.io) remote_branch="master" ;;
-  *)           remote_branch="gh-pages" ;;
+  *)           remote_branch="built-site" ;;
 esac
 
 if [ "${GITHUB_REF}" = "refs/heads/${remote_branch}" ]; then
@@ -56,5 +56,9 @@ git commit -m "jekyll build from Action ${GITHUB_SHA}" && \
 git push --force $remote_repo master:$remote_branch && \
 rm -fr .git && \
 cd ..
+
+echo -e "\nDeploying to Firebase Hosting"
+npm i firebase-tools
+./node_modules/.bin/firebase deploy
 
 exit $?

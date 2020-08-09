@@ -1,4 +1,4 @@
-name: Pages Build
+name: Deploy site
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     - cron:  '0 3 * * *'
 
 jobs:
-  github-pages:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,6 +17,10 @@ jobs:
         run: git fetch --prune --unshallow --progress
       - name: Install Ruby
         uses: actions/setup-ruby@v1
+      - name: Install NodeJS
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
       - name: Gem Cache
         uses: actions/cache@v2
         with:
@@ -37,8 +41,9 @@ jobs:
           echo >> blog/index.md
           git -c "user.name=Hacker" -c "user.email=boo@hack.com" commit -am "Timestamp hack"
       - name: Build and deploy
-        run: .build/deploy_pages.sh
+        run: .build/deploy_site.sh
         env:
           JEKYLL_PAT: ${{ secrets.USER_TOKEN }}
           JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PAGES_REPO_NWO: ${{ github.repository }}

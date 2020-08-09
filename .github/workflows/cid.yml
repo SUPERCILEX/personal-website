@@ -30,13 +30,13 @@ jobs:
           bundle exec htmlproofer --assume-extension \
             --check-html --check-favicon --check-opengraph \
             --report-eof-tags --report-mismatched-tags --report-invalid-tags --report-missing-names \
-            --file-ignore ./_site/google1cff0bc53ad1c64c.html \
-            ./_site
+            --file-ignore ./build/google1cff0bc53ad1c64c.html \
+            ./build
       - name: Upload site
         uses: actions/upload-artifact@v2
         with:
           name: site
-          path: _site/
+          path: build/
 
   perf:
     needs: test
@@ -61,7 +61,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: site
-          path: _site/
+          path: build/
       - name: Prep
         run: |
           bundle config path vendor/bundle
@@ -69,7 +69,7 @@ jobs:
           npm install -g @lhci/cli@0.4.x
 
           # Remove blank HTML files that will crash lighthouse
-          rm _site/resume/index.html
+          rm build/resume/index.html
       - name: Run Lighthouse
         run: |
           bundle exec jekyll serve --no-watch --detach --skip-initial-build

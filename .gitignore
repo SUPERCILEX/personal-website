@@ -1,8 +1,9 @@
 *.gem
 .bundle
 .sass-cache
-_site/
+build
 **/.ruby-version
 .idea
 *.iml
 .env
+.firebase
