@@ -1,5 +1,5 @@
 {% capture raw_image %}
-  <img class="{{ include.class }}" src="{{ include.src | absolute_url }}"
+  <img class="{{ include.class }}" src="{{ include.src | relative_url }}"
        width="{{ include.width }}"
        height="{{ include.height }}"
        alt="{{ include.alt }}" loading="lazy">
@@ -10,7 +10,7 @@
   {% assign file_name_without_extension = file_name_parts[0] %}
 
   <picture>
-    <source srcset="{{ file_name_without_extension | append: '.webp' | absolute_url }}"
+    <source srcset="{{ file_name_without_extension | append: '.webp' | relative_url }}"
             type="image/webp">
     {{ raw_image }}
   </picture>
@@ -23,7 +23,7 @@
 {% endif %}
 
 {% if include.href %}
-  <a href="{{ include.href | absolute_url }}">{{ image | strip_newlines }}</a>
+  <a href="{{ include.href | relative_url }}">{{ image | strip_newlines }}</a>
 {% else %}
   {{ image | strip_newlines }}
 {% endif %}
