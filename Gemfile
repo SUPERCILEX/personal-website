@@ -27,4 +27,5 @@ gem "jekyll-archives"
 gem "jekyll-webp"
 
 gem "html-proofer"
+gem "kramdown-parser-gfm"
 gem 'dotenv-rails', groups: [:development, :test]
