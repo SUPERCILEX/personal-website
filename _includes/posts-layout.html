@@ -37,7 +37,7 @@
       <span class="date text-defaults">
         {{ post.date | date: "%b %d, %Y" }}
       </span>
-      <a href="{{ site.baseurl | append: post.url | relative_url }}">
+      <a href="{{ post.url | relative_url }}">
         {{ post.title }}
       </a>
     </li>
