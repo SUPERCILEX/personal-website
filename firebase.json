@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/resume",
+        "destination": "/resume/AlexSaveau.pdf"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
@@ -28,6 +32,15 @@
           {
             "key": "Cache-Control",
             "value": "max-age=432000"
+          }
+        ]
+      },
+      {
+        "source": "/resume",
+        "headers": [
+          {
+            "key": "Content-Disposition",
+            "value": "inline; filename=\"AlexSaveau.pdf\""
           }
         ]
       }
