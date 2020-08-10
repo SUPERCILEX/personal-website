@@ -4,9 +4,17 @@ module PostRedirects
 
     def generate(site)
       site.posts.docs.each_with_index do |post, index|
+        date_qualified_post_id =
+          post.data['date'].strftime('%Y/%m/%d') + '/' + post.data['slug'] + '/'
+        post_category_path = post.data['categories'].map { |category|
+          category.downcase.tr(' ', '-')
+        }.join('/')
+
         post_redirects = [
           '/blog/' + (index + 1).to_s + '/',
-          '/' + post.data['date'].strftime('%Y/%m/%d') + '/' + post.data['slug'] + '/'
+          '/blog/' + date_qualified_post_id,
+          '/blog/' + post_category_path + '/' + date_qualified_post_id,
+          '/' + date_qualified_post_id,
         ]
 
         post.data['redirect_from'] = Array(post.data['redirect_from']) + post_redirects
