@@ -49,7 +49,7 @@ defaults:
       type: "posts"
     values:
       layout: "post"
-      permalink: /blog/:categories/:year/:month/:day/:title/
+      permalink: /blog/:categories/:year/:month/:day/:title
   - scope:
       path: ""
     values:
