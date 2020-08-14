@@ -28,6 +28,11 @@ fi
 JEKYLL_ENV=production bundle exec jekyll build -s ${JEKYLL_SRC} -d build
 echo "Jekyll build done"
 
+echo "Generating Firebase config"
+python3 .build/firebase_redirect_inliner.py
+# The .firebase.json file will be available in Git, enabling human verification
+cp firebase.json build/.firebase.json
+
 cd build
 
 # No need to have GitHub Pages to run Jekyll
@@ -58,7 +63,6 @@ rm -fr .git && \
 cd ..
 
 echo -e "\nDeploying to Firebase Hosting"
-python3 .build/firebase_redirect_inliner.py
 npm i firebase-tools
 ./node_modules/.bin/firebase deploy
 
