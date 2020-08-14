@@ -58,6 +58,7 @@ rm -fr .git && \
 cd ..
 
 echo -e "\nDeploying to Firebase Hosting"
+python3 .build/firebase_redirect_inliner.py
 npm i firebase-tools
 ./node_modules/.bin/firebase deploy
 

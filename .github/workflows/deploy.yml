@@ -21,6 +21,10 @@ jobs:
         uses: actions/setup-node@v2-beta
         with:
           node-version: '14'
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
       - name: Gem Cache
         uses: actions/cache@v2
         with:
