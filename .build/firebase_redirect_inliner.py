@@ -37,7 +37,7 @@ def handle_file(file: str, redirects: list):
     with open(file) as f:
         contents: str = f.read()
         if 'http-equiv="refresh"' in contents:
-            from_path: str = file.lstrip(site_dir).rstrip('/index.html')
+            from_path: str = file.replace(site_dir, '', 1).replace('/index.html', '', 1)
             parser = RedirectLinkExtractor(from_path, redirects)
             parser.feed(contents)
 
