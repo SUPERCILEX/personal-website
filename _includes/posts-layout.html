@@ -44,7 +44,7 @@
     {% endfor %}
   </ul>
 {% endcapture %}
-{% include article-container.html content=post_body %}
+{% include article-container.html content=post_body parent_path=include.parent_path parent=include.parent %}
 
 <script>
   if (!location.hash) {

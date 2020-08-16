@@ -9,7 +9,12 @@
       <div class="mx-auto" style="max-width: 900px;">
         <div class="f4 mb-6">
           <div class="f4 scoped-text-defaults">
-            <p class="f5"><a href="{{ '/' | relative_url }}" class="d-flex flex-items-center text-defaults">{% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" aria-label:Home %}Home</a></p>
+            <p class="f5">
+              <a href="{{ include.parent_path | relative_url }}" class="d-flex flex-items-center text-defaults">
+                {% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" aria-label:include.parent %}{{ include.parent }}
+              </a>
+            </p>
+
             {{ include.content }}
           </div>
         </div>

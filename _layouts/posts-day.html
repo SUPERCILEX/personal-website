@@ -2,4 +2,7 @@
 layout: compress
 ---
 
-{% include posts-layout.html date_formatting="%b %d, %Y" %}
+{% assign date = page.date | date: '%b %Y' %}
+{% assign date_path_segment = page.date | date: '%Y/%m' %}
+{% assign date_path = '/blog/' | append: date_path_segment %}
+{% include posts-layout.html date_formatting="%b %d, %Y" parent_path=date_path parent=date %}

@@ -2,4 +2,6 @@
 layout: compress
 ---
 
-{% include posts-layout.html date_formatting="%b %Y" %}
+{% assign year = page.date | date: '%Y' %}
+{% assign year_path = '/blog/' | append: year %}
+{% include posts-layout.html date_formatting="%b %Y" parent_path=year_path parent=year %}

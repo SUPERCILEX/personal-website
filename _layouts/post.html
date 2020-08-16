@@ -29,7 +29,7 @@ layout: compress
     {{ content }}
   </div>
 {% endcapture %}
-{% include article-container.html content=post_body %}
+{% include article-container.html content=post_body parent_path='/blog' parent='Blog' %}
 
 <script>
   if (!location.hash) {

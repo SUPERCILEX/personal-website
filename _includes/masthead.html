@@ -8,7 +8,9 @@
     {{ user.bio }}
   </p>
 {% else %}
-  {% include image.html src=page.logo class="circle mb-3 masthead-profile" width="150" height="150" alt="Profile Picture" %}
+  <a href="{{ '/' | relative_url }}">
+    {% include image.html src=page.logo class="circle mb-3 masthead-profile" width="150" height="150" alt="Profile Picture" %}
+  </a>
   <div class="masthead-intro">
     <h1 class="mb-2 lh-condensed text-defaults masthead-name">{% if user.name %}{{ user.name }}{% else %}{{ user.login }}{% endif %}</h1>
     <h2 class="mb-2 lh-condensed text-defaults masthead-name-mobile">{% if user.name %}{{ user.name }}{% else %}{{ user.login }}{% endif %}</h2>
