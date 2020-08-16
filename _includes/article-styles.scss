@@ -104,9 +104,11 @@
   }
 
   blockquote {
-    border-left: 2px solid var(--blockquote-boarder-color);
+    border-left: 4px solid var(--blockquote-boarder-color);
     padding-left: 16px;
     margin-bottom: 16px;
+    margin-left: 0;
+    margin-right: 0;
 
     *:not(a) {
       color: var(--blockquote-color);
