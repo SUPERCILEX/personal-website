@@ -16,6 +16,7 @@
 
   .highlight {
     background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 3px;
   }
 
   .caption {
@@ -100,6 +101,7 @@
     font-family: "Fira Code", monospace;
     font-size: 16px;
     background-color: var(--code-background-color);
+    border-radius: 3px;
     padding: 2px 4px;
   }
 
@@ -121,7 +123,7 @@
 
       code {
         background-color: transparent;
-        padding: 0px;
+        padding: 0;
       }
     }
   }
@@ -135,7 +137,7 @@
   li ul, li ol {
     font-size: 21px;
     padding-left: 16px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
 }
 
