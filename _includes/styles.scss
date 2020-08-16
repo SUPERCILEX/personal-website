@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Noto Color Emoji;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Noto Color Emoji;
 }
 
 hr {
@@ -16,17 +16,17 @@ hr {
 
 // If a user adds a custom font, this component will stop it from bleeding into GitHub components:
 .github-component {
-  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Noto Color Emoji !important;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Noto Color Emoji !important;
 }
 
 .repo-language-color {
-    filter: brightness(125%) !important;
-    border-radius: 50%;
-    display: inline-block;
-    height: 12px;
-    position: relative;
-    top: 2px;
-    width: 12px;
+  filter: brightness(125%) !important;
+  border-radius: 50%;
+  display: inline-block;
+  height: 12px;
+  position: relative;
+  top: 2px;
+  width: 12px;
 }
 
 .emoji {
@@ -47,6 +47,44 @@ hr {
   #masthead {
     position: fixed;
     width: min-content;
+  }
+
+  .masthead-name-mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .masthead-mini {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .masthead-mini-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .masthead-profile {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0 !important;
+  }
+
+  .masthead-intro {
+    padding-left: 24px;
+  }
+
+  .masthead-name {
+    display: none;
+  }
+
+  .masthead-bio {
+    margin-bottom: 0 !important;
+  }
+
+  .masthead-metadata {
+    display: none;
   }
 }
 
@@ -97,7 +135,10 @@ hr {
 
   .text-defaults {
     color: #fff !important;
-    * { color: #fff !important; }
+
+    * {
+      color: #fff !important;
+    }
   }
 
   .scoped-text-defaults {
