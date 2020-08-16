@@ -46,9 +46,4 @@
 {% endcapture %}
 {% include article-container.html content=post_body parent_path=include.parent_path parent=include.parent %}
 
-<script>
-  if (!location.hash) {
-    location.replace('#article');
-  }
-</script>
 {% include footer.html %}

@@ -32,10 +32,6 @@ layout: compress
 {% include article-container.html content=post_body parent_path='/blog' parent='Blog' %}
 
 <script>
-  if (!location.hash) {
-    location.replace('#article');
-  }
-
   const article = document.querySelector('#article');
   const progressBar = document.querySelector('#progress-bar');
   document.addEventListener('scroll', _ => {
