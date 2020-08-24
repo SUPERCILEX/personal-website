@@ -2,6 +2,8 @@
 
 :root {
   --hr-color: gray;
+  --image-placeholder-outer-gradient: #eaebec;
+  --image-placeholder-inner-gradient: #dadbdc;
 }
 
 body {
@@ -41,6 +43,31 @@ hr {
 
 .icon-color {
   fill: #24292e !important;
+}
+
+.loads {
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: image-placeholder;
+  animation-timing-function: linear;
+  background: linear-gradient(
+                  to right,
+                  var(--image-placeholder-outer-gradient) 8%,
+                  var(--image-placeholder-inner-gradient) 18%,
+                  var(--image-placeholder-outer-gradient) 33%
+  );
+  background-size: 1200px 104px;
+  position: relative;
+}
+
+@keyframes image-placeholder {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
 }
 
 @media (min-width: 768px) {
@@ -91,6 +118,8 @@ hr {
 @media (prefers-color-scheme: dark) {
   :root {
     --hr-color: whitesmoke;
+    --image-placeholder-outer-gradient: #5f666d;
+    --image-placeholder-inner-gradient: #6f767d;
   }
 
   body {
