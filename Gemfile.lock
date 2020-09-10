@@ -120,6 +120,9 @@ GEM
       jekyll (>= 3.3, < 5.0)
     jekyll-relative-links (0.6.1)
       jekyll (>= 3.3, < 5.0)
+    jekyll-responsive-image (1.5.5)
+      jekyll (>= 2.0, < 5.0)
+      rmagick (>= 2.0, < 5.0)
     jekyll-sass-converter (1.5.2)
       sass (~> 3.4)
     jekyll-seo-tag (2.6.1)
@@ -185,6 +188,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rexml (3.2.4)
+    rmagick (4.1.2)
     rouge (3.21.0)
     ruby-enum (0.8.0)
       i18n
@@ -229,6 +233,7 @@ DEPENDENCIES
   jekyll-readme-index
   jekyll-redirect-from
   jekyll-relative-links
+  jekyll-responsive-image
   jekyll-seo-tag
   jekyll-sitemap
   jekyll-titles-from-headings

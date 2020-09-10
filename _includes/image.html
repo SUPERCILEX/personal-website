@@ -1,26 +1,12 @@
-{% capture raw_image %}
-  <img class="{{ include.class }} loads" src="{{ include.src | relative_url }}"
-       width="{{ include.width }}"
-       height="{{ include.height }}"
-       alt="{{ include.alt }}" loading="lazy">
+{% capture image %}
+  {% responsive_image_block %}
+    path: {{ include.src | relative_url | remove_first: '/' }}
+    class: "{{ include.class }} loads"
+    width: {{ include.width }}
+    height: {{ include.height }}
+    alt: {{ include.alt }}
+  {% endresponsive_image_block %}
 {% endcapture %}
-
-{% capture picture %}
-  {% assign file_name_parts = include.src | split: '.' %}
-  {% assign file_name_without_extension = file_name_parts[0] %}
-
-  <picture>
-    <source srcset="{{ file_name_without_extension | append: '.webp' | relative_url }}"
-            type="image/webp">
-    {{ raw_image }}
-  </picture>
-{% endcapture %}
-
-{% if include.src contains '.png' or include.src contains '.jpg' or include.src contains '.jpeg' %}
-  {% assign image = picture %}
-{% else %}
-  {% assign image = raw_image %}
-{% endif %}
 
 {% if include.href %}
   <a href="{{ include.href | relative_url }}">{{ image | strip_newlines }}</a>

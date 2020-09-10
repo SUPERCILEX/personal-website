@@ -8,3 +8,4 @@ build
 .env
 .firebase
 /firebase.json
+/assets/resized

@@ -25,6 +25,8 @@ jobs:
           echo "url: http://localhost:4000" > _config_ci.yml
       - name: Validate HTML
         run: |
+          # Run the build twice so webp generation can work on the resized images
+          bundle exec jekyll build --config _config.yml,_config_ci.yml
           bundle exec jekyll build --config _config.yml,_config_ci.yml
           bundle exec jekyll serve --no-watch --detach --skip-initial-build
           bundle exec htmlproofer --assume-extension \

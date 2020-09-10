@@ -1,0 +1,22 @@
+<picture>
+  {% if path contains '.png' or path contains '.jpg' or path contains '.jpeg' %}
+    {% for i in resized %}
+      <source media="(max-width: {{ i.width }}px)"
+              srcset="/assets/{{ i.dirname }}/{{ i.filename }}.webp"
+              type="image/webp">
+    {% endfor %}
+
+    {% assign file_name_parts = path | split: '.' %}
+    {% assign file_name_without_extension = file_name_parts[0] %}
+    <source srcset="/{{ file_name_without_extension }}.webp" type="image/webp">
+  {% endif %}
+
+  {% for i in resized %}
+    <source media="(max-width: {{ i.width }}px)" srcset="/{{ i.path }}">
+  {% endfor %}
+
+  <img class="{{ class }}" src="/{{ path }}"
+       width="{{ width }}"
+       height="{{ height }}"
+       alt="{{ alt }}" loading="lazy">
+</picture>
