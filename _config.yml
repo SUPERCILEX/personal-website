@@ -133,7 +133,7 @@ responsive_image:
   output_path_format: assets/resized/%{dirname}/%{filename}-%{width}.%{extension}
   default_quality: 100
   sizes:
-    - width: 160
+    - width: 240
     - width: 320
     - width: 480
     - width: 800

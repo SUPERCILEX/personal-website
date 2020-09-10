@@ -1,10 +1,11 @@
 {% capture image %}
   {% responsive_image_block %}
-    path: {{ include.src | relative_url | remove_first: '/' }}
+    path: "{{ include.src | relative_url | remove_first: '/' }}"
     class: "{{ include.class }} loads"
-    width: {{ include.width }}
-    height: {{ include.height }}
-    alt: {{ include.alt }}
+    width: "{{ include.width }}"
+    height: "{{ include.height }}"
+    sizes: "{{ include.sizes }}"
+    alt: "{{ include.alt }}"
   {% endresponsive_image_block %}
 {% endcapture %}
 

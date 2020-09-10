@@ -1,9 +1,10 @@
 {% capture width %}{% imagesize include.src:width %}{% endcapture %}
 {% capture height %}{% imagesize include.src:height %}{% endcapture %}
+{% assign sizes="(min-width: 768px) 66.7vw, 100vw" %}
 
 {% if include.caption %}
-  <p>{% include image.html src=include.src href=include.src class="article-image" width=width height=height alt=include.alt %}</p>
+  <p>{% include image.html src=include.src href=include.src class="article-image" width=width height=height sizes=sizes alt=include.alt %}</p>
   <div class="text-gray"><p class="caption">{{ include.caption }}</p></div>
 {% else %}
-  {% include image.html src=include.src href=include.src class="article-image" width=width height=height alt=include.alt %}
+  {% include image.html src=include.src href=include.src class="article-image" width=width height=height sizes=sizes alt=include.alt %}
 {% endif %}
