@@ -21,7 +21,7 @@
   {% endcapture %}
   <source srcset="{{ sources }} /{{ path }} {{ original.width }}w" sizes="{{ sizes }}">
 
-  <img class="{{ class }}" src="/{{ path }}"
+  <img class="{{ class }}" src="/{{ resized[0].path }}"
        width="{{ width }}"
        height="{{ height }}"
        alt="{{ alt }}" loading="lazy">
