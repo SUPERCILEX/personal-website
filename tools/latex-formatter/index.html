@@ -1,0 +1,21 @@
+---
+layout: blank
+title: Alex's LaTeX Formatter
+description: Dumb LaTeX formatting tool that conforms to my preferences
+scripts:
+  - index.js
+---
+
+<div>
+  <form>
+    <label for="latex">LaTeX:</label>
+    <br>
+    <textarea id="latex" rows="20" cols="80"></textarea>
+    <br>
+    <br>
+    <input type="button" onclick="formatLatex()" value="Copy formatted">
+  </form>
+
+  <br>
+  <pre id="result"></pre>
+</div>
