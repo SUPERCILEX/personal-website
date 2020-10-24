@@ -1,6 +1,7 @@
 *.gem
 .bundle
 .sass-cache
+.jekyll-cache
 build
 **/.ruby-version
 .idea
