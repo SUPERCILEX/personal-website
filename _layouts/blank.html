@@ -12,7 +12,7 @@ layout: compress
   {% seo %}
 
   {% for script in page.scripts %}
-    <script src="{{ script }}" defer></script>
+    <script src="{{ page.dir | append: script }}" defer></script>
   {% endfor %}
 </head>
 
