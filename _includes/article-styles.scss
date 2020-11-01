@@ -170,7 +170,7 @@
     }
 
     img:not([src*=".svg"]) {
-      filter: grayscale(25%) brightness(0.9);
+      filter: brightness(0.8) contrast(1.1);
     }
   }
 }
