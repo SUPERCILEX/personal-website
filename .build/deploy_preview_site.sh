@@ -6,7 +6,6 @@ echo "Starting the Jekyll Action"
 
 echo -e "\nDeploying to Firebase Hosting"
 npm i firebase-tools
-./node_modules/.bin/firebase hosting:channel:deploy \
-  "pr$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
+./node_modules/.bin/firebase hosting:channel:deploy "$BUILD_ID"
 
 exit $?
