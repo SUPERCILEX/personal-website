@@ -122,12 +122,17 @@ hr {
     --image-placeholder-inner-gradient: #6f767d;
   }
 
-  body {
-    background-color: black;
+  a {
+    color: unset !important;
+    text-decoration: underline;
   }
 
-  a {
-    color: #599eff !important;
+  .selectively-underline, .selectively-underline:hover {
+    text-decoration: none;
+
+    span {
+      text-decoration: underline;
+    }
   }
 
   .bg-white {
