@@ -1,10 +1,8 @@
-<div class="height-full text-left border border-gray-light bg-white rounded-1 p-3">
+<a href="{{ post.url | relative_url }}" class="github-component position-relative hover-grow height-full no-underline d-flex flex-column text-left border border-gray-light rounded-1 bg-white p-3">
   <div class="d-flex flex-justify-between flex-items-start mb-1">
     <h1 class="f4 lh-condensed mb-1">
-      <a href="{{ post.url | relative_url }}">
-        {{ post.title }}
-      </a>
+      {{ post.title }}
     </h1>
   </div>
   <div class="text-gray mb-2 ws-normal">{{ post.date | date: "%b %d, %Y"}}</div>
-</div>
+</a>
