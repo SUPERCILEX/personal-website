@@ -2,10 +2,8 @@ name: Deploy site
 
 on:
   push:
-    branches:
-      - master
   schedule:
-    - cron:  '0 0 * * 3'
+    - cron: '0 0 * * 3'
 
 jobs:
   deploy:
@@ -44,7 +42,15 @@ jobs:
           echo >> index.md
           echo >> blog/index.md
           git -c "user.name=Hacker" -c "user.email=boo@hack.com" commit -am "Timestamp hack"
+      - name: Build and deploy preview
+        if: github.ref != 'refs/heads/master'
+        run: .build/deploy_preview_site.sh
+        env:
+          JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PAGES_REPO_NWO: ${{ github.repository }}
       - name: Build and deploy
+        if: github.ref == 'refs/heads/master'
         run: .build/deploy_site.sh
         env:
           JEKYLL_PAT: ${{ secrets.USER_TOKEN }}
