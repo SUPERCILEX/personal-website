@@ -38,7 +38,6 @@ rm -fr .git && \
 cd ..
 
 echo -e "\nDeploying to Firebase Hosting"
-npm i firebase-tools
-./node_modules/.bin/firebase deploy
+./.build/node_modules/.bin/firebase deploy
 
 exit $?

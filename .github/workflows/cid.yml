@@ -59,6 +59,13 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
+      - name: NPM Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
       - name: Download site
         uses: actions/download-artifact@v2
         with:
@@ -68,10 +75,10 @@ jobs:
         run: |
           bundle config path vendor/bundle
           bundle install
-          npm install -g @lhci/cli@0.4.x
+          (cd .build && npm ci)
       - name: Run Lighthouse
         run: |
           bundle exec jekyll serve --no-watch --detach --skip-initial-build
-          lhci autorun
+          ./.build/node_modules/.bin/lhci autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

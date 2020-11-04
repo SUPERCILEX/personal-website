@@ -4,6 +4,7 @@
 .jekyll-cache
 build
 **/.ruby-version
+node_modules
 .idea
 *.iml
 .env
