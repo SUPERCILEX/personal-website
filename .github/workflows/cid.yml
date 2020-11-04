@@ -17,6 +17,20 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
+      - name: Site Assets Cache
+        id: cache-assets
+        uses: actions/cache@v2
+        with:
+          path: build/assets
+          key: ${{ runner.os }}-test-site-${{ hashFiles('assets/**') }}
+          restore-keys: |
+            ${{ runner.os }}-test-site-
+      - name: Restore site assets
+        if: steps.cache-assets.outputs.cache-hit
+        run: |
+          # The shrinker puts its images in the source directory so that the webp plugin can process
+          # them.
+          cp build/assets/resized assets/ -r
       - name: Prep site
         run: |
           bundle config path vendor/bundle
@@ -26,8 +40,13 @@ jobs:
       - name: Validate HTML
         run: |
           # Run the build twice so webp generation can work on the resized images
+          # The webp plugin performs caching based file modification timestamps.
+          find build/assets -type f -exec touch {} +
           bundle exec jekyll build --config _config.yml,_config_ci.yml
+          # The webp plugin performs caching based file modification timestamps.
+          find build/assets -type f -exec touch {} +
           bundle exec jekyll build --config _config.yml,_config_ci.yml
+
           bundle exec jekyll serve --no-watch --detach --skip-initial-build
           bundle exec htmlproofer --assume-extension \
             --check-html --check-favicon --check-opengraph \

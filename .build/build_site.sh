@@ -19,7 +19,10 @@ else
 fi
 
 # Run the build twice so webp generation can work on the resized images
+# The webp plugin performs caching based file modification timestamps.
+find build/assets -type f -exec touch {} +
 JEKYLL_ENV=production bundle exec jekyll build -s ${JEKYLL_SRC} -d build
+find build/assets -type f -exec touch {} +
 JEKYLL_ENV=production bundle exec jekyll build -s ${JEKYLL_SRC} -d build
 echo "Jekyll build done"
 

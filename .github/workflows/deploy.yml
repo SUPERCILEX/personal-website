@@ -37,6 +37,20 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-
+      - name: Site Assets Cache
+        id: cache-assets
+        uses: actions/cache@v2
+        with:
+          path: build/assets
+          key: ${{ runner.os }}-site-${{ hashFiles('assets/**') }}
+          restore-keys: |
+            ${{ runner.os }}-site-
+      - name: Restore site assets
+        if: steps.cache-assets.outputs.cache-hit
+        run: |
+          # The shrinker puts its images in the source directory so that the webp plugin can process
+          # them.
+          cp build/assets/resized assets/ -r
       - name: Generate resume
         run: |
           curl -L --fail --output resume/AlexSaveau.pdf \
