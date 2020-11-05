@@ -3,7 +3,7 @@ name: CI/CD
 on: [push, pull_request]
 
 jobs:
-  test:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -59,8 +59,31 @@ jobs:
           name: site
           path: build/
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2.0.0
+        with:
+          node-version: '12'
+      - name: NPM Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+      - name: Prep
+        run: |
+          cd .build && npm ci
+      - name: Run tests
+        run: |
+          cd .build && npm test
+
   perf:
-    needs: test
+    needs: validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
