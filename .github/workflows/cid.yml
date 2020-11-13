@@ -65,7 +65,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install node
-        uses: actions/setup-node@v2.0.0
+        uses: actions/setup-node@v2-beta
         with:
           node-version: '12'
       - name: NPM Cache
@@ -89,7 +89,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install node
-        uses: actions/setup-node@v2.0.0
+        uses: actions/setup-node@v2-beta
         with:
           node-version: '12'
       - name: Install Ruby
