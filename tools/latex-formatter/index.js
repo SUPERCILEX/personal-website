@@ -73,7 +73,13 @@ function format(latex) {
             }
           }
           if (equationStart === -1 && c === ' ' && prevChar === '.') {
-            formattedLine = replace(i, i + 1, formattedLine, '\n' + indent);
+            const lower = formattedLine.toLowerCase();
+            const isAbbreviation = lower.indexOf('i.e.') === i - 4
+                || lower.indexOf('e.g.') === i - 4;
+
+            if (!isAbbreviation) {
+              formattedLine = replace(i, i + 1, formattedLine, '\n' + indent);
+            }
           }
 
           i += 1 + formattedLine.length - beforeLength;
@@ -119,8 +125,8 @@ function formatMath(math) {
       .replace(/(\S)\+/gi, '$1 +')
       .replace(/\+(\S)/gi, '+ $1')
       .replace(/\s+-\s+/gi, '-')
-      .replace(/(\S)-(\S)/gi, '$1 - $2')
-      .replace(/(\S)-/gi, '$1 -')
+      .replace(/([^({\- ])-(\S)/gi, '$1 - $2')
+      .replace(/([^({\- ])-/gi, '$1 -')
       .replace(/\s+\\cdot\s+/gi, '\\cdot')
       .replace(/(\S)\\cdot/gi, '$1 \\cdot')
       .replace(/\\cdot(\S)/gi, '\\cdot $1')

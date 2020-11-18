@@ -190,6 +190,21 @@ test('sentences are separated by a new line', () => {
 `);
 });
 
+test('known abbreviations aren\'t treated as sentence breaks', () => {
+  expect(formatting.format(`
+    \\begin{document}
+    \\begin{a}  
+    I eat italian food, i.e. pasta. E.g. blah.
+    \\end{a}  
+    \\end{document}`)).toBe(`\\begin{document}
+\\begin{a}
+    I eat italian food, i.e. pasta.
+    E.g. blah.
+\\end{a}
+\\end{document}
+`);
+});
+
 test('dots inside equation blocks are ignored', () => {
   expect(formatting.format(`
     \\begin{document}
@@ -218,6 +233,20 @@ test('minus sign is not formatted when used as negation', () => {
 $a - b, a - b, a - b, a -b$
 $$blah$$
 $-1$
+\\end{document}
+`);
+});
+
+test('minus sign is not formatted when against parentheses', () => {
+  expect(formatting.format(`
+    \\begin{document}
+    $(-1)$
+    $x^{-1}$
+    $--1$
+    \\end{document}`)).toBe(`\\begin{document}
+$(-1)$
+$x^{-1}$
+$--1$
 \\end{document}
 `);
 });
