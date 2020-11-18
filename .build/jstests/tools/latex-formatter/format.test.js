@@ -242,11 +242,15 @@ test('minus sign is not formatted when against parentheses', () => {
     \\begin{document}
     $-1$
     $(-1)$
+    $[-1]$
+    $|-1|$
     $x^{-1}$
     $--1$
     \\end{document}`)).toBe(`\\begin{document}
 $-1$
 $(-1)$
+$[-1]$
+$|-1|$
 $x^{-1}$
 $--1$
 \\end{document}
@@ -289,6 +293,8 @@ test('put space before \\ character', () => {
     $blah \\\\ blah$
     $-\\ln(e)$
     $1 - (\\ln(e))$
+    $1 - [\\ln(e)]$
+    $1 - |\\ln(e)|$
     \\end{document}`)).toBe(`\\begin{document}
 $\\ln(e)$
 $blah \\\\$
@@ -299,6 +305,8 @@ $\\sum_{i = 1}^\\infinity$
 $blah \\\\ blah$
 $-\\ln(e)$
 $1 - (\\ln(e))$
+$1 - [\\ln(e)]$
+$1 - |\\ln(e)|$
 \\end{document}
 `);
 });
