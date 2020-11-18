@@ -240,10 +240,12 @@ $-1$
 test('minus sign is not formatted when against parentheses', () => {
   expect(formatting.format(`
     \\begin{document}
+    $-1$
     $(-1)$
     $x^{-1}$
     $--1$
     \\end{document}`)).toBe(`\\begin{document}
+$-1$
 $(-1)$
 $x^{-1}$
 $--1$
@@ -271,6 +273,32 @@ test('=\\; is kept together', () => {
     \\end{document}`)).toBe(`\\begin{document}
 $=\\;foo$
 $=\\; foo$
+\\end{document}
+`);
+});
+
+test('put space before \\ character', () => {
+  expect(formatting.format(`
+    \\begin{document}
+    $\\ln(e)$
+    $blah\\\\$
+    $a\\ln(e)$
+    $a\\;b$
+    $&\\geq$
+    $\\sum_{i=1}^\\infinity$
+    $blah \\\\ blah$
+    $-\\ln(e)$
+    $1 - (\\ln(e))$
+    \\end{document}`)).toBe(`\\begin{document}
+$\\ln(e)$
+$blah \\\\$
+$a \\ln(e)$
+$a \\;b$
+$&\\geq$
+$\\sum_{i = 1}^\\infinity$
+$blah \\\\ blah$
+$-\\ln(e)$
+$1 - (\\ln(e))$
 \\end{document}
 `);
 });

@@ -119,8 +119,6 @@ function formatMath(math) {
       .replace(/\s+=\s+/gi, '=')
       .replace(/(\S)=/gi, '$1 =')
       .replace(/=(\S)/gi, '= $1')
-      .replace(/& =/gi, '&=')
-      .replace(/= \\;/gi, '=\\;')
       .replace(/\s+\+\s+/gi, '+')
       .replace(/(\S)\+/gi, '$1 +')
       .replace(/\+(\S)/gi, '+ $1')
@@ -129,8 +127,11 @@ function formatMath(math) {
       .replace(/([^({\- ])-/gi, '$1 -')
       .replace(/\s+\\cdot\s+/gi, '\\cdot')
       .replace(/(\S)\\cdot/gi, '$1 \\cdot')
+      .replace(/([^({&\-^\\ ])\\/gi, '$1 \\')
       .replace(/\\cdot(\S)/gi, '\\cdot $1')
-      .replace(/\^{(\w)}/gi, '^$1');
+      .replace(/\^{(\w)}/gi, '^$1')
+      .replace(/& =/gi, '&=')
+      .replace(/= \\;/gi, '=\\;');
 }
 
 function replace(start, end, existing, replacement) {
