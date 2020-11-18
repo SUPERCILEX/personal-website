@@ -295,6 +295,7 @@ test('put space before \\ character', () => {
     $1 - (\\ln(e))$
     $1 - [\\ln(e)]$
     $1 - |\\ln(e)|$
+    $\\{\\infinity\\}$
     \\end{document}`)).toBe(`\\begin{document}
 $\\ln(e)$
 $blah \\\\$
@@ -307,6 +308,7 @@ $-\\ln(e)$
 $1 - (\\ln(e))$
 $1 - [\\ln(e)]$
 $1 - |\\ln(e)|$
+$\\{\\infinity\\}$
 \\end{document}
 `);
 });
