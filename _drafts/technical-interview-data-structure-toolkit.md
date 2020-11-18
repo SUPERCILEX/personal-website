@@ -16,6 +16,7 @@ evaluate while solving a problem:
 
 - Is the set of inputs a fixed size? Counting or bucketing them might help.
 - Is there possible nesting in the input sequence? Consider stacks or queues.
+- Is an input sequence being continuously updated? A priority queue might help.
 - Would sorting simplify the problem? Consider scooting start and end pointers along instead of
   using recursion.
 - Would using complements help? (E.g. find the target sum by keeping track of previously seen
