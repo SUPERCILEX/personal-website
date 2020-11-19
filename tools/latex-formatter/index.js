@@ -130,6 +130,7 @@ function formatMath(math) {
       .replace(/([^({\[|&\-^\\ ])\\([^}])/gi, '$1 \\$2')
       .replace(/\\cdot(\S)/gi, '\\cdot $1')
       .replace(/\^{(\w)}/gi, '^$1')
+      .replace(/_{(\w)}/gi, '_$1')
       .replace(/& =/gi, '&=')
       .replace(/= \\;/gi, '=\\;');
 }

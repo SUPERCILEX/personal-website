@@ -95,36 +95,37 @@ test('minted code isn\'t modified', () => {
 });
 
 test('compressed math is formatted correctly', () => {
-  const math = 'a=b+1-2^{5}\\cdot\\log(2)';
+  const uglyMath = 'a=b+1-2_{1}^{5}\\cdot\\log(2)';
+  const prettyMath = `a = b + 1 - 2_1^5 \\cdot \\log(2)`;
 
   expect(formatting.format(`
     \\begin{document}
-    $${math}$
+    $${uglyMath}$
     $
-    ${math}
+    ${uglyMath}
     $
 
-    $$${math}$$
+    $$${uglyMath}$$
     $$
-    ${math}
+    ${uglyMath}
     $$
 
     \\begin{align*}
-    ${math}
+    ${uglyMath}
     \\end{align*}
     \\end{document}`)).toBe(`\\begin{document}
-$a = b + 1 - 2^5 \\cdot \\log(2)$
+$${prettyMath}$
 $
-a = b + 1 - 2^5 \\cdot \\log(2)
+${prettyMath}
 $
 
-$$a = b + 1 - 2^5 \\cdot \\log(2)$$
+$$${prettyMath}$$
 $$
-a = b + 1 - 2^5 \\cdot \\log(2)
+${prettyMath}
 $$
 
 \\begin{align*}
-    a = b + 1 - 2^5 \\cdot \\log(2)
+    ${prettyMath}
 \\end{align*}
 \\end{document}
 `);
