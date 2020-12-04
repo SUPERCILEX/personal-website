@@ -127,11 +127,16 @@ function formatMath(math) {
       .replace(/([^({\[|\- ])-/gi, '$1 -')
       .replace(/\s+\\cdot\s+/gi, '\\cdot')
       .replace(/(\S)\\cdot/gi, '$1 \\cdot')
+      .replace(/,(\S)/gi, ', $1')
+      .replace(/\\,\s/gi, '\\,')
+      .replace(/[^\\],(\S)/gi, '$1, $2')
       .replace(/([^({\[|&\-^\\ ])\\([^}])/gi, '$1 \\$2')
+      .replace(/\. \\bar/gi, '.\\bar')
       .replace(/\\cdot(\S)/gi, '\\cdot $1')
       .replace(/\^{(\w)}/gi, '^$1')
       .replace(/_{(\w)}/gi, '_$1')
       .replace(/& =/gi, '&=')
+      .replace(/: =/gi, ':=')
       .replace(/= \\;/gi, '=\\;');
 }
 

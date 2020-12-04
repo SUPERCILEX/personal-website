@@ -270,6 +270,18 @@ $&= foo$
 `);
 });
 
+test(':= is kept together', () => {
+  expect(formatting.format(`
+    \\begin{document}
+    $:=foo$
+    $:= foo$
+    \\end{document}`)).toBe(`\\begin{document}
+$:= foo$
+$:= foo$
+\\end{document}
+`);
+});
+
 test('=\\; is kept together', () => {
   expect(formatting.format(`
     \\begin{document}
@@ -297,6 +309,7 @@ test('put space before \\ character', () => {
     $1 - [\\ln(e)]$
     $1 - |\\ln(e)|$
     $\\{\\infinity\\}$
+    $4.\\bar{6}$
     \\end{document}`)).toBe(`\\begin{document}
 $\\ln(e)$
 $blah \\\\$
@@ -310,6 +323,21 @@ $1 - (\\ln(e))$
 $1 - [\\ln(e)]$
 $1 - |\\ln(e)|$
 $\\{\\infinity\\}$
+$4.\\bar{6}$
+\\end{document}
+`);
+});
+
+test('commas are spaced in equations', () => {
+  expect(formatting.format(`
+    \\begin{document}
+    a,b,c
+    $a,b,c$
+    $\\, dx$
+    \\end{document}`)).toBe(`\\begin{document}
+a,b,c
+$a, b, c$
+$\\,dx$
 \\end{document}
 `);
 });
