@@ -52,6 +52,7 @@ jobs:
             --check-html --check-favicon --check-opengraph \
             --report-eof-tags --report-mismatched-tags --report-invalid-tags --report-missing-names \
             --file-ignore ./build/google1cff0bc53ad1c64c.html \
+            --url-ignore "https://developer.android.com/studio/releases/gradle-plugin" \
             ./build
       - name: Upload site
         uses: actions/upload-artifact@v2
