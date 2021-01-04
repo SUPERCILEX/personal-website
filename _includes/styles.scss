@@ -54,7 +54,7 @@ hr {
 }
 
 .loads {
-  animation-duration: 1s;
+  animation-duration: 2.5s;
   animation-fill-mode: forwards;
   animation-iteration-count: infinite;
   animation-name: image-placeholder;
@@ -65,16 +65,16 @@ hr {
                   var(--image-placeholder-inner-gradient) 18%,
                   var(--image-placeholder-outer-gradient) 33%
   );
-  background-size: 1200px 104px;
+  background-size: 1000px 100%;
   position: relative;
 }
 
 @keyframes image-placeholder {
-  0% {
-    background-position: -468px 0;
+  from {
+    background-position: -1000px 0;
   }
-  100% {
-    background-position: 468px 0;
+  to {
+    background-position: 1000px 0;
   }
 }
 
