@@ -5,7 +5,7 @@ module PostRedirects
     def generate(site)
       site.posts.docs.each_with_index do |post, index|
         date_qualified_post_id =
-          post.data['date'].strftime('%Y/%m/%d') + '/' + post.data['slug'] + '/'
+          (post.data['date']&.strftime('%Y/%m/%d') || 'drafts') + '/' + post.data['slug'] + '/'
         post_category_path = post.data['categories'].map { |category|
           category.downcase.tr(' ', '-')
         }.join('/')

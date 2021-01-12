@@ -26,6 +26,7 @@ gem "jekyll-redirect-from"
 gem "jekyll-archives"
 gem "jekyll-webp"
 gem "jekyll-responsive-image"
+gem "liquid-c"
 
 gem "html-proofer"
 gem "kramdown-parser-gfm"

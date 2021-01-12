@@ -2,6 +2,7 @@
 
 :root {
   --hr-color: gray;
+  --footer-color: white;
   --image-placeholder-outer-gradient: #eaebec;
   --image-placeholder-inner-gradient: #dadbdc;
 }
@@ -14,6 +15,21 @@ hr {
   border: 1.5px solid var(--hr-color);
   border-radius: 1.5px;
   background-color: var(--hr-color);
+}
+
+footer {
+  display: flex;
+  padding: 5px;
+  align-items: center;
+  background-color: var(--footer-color);
+
+  small {
+    width: 100%;
+  }
+
+  small:last-child {
+    text-align: end;
+  }
 }
 
 // If a user adds a custom font, this component will stop it from bleeding into GitHub components:
@@ -54,7 +70,7 @@ hr {
 }
 
 .loads {
-  animation-duration: 1s;
+  animation-duration: 2.5s;
   animation-fill-mode: forwards;
   animation-iteration-count: infinite;
   animation-name: image-placeholder;
@@ -65,16 +81,16 @@ hr {
                   var(--image-placeholder-inner-gradient) 18%,
                   var(--image-placeholder-outer-gradient) 33%
   );
-  background-size: 1200px 104px;
+  background-size: 1000px 100%;
   position: relative;
 }
 
 @keyframes image-placeholder {
-  0% {
-    background-position: -468px 0;
+  from {
+    background-position: -1000px 0;
   }
-  100% {
-    background-position: 468px 0;
+  to {
+    background-position: 1000px 0;
   }
 }
 
@@ -126,6 +142,7 @@ hr {
 @media (prefers-color-scheme: dark) {
   :root {
     --hr-color: whitesmoke;
+    --footer-color: black;
     --image-placeholder-outer-gradient: #5f666d;
     --image-placeholder-inner-gradient: #6f767d;
   }
