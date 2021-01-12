@@ -34,27 +34,32 @@ def cli():
 
 @click.option('--drafts/--no-drafts', is_flag=True, default=True,
               help='Include draft and future posts.')
+@click.option('--fast/--no-fast', is_flag=True, default=True,
+              help='Don\'t render the full site to speed up build times.')
 @click.option('--live', '-l', is_flag=True, default=False,
               help='Serve on a live staging instance.')
 @click.option('--expires', default='1d',
               help='Staging channel expiration. Only used when --live is set.')
 @cli.command()
-def serve(drafts, live, expires):
+def serve(drafts, fast, live, expires):
     """
     Deploy the site.
     """
 
-    draft_args = '--future --drafts' if drafts else ''
+    args = '--future --drafts' if drafts else ''
 
     if live:
-        os.system(f'JEKYLL_ENV=production bundle exec jekyll build {draft_args}')
+        os.system(f'JEKYLL_ENV=production bundle exec jekyll build {args}')
         # Run twice for image gen
-        os.system(f'JEKYLL_ENV=production bundle exec jekyll build {draft_args}')
+        os.system(f'JEKYLL_ENV=production bundle exec jekyll build {args}')
 
         os.system('python3 .build/firebase_redirect_inliner.py')
         os.system(f'firebase hosting:channel:deploy -e {expires} {uuid.uuid1()}')
     else:
-        os.system(f'bundle exec jekyll serve {draft_args} --livereload')
+        if fast:
+            args += ' --limit-posts 3 --config "_config.yml,_config_dev.yml"'
+
+        os.system(f'bundle exec jekyll serve {args} --livereload')
 
 
 if __name__ == "__main__":

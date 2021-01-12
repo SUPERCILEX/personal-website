@@ -1,0 +1,26 @@
+plugins:
+  # GitHub Pages plugins
+  - jekyll-octicons
+  - jekyll-github-metadata
+  - jekyll-coffeescript
+  - jekyll-commonmark-ghpages
+  - jekyll-gist
+  - jekyll-paginate
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-default-layout
+  - jekyll-titles-from-headings
+  - jemoji
+
+  # Other plugins
+  - jekyll-feed
+  - jekyll-image-size
+  - jekyll-last-modified-at
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-responsive-image
+  - jekyll-webp
+
+sass:
+  style: uncompressed
