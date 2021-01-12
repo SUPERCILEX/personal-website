@@ -25,7 +25,24 @@
       {% endcapture %}
       {{ styles | scssify }}
     </style>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        for (let e of document.getElementsByClassName('loads')) {
+          const removeAnimation = () => {
+            e.classList.remove('loads');
+          };
+
+          if (e.complete) {
+            removeAnimation();
+          } else {
+            e.onload = removeAnimation;
+          }
+        }
+      });
+    </script>
+
     {{ include.inject }}
   </head>
 
-  <body class="min-height-full">
+  <body class="min-height-full" id="top">
