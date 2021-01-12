@@ -18,11 +18,6 @@ else
   echo "::debug ::Resolved ${JEKYLL_SRC} as a source directory"
 fi
 
-# Run the build twice so webp generation can work on the resized images
-# The webp plugin performs caching based file modification timestamps.
-test -d "build/assets" && find build/assets -type f -exec touch {} + || true
-JEKYLL_ENV=production bundle exec jekyll build -s ${JEKYLL_SRC} -d build
-test -d "build/assets" && find build/assets -type f -exec touch {} + || true
 JEKYLL_ENV=production bundle exec jekyll build -s ${JEKYLL_SRC} -d build
 echo "Jekyll build done"
 

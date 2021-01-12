@@ -50,8 +50,6 @@ def serve(drafts, fast, live, expires):
 
     if live:
         os.system(f'JEKYLL_ENV=production bundle exec jekyll build {args}')
-        # Run twice for image gen
-        os.system(f'JEKYLL_ENV=production bundle exec jekyll build {args}')
 
         os.system(f'firebase hosting:channel:deploy -e {expires} {uuid.uuid1()}')
     else:

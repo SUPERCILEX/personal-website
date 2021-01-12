@@ -22,7 +22,6 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-responsive-image
-  - jekyll-webp
 
 sass:
   style: uncompressed

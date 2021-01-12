@@ -18,35 +18,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gems-
       - name: Site Assets Cache
-        id: cache-assets
         uses: actions/cache@v2
         with:
-          path: build/assets
-          key: ${{ runner.os }}-test-site-${{ hashFiles('assets/**') }}
+          path: assets/resized
+          key: ${{ runner.os }}-v2-site-${{ hashFiles('assets/**') }}
           restore-keys: |
-            ${{ runner.os }}-test-site-
-      - name: Restore site assets
-        if: steps.cache-assets.outputs.cache-hit
-        run: |
-          # The shrinker puts its images in the source directory so that the webp plugin can process
-          # them.
-          cp build/assets/resized assets/ -r
+            ${{ runner.os }}-v2-site-
       - name: Prep site
         run: |
-          bundle config path vendor/bundle
-          bundle install
           touch resume/AlexSaveau.pdf
-          echo "url: http://localhost:4000" > _config_ci.yml
+          echo "url: http://localhost:4000" >> _config.yml
+          .build/build_site.sh
+        env:
+          PAGES_REPO_NWO: ${{ github.repository }}
       - name: Validate HTML
         run: |
-          # Run the build twice so webp generation can work on the resized images
-          # The webp plugin performs caching based file modification timestamps.
-          test -d "build/assets" && find build/assets -type f -exec touch {} + || true
-          bundle exec jekyll build --config _config.yml,_config_ci.yml
-          # The webp plugin performs caching based file modification timestamps.
-          test -d "build/assets" && find build/assets -type f -exec touch {} + || true
-          bundle exec jekyll build --config _config.yml,_config_ci.yml
-
           bundle exec jekyll serve --no-watch --detach --skip-initial-build
           bundle exec htmlproofer --assume-extension \
             --check-html --check-favicon --check-opengraph \

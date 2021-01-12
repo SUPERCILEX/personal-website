@@ -24,7 +24,6 @@ gem "jekyll-sitemap"
 gem "jekyll-seo-tag"
 gem "jekyll-redirect-from"
 gem "jekyll-archives"
-gem "jekyll-webp"
 gem "jekyll-responsive-image"
 gem "liquid-c"
 

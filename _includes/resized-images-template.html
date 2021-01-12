@@ -1,19 +1,46 @@
 <picture>
+  <!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. -->
+
+  <!-- .avif images -->
   {% if path contains '.png' or path contains '.jpg' or path contains '.jpeg' %}
     {% capture sources %}
       {% for i in resized %}
-        /assets/{{ i.dirname }}/{{ i.filename }}.webp {{ i.width }}w,
+        /assets/{{ i.dirname }}/{{ i.filename }}-min.avif {{ i.width }}w,
       {% endfor %}
+
+      {{ original.dirname | prepend: '/assets/resized/' | append: '/' | append: original.filename | replace: '//', '/' }}-min.avif {{ original.width }}w
     {% endcapture %}
 
-    {% assign file_name_parts = path | split: '.' %}
-    {% assign file_name_without_extension = file_name_parts[0] %}
-
-    <source srcset="{{ sources }} /{{ file_name_without_extension }}.webp {{ original.width }}w"
-            sizes="{{ sizes }}"
-            type="image/webp">
+    <source srcset="{{ sources }}" sizes="{{ sizes }}" type="image/avif">
   {% endif %}
 
+  <!-- .webp images -->
+  {% if path contains '.png' or path contains '.jpg' or path contains '.jpeg' %}
+    {% capture sources %}
+      {% for i in resized %}
+        /assets/{{ i.dirname }}/{{ i.filename }}-min.webp {{ i.width }}w,
+      {% endfor %}
+
+      {{ original.dirname | prepend: '/assets/resized/' | append: '/' | append: original.filename | replace: '//', '/' }}-min.webp {{ original.width }}w
+    {% endcapture %}
+
+    <source srcset="{{ sources }}" sizes="{{ sizes }}" type="image/webp">
+  {% endif %}
+
+  <!-- .jpg images -->
+  {% if path contains '.png' or path contains '.jpg' or path contains '.jpeg' %}
+    {% capture sources %}
+      {% for i in resized %}
+        /assets/{{ i.dirname }}/{{ i.filename }}-min.jpg {{ i.width }}w,
+      {% endfor %}
+
+      {{ original.dirname | prepend: '/assets/resized/' | append: '/' | append: original.filename | replace: '//', '/' }}-min.jpg {{ original.width }}w
+    {% endcapture %}
+
+    <source srcset="{{ sources }}" sizes="{{ sizes }}" type="image/jpeg">
+  {% endif %}
+
+  <!-- Originals -->
   {% capture sources %}
     {% for i in resized %}
       /{{ i.path }} {{ i.width }}w,
@@ -21,6 +48,7 @@
   {% endcapture %}
   <source srcset="{{ sources }} /{{ path }} {{ original.width }}w" sizes="{{ sizes }}">
 
+  <!-- Default -->
   <img class="{{ class }}" src="/{{ resized[0].path }}"
        width="{{ width }}"
        height="{{ height }}"
