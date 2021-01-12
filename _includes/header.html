@@ -19,13 +19,6 @@
     {% endcapture %}
     {{ seo_tags | replace: 'DESCRIPTION_MARKER', user.bio }}
 
-    <style>
-      {% capture styles %}
-        {% include styles.scss %}
-      {% endcapture %}
-      {{ styles | scssify }}
-    </style>
-
     <script>
       window.addEventListener('DOMContentLoaded', () => {
         for (let e of document.getElementsByClassName('loads')) {
@@ -43,6 +36,7 @@
     </script>
 
     {{ include.inject }}
+    <css-inline-location-marker></css-inline-location-marker>
   </head>
 
   <body class="min-height-full" id="top">
