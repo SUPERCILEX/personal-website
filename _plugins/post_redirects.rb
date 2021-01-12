@@ -21,4 +21,11 @@ module PostRedirects
       end
     end
   end
+
+  Jekyll::Hooks.register :site, :post_write do |site|
+    production = site.config['env'].nil? || site.config['env'] =~ /production/i
+    if production
+      system 'python3 .build/firebase_redirect_inliner.py'
+    end
+  end
 end

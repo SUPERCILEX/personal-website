@@ -53,7 +53,6 @@ def serve(drafts, fast, live, expires):
         # Run twice for image gen
         os.system(f'JEKYLL_ENV=production bundle exec jekyll build {args}')
 
-        os.system('python3 .build/firebase_redirect_inliner.py')
         os.system(f'firebase hosting:channel:deploy -e {expires} {uuid.uuid1()}')
     else:
         if fast:

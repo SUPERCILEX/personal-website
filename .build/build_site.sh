@@ -26,9 +26,7 @@ test -d "build/assets" && find build/assets -type f -exec touch {} + || true
 JEKYLL_ENV=production bundle exec jekyll build -s ${JEKYLL_SRC} -d build
 echo "Jekyll build done"
 
-echo "Generating Firebase config"
-python3 .build/firebase_redirect_inliner.py
-# The .firebase.json file will be available in Git, enabling human verification
+# Make the firebase.json file available in Git, enabling human verification
 cp firebase.json build/.firebase.json
 
 # No need to have GitHub Pages to run Jekyll

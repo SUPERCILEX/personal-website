@@ -2,6 +2,7 @@ url: https://alexsaveau.dev
 baseurl: ""
 title: Alex Saveau
 destination: build/
+env: production
 author:
   name: Alex Saveau
   twitter: SUPERCILEX
