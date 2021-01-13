@@ -25,7 +25,8 @@ module PostRedirects
   Jekyll::Hooks.register :site, :post_write do |site|
     production = site.config['env'].nil? || site.config['env'] =~ /production/i
     if production
-      system 'python3 .build/firebase_redirect_inliner.py'
+      system 'python3 .build/firebase_redirect_inliner.py' or raise 'Redirect creation failed.'
+      system 'python3 .build/downgrade_seo_image_resolution.py' or raise 'SEO image res downgrader failed.'
     end
   end
 end
