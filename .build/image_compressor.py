@@ -5,26 +5,14 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from subprocess import check_call, STDOUT, PIPE
 from typing import List
 
-site_dir = 'build'
+from shared import site_dir, broken_outputs, removeprefix
+
 assets_dir = 'assets'
 output_assets_dir = 'assets/resized'
 support_files = ['.png', '.jpg', '.jpeg']
 output_formats = {'jpg': 'mozjpeg', 'webp': 'webp', 'avif': 'avif'}
 compressed_file_suffix = '-min'
 squoosh = '.build/node_modules/.bin/squoosh-cli'
-
-# These images break the compressor
-# TODO remove when upstream fixes it
-broken_outputs = [
-    'assets/resized/general/gradle-codesearch-comparison-min.avif',
-
-    'assets/resized/firebase/website-health-metrics-min.avif',
-    'assets/resized/firebase/website-health-metrics-3200-min.avif',
-
-    'assets/resized/future/final-stop-resolution-min.avif',
-    'assets/resized/future/final-stop-resolution-min.webp',
-    'assets/resized/future/final-stop-resolution-min.jpg',
-]
 
 
 def main():
@@ -53,7 +41,7 @@ def compress(parent: str, file: str):
 
     for (file_type, command) in output_formats.items():
         output_dir = parent if resized else \
-            os.path.join(output_assets_dir, parent.lstrip(f'{assets_dir}/'))
+            os.path.join(output_assets_dir, removeprefix(removeprefix(parent, assets_dir), '/'))
         output_file = os.path.join(output_dir, f'{file_name}{compressed_file_suffix}.{file_type}')
 
         if not os.path.exists(output_file) and output_file not in broken_outputs:
