@@ -4,19 +4,6 @@ from typing import Optional
 
 site_dir = 'build'
 
-# These images break the compressor
-# TODO remove when upstream fixes it
-broken_outputs = [
-    'assets/resized/general/gradle-codesearch-comparison-min.avif',
-
-    'assets/resized/firebase/website-health-metrics-min.avif',
-    'assets/resized/firebase/website-health-metrics-3200-min.avif',
-
-    'assets/resized/future/final-stop-resolution-min.avif',
-    'assets/resized/future/final-stop-resolution-min.webp',
-    'assets/resized/future/final-stop-resolution-min.jpg',
-]
-
 
 def downgrade_image(path: str, max_resolution=None, extension=None):
     relative_path = removeprefix(removeprefix(path, 'assets/'), 'resized/')

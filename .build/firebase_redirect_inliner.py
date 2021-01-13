@@ -2,7 +2,7 @@ import json
 import os
 from html.parser import HTMLParser
 
-from shared import site_dir, broken_outputs, downgrade_image
+from shared import site_dir
 
 firebase_config_template_file = '.build/firebase-template.json'
 firebase_config_file = 'firebase.json'
@@ -16,15 +16,6 @@ def main():
         for file in files:
             if file.endswith('.html'):
                 handle_file(os.path.join(subdir, file), redirects)
-
-    for broken_output in broken_outputs:
-        next_of_kin = downgrade_image(broken_output)
-        if next_of_kin:
-            redirects.append({
-                'source': '/' + broken_output,
-                'destination': '/' + next_of_kin,
-                'type': 302
-            })
 
     write_updated_firebase_config(firebase_config, redirects)
 
