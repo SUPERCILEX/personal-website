@@ -135,7 +135,7 @@ responsive_image:
     - width: 3200
 
 compress_html:
-  comments: "all"
+  comments: all
 
 redirect_from:
   json: false
