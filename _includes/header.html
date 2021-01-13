@@ -21,7 +21,7 @@
 
     <script>
       window.addEventListener('DOMContentLoaded', () => {
-        for (let e of document.getElementsByClassName('loads')) {
+        for (let e of document.querySelectorAll('.loads')) {
           const removeAnimation = () => {
             e.classList.remove('loads');
           };
