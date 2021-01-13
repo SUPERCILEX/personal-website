@@ -109,6 +109,6 @@ jobs:
       - name: Run Lighthouse
         run: |
           bundle exec jekyll serve --no-watch --detach --skip-initial-build
-          ./.build/node_modules/.bin/lhci autorun
+          ./.build/node_modules/.bin/lhci --config=.build/lighthouserc.js autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

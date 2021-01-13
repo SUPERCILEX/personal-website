@@ -44,6 +44,11 @@ plugins:
   - jekyll-archives
   - jekyll-responsive-image
 
+exclude:
+  - .idea
+  - site.py
+  - firebase.json
+
 defaults:
   - scope:
       path: ""
