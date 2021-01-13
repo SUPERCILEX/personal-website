@@ -18,7 +18,6 @@ plugins:
   # Other plugins
   - jekyll-feed
   - jekyll-image-size
-  - jekyll-last-modified-at
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-responsive-image
