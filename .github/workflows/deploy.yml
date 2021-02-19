@@ -14,7 +14,10 @@ jobs:
       - name: Fetch history
         run: git fetch --prune --unshallow --progress
       - name: Install Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
       - name: Install NodeJS
         uses: actions/setup-node@v2
         with:
@@ -23,13 +26,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-      - name: Gem Cache
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
       - name: NPM Cache
         uses: actions/cache@v2
         with:

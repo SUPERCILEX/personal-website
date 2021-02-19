@@ -9,14 +9,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install Ruby
-        uses: actions/setup-ruby@v1
-      - name: Gem Cache
-        uses: actions/cache@v2
+        uses: ruby/setup-ruby@v1
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
+          ruby-version: 2.7
+          bundler-cache: true
       - name: Site Assets Cache
         uses: actions/cache@v2
         with:
@@ -81,14 +77,10 @@ jobs:
         with:
           node-version: '12'
       - name: Install Ruby
-        uses: actions/setup-ruby@v1
-      - name: Gem Cache
-        uses: actions/cache@v2
+        uses: ruby/setup-ruby@v1
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
+          ruby-version: 2.7
+          bundler-cache: true
       - name: NPM Cache
         uses: actions/cache@v2
         with:
@@ -103,8 +95,6 @@ jobs:
           path: build/
       - name: Prep
         run: |
-          bundle config path vendor/bundle
-          bundle install
           (cd .build && npm ci)
       - name: Run Lighthouse
         run: |

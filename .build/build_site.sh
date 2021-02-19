@@ -1,11 +1,6 @@
 #!/bin/sh -e
 
-echo "::debug ::Starting install"
-bundle config path vendor/bundle
-bundle install
-
 (cd .build && npm ci)
-echo "::debug ::Completed install"
 
 if [ -n "${INPUT_JEKYLL_SRC}" ]; then
   JEKYLL_SRC=${INPUT_JEKYLL_SRC}
