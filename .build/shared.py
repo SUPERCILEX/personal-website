@@ -24,11 +24,17 @@ def downgrade_image(path: str, max_resolution=None, extension=None):
         else:
             return sys.maxsize
 
+    def is_in_family(file: str) -> bool:
+        matches_start = os.path.basename(file).startswith(name)
+        matches_end = file.endswith(extension)
+        matches_middle = len(removeprefix(file, name).split('-')) == 3
+
+        return matches_start and matches_middle and matches_end
+
     compressed_files = []
     if os.path.exists(compressed_path):
         compressed_files = list(filter(
-            lambda file: os.path.basename(file).startswith(name) and file.endswith(extension),
-            os.listdir(compressed_path)))
+            lambda file: is_in_family(file), os.listdir(compressed_path)))
     if max_resolution:
         compressed_files = list(filter(
             lambda file: extract_resolution(file) <= max_resolution, compressed_files))
