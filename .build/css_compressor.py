@@ -41,19 +41,16 @@ def compress(css: str, parent: str, file: str):
 
     check_call([
         uncss,
-        '--stylesheets',
-        tmp_css_file,
-        '--output',
-        tmp_css_path,
+        '--stylesheets', tmp_css_file,
+        '--output', tmp_css_path,
         os.path.join(parent, file),
     ], stdout=PIPE, stderr=STDOUT, timeout=90)
 
     check_call([
         csso,
-        '--input',
-        tmp_css_path,
-        '--output',
-        tmp_css_path,
+        '--comments', 'none',
+        '--input', tmp_css_path,
+        '--output', tmp_css_path,
     ], stdout=PIPE, stderr=STDOUT, timeout=90)
 
     with open(tmp_css_path) as f:
