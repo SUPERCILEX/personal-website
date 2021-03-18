@@ -51,7 +51,8 @@ def serve(drafts, fast, live, expires):
     if live:
         os.system(f'JEKYLL_ENV=production bundle exec jekyll build {args}')
 
-        os.system(f'firebase hosting:channel:deploy -e {expires} {uuid.uuid1()}')
+        os.system('.build/node_modules/.bin/firebase '
+                  f'hosting:channel:deploy -e {expires} {uuid.uuid1()}')
     else:
         if fast:
             args += ' --limit-posts 3 --config "_config.yml,_config_dev.yml"'
