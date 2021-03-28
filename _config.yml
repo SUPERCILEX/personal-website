@@ -96,23 +96,6 @@ social_media:
   twitter: SUPERCILEX
   stackoverflow: 4548500
 
-skills:
-  - name: Android
-    web_url: https://github.com/topics/android
-    image_url: /assets/android/logo.svg
-
-  - name: Kotlin
-    web_url: https://github.com/topics/kotlin
-    image_url: /assets/kotlin/logo.svg
-
-  - name: Gradle
-    web_url: https://github.com/topics/gradle
-    image_url: /assets/gradle/logo.svg
-
-  - name: Firebase
-    web_url: https://github.com/topics/firebase
-    image_url: /assets/firebase/logo.svg
-
 jekyll-archives:
   enabled: all
   layout: posts
