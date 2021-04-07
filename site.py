@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 import os
 import uuid
 
@@ -32,6 +32,8 @@ def cli():
     pass
 
 
+@click.option('--prod', '--production', is_flag=True, default=False,
+              help='Builds the site under a production environment.')
 @click.option('--drafts/--no-drafts', is_flag=True, default=True,
               help='Include draft and future posts.')
 @click.option('--fast/--no-fast', is_flag=True, default=True,
@@ -41,23 +43,26 @@ def cli():
 @click.option('--expires', default='1d',
               help='Staging channel expiration. Only used when --live is set.')
 @cli.command()
-def serve(drafts, fast, live, expires):
+def serve(prod, drafts, fast, live, expires):
     """
     Deploy the site.
     """
 
+    env = ''
+    if prod:
+        env += ' JEKYLL_ENV=production'
+
     args = '--future --drafts' if drafts else ''
+    if fast:
+        args += ' --limit-posts 3 --config "_config.yml,_config_dev.yml"'
 
     if live:
-        os.system(f'JEKYLL_ENV=production bundle exec jekyll build {args}')
+        os.system(f'{env} bundle exec jekyll build {args}')
 
         os.system('.build/node_modules/.bin/firebase '
                   f'hosting:channel:deploy -e {expires} {uuid.uuid1()}')
     else:
-        if fast:
-            args += ' --limit-posts 3 --config "_config.yml,_config_dev.yml"'
-
-        os.system(f'bundle exec jekyll serve {args} --livereload')
+        os.system(f'{env} bundle exec jekyll serve {args} --livereload')
 
 
 if __name__ == "__main__":
