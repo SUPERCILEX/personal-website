@@ -7,14 +7,16 @@ layout: compress
 {% endcapture %}
 {% include header.html inject=article_styling %}
 
-{% assign words_total = content | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
-{% assign words_without_code = content | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
-{% assign words_without_math = content | strip_html | number_of_words %}
-{% assign words_without_either = content | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | strip_html | number_of_words %}
-{% assign words_code = words_total | minus: words_without_code | divided_by: 2.0 %}
-{% assign words_math = words_total | minus: words_without_math | times: 2.0 %}
-{% assign words = words_without_either | plus: words_code | plus: words_math | round %}
-{% assign ert = words | divided_by:200 | at_least: 1 %}
+{% unless jekyll.environment == "development" %}
+  {% assign words_total = content | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
+  {% assign words_without_code = content | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | replace: '<script type="math/tex">', '' | replace: '<script type="math/tex; mode=display">', '' | replace: '</script>', '' | strip_html | number_of_words %}
+  {% assign words_without_math = content | strip_html | number_of_words %}
+  {% assign words_without_either = content | replace: '<pre class="highlight">', '<!--' | replace: '</pre>', '-->' | strip_html | number_of_words %}
+  {% assign words_code = words_total | minus: words_without_code | divided_by: 2.0 %}
+  {% assign words_math = words_total | minus: words_without_math | times: 2.0 %}
+  {% assign words = words_without_either | plus: words_code | plus: words_math | round %}
+  {% assign ert = words | divided_by:200 | at_least: 1 %}
+{% endunless %}
 
 {% capture post_body %}
   <h1 class="f00-light lh-condensed text-defaults" style="font-weight: 600 !important;">{{ page.title }}</h1>
