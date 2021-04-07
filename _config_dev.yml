@@ -1,5 +1,3 @@
-env: dev
-
 plugins:
   # GitHub Pages plugins
   - jekyll-octicons
