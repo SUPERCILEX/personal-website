@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import uuid
 
 import click
 from dotenv import load_dotenv
@@ -32,7 +31,7 @@ def cli():
     pass
 
 
-@click.option('--prod', '--production', is_flag=True, default=False,
+@click.option('--prod', '--production', '-p', is_flag=True, default=False,
               help='Builds the site under a production environment.')
 @click.option('--drafts/--no-drafts', is_flag=True, default=True,
               help='Include draft and future posts.')
@@ -60,7 +59,8 @@ def serve(prod, drafts, fast, live, expires):
         os.system(f'{env} bundle exec jekyll build {args}')
 
         os.system('.build/node_modules/.bin/firebase '
-                  f'hosting:channel:deploy -e {expires} {uuid.uuid1()}')
+                  f'hosting:channel:deploy -e {expires} '
+                  '$(git branch --show-current)')
     else:
         os.system(f'{env} bundle exec jekyll serve {args} --livereload')
 
