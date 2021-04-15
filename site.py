@@ -62,7 +62,7 @@ def serve(prod, drafts, fast, live, expires):
                   f'hosting:channel:deploy -e {expires} '
                   '$(git branch --show-current)')
     else:
-        os.system(f'{env} bundle exec jekyll serve {args} --livereload')
+        os.system(f'{env} bundle exec jekyll serve {args} --livereload --open-url')
 
 
 if __name__ == "__main__":
