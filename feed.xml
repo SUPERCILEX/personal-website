@@ -1,0 +1,1581 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="https://alexsaveau.dev/feed.xml" rel="self" type="application/atom+xml" /><link href="https://alexsaveau.dev/" rel="alternate" type="text/html" /><updated>2021-07-14T00:23:20+00:00</updated><id>https://alexsaveau.dev/feed.xml</id><title type="html">Alex Saveau</title><subtitle>https://alexsaveau.dev</subtitle><author><name>Alex Saveau</name></author><entry><title type="html">Automate deleting old Google emails and calendar events</title><link href="https://alexsaveau.dev/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events" rel="alternate" type="text/html" title="Automate deleting old Google emails and calendar events" /><published>2021-02-18T00:00:00+00:00</published><updated>2021-02-19T01:31:03+00:00</updated><id>https://alexsaveau.dev/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events</id><content type="html" xml:base="https://alexsaveau.dev/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events">&lt;p&gt;Google &lt;a href=&quot;https://blog.google/technology/safety-security/automatically-delete-data/&quot;&gt;introduced&lt;/a&gt; auto
+deletion for web, YouTube, and location activity back in 2019, but hasn’t come out with official
+solutions for their other products yet. Notably, gmail and gcal have data that likely isn’t needed
+after some number of months.&lt;/p&gt;
+
+&lt;p&gt;To automate deleting old data, &lt;a href=&quot;https://developers.google.com/apps-script&quot;&gt;Google Apps Script&lt;/a&gt; is
+the handiest tool available. Off we go:&lt;/p&gt;
+
+&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#creating-a-script&quot; id=&quot;markdown-toc-creating-a-script&quot;&gt;Creating a script&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#scheduling-scripts-as-cron-jobs&quot; id=&quot;markdown-toc-scheduling-scripts-as-cron-jobs&quot;&gt;Scheduling scripts as CRON jobs&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#using-scripts-across-multiple-google-accounts&quot; id=&quot;markdown-toc-using-scripts-across-multiple-google-accounts&quot;&gt;Using scripts across multiple Google accounts&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#thorn-google-accounts-in-the-advanced-protection-program&quot; id=&quot;markdown-toc-thorn-google-accounts-in-the-advanced-protection-program&quot;&gt;Thorn: Google accounts in the Advanced Protection Program&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#appendix&quot; id=&quot;markdown-toc-appendix&quot;&gt;Appendix&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#email-deletion&quot; id=&quot;markdown-toc-email-deletion&quot;&gt;Email deletion&lt;/a&gt;        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#script&quot; id=&quot;markdown-toc-script&quot;&gt;Script&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#calendar-event-deletion&quot; id=&quot;markdown-toc-calendar-event-deletion&quot;&gt;Calendar event deletion&lt;/a&gt;        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#script-1&quot; id=&quot;markdown-toc-script-1&quot;&gt;Script&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;creating-a-script&quot;&gt;Creating a script&lt;/h2&gt;
+
+&lt;p&gt;Visit &lt;a href=&quot;https://script.new&quot;&gt;script.new&lt;/a&gt; and write your own code, or paste in the solutions I’ve been
+using from the &lt;a href=&quot;#appendix&quot;&gt;appendix&lt;/a&gt;. Hit save, and the editor will automatically pick the first
+function it sees to run by default.&lt;/p&gt;
+
+&lt;p&gt;You can then click on Run to execute the script manually, giving it permissions to access your
+account.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: the first time you run a script operating on lots of data, it will probably fail several
+times with various quota errors. You can either continue running it manually until the script
+reaches a steady state (having processed all your data), or move on to scheduling it and let
+things eventually sort themselves out.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;scheduling-scripts-as-cron-jobs&quot;&gt;Scheduling scripts as CRON jobs&lt;/h2&gt;
+
+&lt;p&gt;Once you’ve executed the script at least once to give it the correct permissions, you can use the
+Triggers page found in the left sidebar to schedule your script for periodic execution. The defaults
+when you add a trigger are good enough, but I tend to downgrade the schedule from every hour to once
+a day as an hourly job seems a tad wasteful.&lt;/p&gt;
+
+&lt;h2 id=&quot;using-scripts-across-multiple-google-accounts&quot;&gt;Using scripts across multiple Google accounts&lt;/h2&gt;
+
+&lt;p&gt;You can share a script like a Google Doc, but you’ll have to run it once and create a Trigger for
+each account. The main benefit of sharing the script is that modifications only need to be performed
+once instead of being copied to each account.&lt;/p&gt;
+
+&lt;h2 id=&quot;thorn-google-accounts-in-the-advanced-protection-program&quot;&gt;Thorn: Google accounts in the Advanced Protection Program&lt;/h2&gt;
+
+&lt;p&gt;Sadly, if your Google account is enrolled in
+the &lt;a href=&quot;https://landing.google.com/advancedprotection/&quot;&gt;Advanced Protection Program&lt;/a&gt;, there is no way
+that I’m aware of to run unapproved Apps Scripts. When you try to accept the permissions on the
+first run, the request will be denied. This is
+apparently &lt;a href=&quot;https://support.google.com/accounts/answer/7539956?hl=en#zippy=%2Ccan-i-use-non-google-apps-services-or-apps-script-with-advanced-protection&quot;&gt;intentional&lt;/a&gt;
+which is a bummer.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;appendix&quot;&gt;Appendix&lt;/h2&gt;
+
+&lt;p&gt;These are the scripts I’ve been using to manage my own old data.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: when I say “delete” below, I really mean “move to trash.” The scripts don’t empty the trash,
+allowing for the standard 30-day grace period to elapse.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;email-deletion&quot;&gt;Email deletion&lt;/h3&gt;
+
+&lt;p&gt;This script deletes emails that don’t have the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;indef&lt;/code&gt; label &lt;em&gt;and&lt;/em&gt; are 18 months old (or older). It
+also deletes any unread emails that have been archived.&lt;/p&gt;
+
+&lt;p&gt;Reference docs are available &lt;a href=&quot;https://developers.google.com/apps-script/reference/gmail&quot;&gt;here&lt;/a&gt; and
+you can read about creating labels in Gmail &lt;a href=&quot;https://support.google.com/mail/answer/118708&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Expected workflow:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Manually label all critical emails with the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;indef&lt;/code&gt; label. Any other email is transient and will
+eventually be deleted.&lt;/li&gt;
+  &lt;li&gt;Any email you swipe away (archive) without opening is unneeded and gets deleted immediately. This
+mainly enables Inbox Zero without having to manually open emails you don’t care about to mark them
+as read and then archive them.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;script&quot;&gt;Script&lt;/h4&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/** Deletes 18 month+ old emails and unread archived emails. */&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;processMail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;deleteEmailMatching&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;label:unread -label:inbox&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;deleteEmailMatching&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;older_than:18m -label:indef&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;deleteEmailMatching&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;threads&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;threads&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;GmailApp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;threads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;trash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;threads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;trash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;threads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;threads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;forEach&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;thread&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`Deleting email '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getFirstMessageSubject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;': &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getPermalink&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;GmailApp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;moveThreadsToTrash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;threads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;calendar-event-deletion&quot;&gt;Calendar event deletion&lt;/h3&gt;
+
+&lt;p&gt;This script deletes calendar events that are 18 months old (or older). It includes an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;OTHER_EMAILS&lt;/code&gt;
+field that allows a single account to handle auto-deleting events for any other account.&lt;/p&gt;
+
+&lt;p&gt;Reference docs are available &lt;a href=&quot;https://developers.google.com/apps-script/reference/calendar&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Expected workflow:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Give the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Make changes to events&lt;/code&gt; permission to the account running the script for any calendar
+where you want auto-deletion running. Then add the calendar’s email to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;OTHER_EMAILS&lt;/code&gt; array in
+the script. If it’s not your primary calendar, you can find its ID/email by going to the
+calendar’s settings and looking at the first field under the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Integrate calendar&lt;/code&gt; section.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;script-1&quot;&gt;Script&lt;/h4&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;OTHER_EMAILS&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;foo@example.com&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+
+&lt;span class=&quot;cm&quot;&gt;/** Deletes calender events that took place 18 months ago or earlier. */&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;processCalendars&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;CalendarApp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getAllCalendars&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;isOwnedByMe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;OTHER_EMAILS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;includes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getId&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`Deleting old events in calendar: &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; (&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getId&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;)`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;deleteOldEvents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;deleteOldEvents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;epoch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;eitghteenMonthsAgo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;18&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;oldEvents&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;calendar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getEvents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;epoch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;eitghteenMonthsAgo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;oldEvents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;oldEvents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`Deleting event '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getTitle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;' `&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+          &lt;span class=&quot;s2&quot;&gt;`that took place between &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getStartTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; and &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getEndTime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;deleteEvent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Alex Saveau</name></author><category term="Tips" /><category term="Privacy" /><category term="Automation" /><summary type="html">Google introduced auto deletion for web, YouTube, and location activity back in 2019, but hasn’t come out with official solutions for their other products yet. Notably, gmail and gcal have data that likely isn’t needed after some number of months.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/me.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Server-side analytics with Firebase Hosting</title><link href="https://alexsaveau.dev/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting" rel="alternate" type="text/html" title="Server-side analytics with Firebase Hosting" /><published>2020-09-12T00:00:00+00:00</published><updated>2020-09-12T22:10:05+00:00</updated><id>https://alexsaveau.dev/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting</id><content type="html" xml:base="https://alexsaveau.dev/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting">&lt;p&gt;Client-side analytics slow down your website and are inaccurate at best, especially in communities
+like ours that tend to disable trackers. Until recently, Google Analytics and its equivalents were
+the best you could do with a static site hosted on Firebase. No more! Firebase Hosting
+&lt;a href=&quot;https://firebase.googleblog.com/2020/08/firebase-hosting-new-features.html&quot;&gt;introduced&lt;/a&gt;
+&lt;a href=&quot;https://firebase.google.com/docs/hosting/web-request-logs-and-metrics&quot;&gt;Cloud Logging&lt;/a&gt; to address
+this shortfall.&lt;/p&gt;
+
+&lt;p&gt;While Cloud Logging can be helpful in debugging a specific request, the magic comes when you enable
+exports to BigQuery. Once your data is in BigQuery, you can do whatever you want — including make
+the custom Data Studio dashboard pictured above. You can even go further than basic analytics and
+make a health dashboard:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/firebase/website-health-metrics.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/firebase/website-health-metrics-240-min.avif 240w,              /assets/resized/firebase/website-health-metrics-320-min.avif 320w,              /assets/resized/firebase/website-health-metrics-480-min.avif 480w,              /assets/resized/firebase/website-health-metrics-800-min.avif 800w,              /assets/resized/firebase/website-health-metrics-1600-min.avif 1600w,              /assets/resized/firebase/website-health-metrics-3200-min.avif 3200w,            /assets/resized/firebase/website-health-metrics-min.avif 5760w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/firebase/website-health-metrics-240-min.webp 240w,              /assets/resized/firebase/website-health-metrics-320-min.webp 320w,              /assets/resized/firebase/website-health-metrics-480-min.webp 480w,              /assets/resized/firebase/website-health-metrics-800-min.webp 800w,              /assets/resized/firebase/website-health-metrics-1600-min.webp 1600w,              /assets/resized/firebase/website-health-metrics-3200-min.webp 3200w,            /assets/resized/firebase/website-health-metrics-min.webp 5760w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/firebase/website-health-metrics-240-min.jpg 240w,              /assets/resized/firebase/website-health-metrics-320-min.jpg 320w,              /assets/resized/firebase/website-health-metrics-480-min.jpg 480w,              /assets/resized/firebase/website-health-metrics-800-min.jpg 800w,              /assets/resized/firebase/website-health-metrics-1600-min.jpg 1600w,              /assets/resized/firebase/website-health-metrics-3200-min.jpg 3200w,            /assets/resized/firebase/website-health-metrics-min.jpg 5760w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/firebase/website-health-metrics-240.png 240w,          /assets/resized/firebase/website-health-metrics-320.png 320w,          /assets/resized/firebase/website-health-metrics-480.png 480w,          /assets/resized/firebase/website-health-metrics-800.png 800w,          /assets/resized/firebase/website-health-metrics-1600.png 1600w,          /assets/resized/firebase/website-health-metrics-3200.png 3200w,       /assets/firebase/website-health-metrics.png 5760w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/firebase/website-health-metrics-240.png&quot; width=&quot;5760&quot; height=&quot;9000&quot; alt=&quot;Data Studio dashboard of website health metrics&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Custom health metrics&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;If you’re ok with spending a few hours to set this up and design your perfect dashboard, then the
+rewards are well worth it. Onwards!&lt;/p&gt;
+
+&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#enable-cloud-logging&quot; id=&quot;markdown-toc-enable-cloud-logging&quot;&gt;Enable Cloud Logging&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#set-up-exports-to-bigquery&quot; id=&quot;markdown-toc-set-up-exports-to-bigquery&quot;&gt;Set up exports to BigQuery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#create-your-data-studio-dashboard&quot; id=&quot;markdown-toc-create-your-data-studio-dashboard&quot;&gt;Create your Data Studio dashboard&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;enable-cloud-logging&quot;&gt;Enable Cloud Logging&lt;/h2&gt;
+
+&lt;p&gt;It’s free and just takes the
+&lt;a href=&quot;https://console.firebase.google.com/u/0/project/_/settings/integrations/cloudlogging&quot;&gt;click of a button&lt;/a&gt;.
+The only concern I can think of is a potential PII issue since IP addresses are logged.&lt;/p&gt;
+
+&lt;h2 id=&quot;set-up-exports-to-bigquery&quot;&gt;Set up exports to BigQuery&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: sadly, this requires a billing account. Unless your site gets a crazy number of requests,
+it’s basically free, costing only
+&lt;a href=&quot;https://cloud.google.com/bigquery/pricing#streaming_pricing&quot;&gt;$.01/200MBs&lt;/a&gt;. Interestingly enough,
+nothing’s actually shown up on my billing page… so maybe there’s rounding that works in our favor?
+Either way, $.12/year for custom analytics seems worth it to me.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;On the
+&lt;a href=&quot;https://console.cloud.google.com/logs/query;query=resource.type%3D%22firebase_domain%22;timeRange=P7D&quot;&gt;Cloud Logging page&lt;/a&gt;,
+hit “Create sink”&lt;/li&gt;
+  &lt;li&gt;Choose “BigQuery dataset”&lt;/li&gt;
+  &lt;li&gt;For the name, put in something like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;all-traffic&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;For the destination, hit “Create new BigQuery dataset” and put in something like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;analytics&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You can make sure there were no errors by checking your
+&lt;a href=&quot;https://console.cloud.google.com/home/activity&quot;&gt;activity page&lt;/a&gt;. If you see a bunch of BigQuery
+requests and no red, you’re good to go. You can now
+&lt;a href=&quot;https://console.cloud.google.com/bigquery&quot;&gt;query your data&lt;/a&gt;! (Look for your GCP project ID in the
+sidebar.) For example:&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;-- Did this request come from a bot?&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;NOT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;STARTS_WITH&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;httpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;userAgent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;&quot;Mozilla&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;OR&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;REGEXP_CONTAINS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;httpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;userAgent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;&quot;(?i)bot&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is_bot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;-- What are all the requests an IP visited over the course of a day?&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;-- (Note: this is imperfect since a session crossing over midnight will be assigned&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;-- two different IDs.)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;TO_HEX&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MD5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CONCAT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;httpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;remoteIp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TIMESTAMP_TRUNC&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;timestamp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;DAY&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))))&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AS&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;
+  &lt;span class=&quot;nv&quot;&gt;`alexsaveau-dev.analytics.*`&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;create-your-data-studio-dashboard&quot;&gt;Create your Data Studio dashboard&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://datastudio.google.com/u/0/reporting&quot;&gt;Create a new report&lt;/a&gt; and choose the BigQuery
+connector. From there, you can choose “Custom query” and put in whatever crazy query you came up
+with.&lt;/p&gt;
+
+&lt;p&gt;Now all that’s left is to geek out making charts. Have fun!&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Firebase" /><category term="BigQuery" /><category term="Analytics" /><category term="Tips" /><summary type="html">Client-side analytics slow down your website and are inaccurate at best, especially in communities like ours that tend to disable trackers. Until recently, Google Analytics and its equivalents were the best you could do with a static site hosted on Firebase. No more! Firebase Hosting introduced Cloud Logging to address this shortfall.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/firebase/website-basic-analytics.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/firebase/website-basic-analytics.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Get your own personal Code Search</title><link href="https://alexsaveau.dev/blog/tips/search/github/get-your-own-personal-code-search" rel="alternate" type="text/html" title="Get your own personal Code Search" /><published>2020-06-17T00:00:00+00:00</published><updated>2020-06-20T01:23:23+00:00</updated><id>https://alexsaveau.dev/blog/tips/search/github/get-your-own-personal-code-search</id><content type="html" xml:base="https://alexsaveau.dev/blog/tips/search/github/get-your-own-personal-code-search">&lt;p&gt;When it comes to finding a piece of code, GitHub’s search can be less than helpful at times.
+In stark contrast to that, the public version of Google’s Code Search tooling absolutely kicks ass.
+&lt;a href=&quot;https://cs.android.com/&quot;&gt;cs.android.com&lt;/a&gt; and &lt;a href=&quot;https://cs.opensource.google/&quot;&gt;cs.opensource.google&lt;/a&gt;
+are my go-to tools for finding open source Google code, but unfortunately, they’re just that:
+&lt;em&gt;Google&lt;/em&gt; Code Search. If you’re looking for non-Google code, you’re out of luck. Until now.&lt;/p&gt;
+
+&lt;p&gt;GCP offers “Cloud Source Repositories,” which are basically just private GitHub repos with one
+major benefit: Google will build a unified index of your code across all the repos in &lt;em&gt;all&lt;/em&gt; the GCP
+projects you have access to. That means you can log in with an account that has access to your
+personal and work GCP projects to get one view into every line of code that matters to you.&lt;/p&gt;
+
+&lt;p&gt;For this guide, I’m going to assume your code is on GitHub, but GCP also supports Bitbucket out of
+the box. If your code isn’t on one of those two platforms (think GitLab), you can always set up
+&lt;a href=&quot;https://cloud.google.com/source-repositories/docs/pushing-code-from-a-repository#cloud-sdk&quot;&gt;manual mirroring&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Let’s get going!&lt;/p&gt;
+
+&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#fork-third-party-repos-you-care-about&quot; id=&quot;markdown-toc-fork-third-party-repos-you-care-about&quot;&gt;Fork third-party repos you care about&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#create-a-gcp-project&quot; id=&quot;markdown-toc-create-a-gcp-project&quot;&gt;Create a GCP project&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#mirror-your-repos-to-gcp&quot; id=&quot;markdown-toc-mirror-your-repos-to-gcp&quot;&gt;Mirror your repos to GCP&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#search&quot; id=&quot;markdown-toc-search&quot;&gt;Search!&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;fork-third-party-repos-you-care-about&quot;&gt;Fork third-party repos you care about&lt;/h2&gt;
+
+&lt;p&gt;To mirror code from GitHub to GCP, you must be the owner of the repository in question (or at least
+have admin privileges). This is because Source Repositories will add a
+&lt;a href=&quot;https://developer.github.com/webhooks/&quot;&gt;webhook&lt;/a&gt; to your GitHub repo that copies all changes as
+they happen. Since you probably don’t have admin privileges on third-party repositories, you can
+instead fork them and mirror the fork.&lt;/p&gt;
+
+&lt;p&gt;One small hiccup: your fork will get quickly out-of-date without regular syncing. Thankfully, GitHub
+Actions makes this problem trivially easy to solve. Put this CRON job in a
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.github/workflows/fork-sync.yml&lt;/code&gt; workflow file, and you’ll be all set:&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;na&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Sync Fork&lt;/span&gt;
+
+&lt;span class=&quot;na&quot;&gt;on&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;schedule&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;cron&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*'&lt;/span&gt;
+
+&lt;span class=&quot;na&quot;&gt;jobs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;sync&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;runs-on&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ubuntu-latest&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;steps&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Sync&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;uses&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;TG908/fork-sync@v1&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;with&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# You can't use the built-in GITHUB_TOKEN because it doesn't have write access in forks:&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token#permissions-for-the-github_token&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# Your personal token will only need the public_repo scope.&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# TODO(you): add your personal token in the repo's secrets page.&lt;/span&gt;
+          &lt;span class=&quot;na&quot;&gt;github_token&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;${{ secrets.TOKEN }}&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# TODO(you): change this to the upstream repository owner. In this case, I'm mirroring&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# https://github.com/gradle/gradle to https://github.com/SUPERCILEX/gradle and telling&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# the action that `gradle` is the upstream repo to pull from.&lt;/span&gt;
+          &lt;span class=&quot;na&quot;&gt;owner&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;gradle&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;create-a-gcp-project&quot;&gt;Create a GCP project&lt;/h2&gt;
+
+&lt;p&gt;To keep things organized, create a &lt;a href=&quot;https://console.cloud.google.com/projectcreate&quot;&gt;new GCP project&lt;/a&gt;
+just for code mirroring. I’ve called mine &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;alex-codesearch&lt;/code&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: I believe Source Repositories will require setting up a billing account at some point, but
+the free quotas are
+&lt;a href=&quot;https://cloud.google.com/source-repositories/pricing/#free-tier&quot;&gt;extremely generous&lt;/a&gt;
+and I have yet to pay a cent.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;mirror-your-repos-to-gcp&quot;&gt;Mirror your repos to GCP&lt;/h2&gt;
+
+&lt;p&gt;You can now finally &lt;a href=&quot;https://source.cloud.google.com/repo/connect&quot;&gt;connect your repositories&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Pro tip: if you’re going to mirror more than a few repos, I would recommend opening up Chrome Dev
+Tools before clicking &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Connect selected repository&lt;/code&gt;. After clicking connect, look for the patch
+request in the Network tab. You can then &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Copy as fetch&lt;/code&gt; that request, paste it into the Console,
+and then replace the GitHub repo link near the bottom of the fetch URL with whatever other repos
+you’re trying to connect. Or, hopefully GCP will add support for connecting multiple repos at once
+in their UI by the time you read this.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;search&quot;&gt;Search!&lt;/h2&gt;
+
+&lt;p&gt;You’re all set now. The index will start populating at
+&lt;a href=&quot;https://source.cloud.google.com/&quot;&gt;source.cloud.google.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;A note about shared access&lt;/strong&gt;&lt;/p&gt;
+
+  &lt;p&gt;In a corporate environment, you can create a Google Group in your G Suite domain and give that
+group email &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Viewer&lt;/code&gt; access to the Code Search GCP project. Anyone in the group will then be able
+to access Code Search.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;As a fun little usage example, I wanted to migrate my GitHub Actions workflows to the latest
+releases, so I started searching for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;actions&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/general/sample-codesearch-part1.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part1-240-min.avif 240w,              /assets/resized/general/sample-codesearch-part1-320-min.avif 320w,              /assets/resized/general/sample-codesearch-part1-480-min.avif 480w,              /assets/resized/general/sample-codesearch-part1-800-min.avif 800w,              /assets/resized/general/sample-codesearch-part1-1600-min.avif 1600w,              /assets/resized/general/sample-codesearch-part1-3200-min.avif 3200w,            /assets/resized/general/sample-codesearch-part1-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part1-240-min.webp 240w,              /assets/resized/general/sample-codesearch-part1-320-min.webp 320w,              /assets/resized/general/sample-codesearch-part1-480-min.webp 480w,              /assets/resized/general/sample-codesearch-part1-800-min.webp 800w,              /assets/resized/general/sample-codesearch-part1-1600-min.webp 1600w,              /assets/resized/general/sample-codesearch-part1-3200-min.webp 3200w,            /assets/resized/general/sample-codesearch-part1-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part1-240-min.jpg 240w,              /assets/resized/general/sample-codesearch-part1-320-min.jpg 320w,              /assets/resized/general/sample-codesearch-part1-480-min.jpg 480w,              /assets/resized/general/sample-codesearch-part1-800-min.jpg 800w,              /assets/resized/general/sample-codesearch-part1-1600-min.jpg 1600w,              /assets/resized/general/sample-codesearch-part1-3200-min.jpg 3200w,            /assets/resized/general/sample-codesearch-part1-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/sample-codesearch-part1-240.png 240w,          /assets/resized/general/sample-codesearch-part1-320.png 320w,          /assets/resized/general/sample-codesearch-part1-480.png 480w,          /assets/resized/general/sample-codesearch-part1-800.png 800w,          /assets/resized/general/sample-codesearch-part1-1600.png 1600w,          /assets/resized/general/sample-codesearch-part1-3200.png 3200w,       /assets/general/sample-codesearch-part1.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/sample-codesearch-part1-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Sample search for actions&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Oops, too many results. Let’s try only YAML files:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/general/sample-codesearch-part2.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part2-240-min.avif 240w,              /assets/resized/general/sample-codesearch-part2-320-min.avif 320w,              /assets/resized/general/sample-codesearch-part2-480-min.avif 480w,              /assets/resized/general/sample-codesearch-part2-800-min.avif 800w,              /assets/resized/general/sample-codesearch-part2-1600-min.avif 1600w,              /assets/resized/general/sample-codesearch-part2-3200-min.avif 3200w,            /assets/resized/general/sample-codesearch-part2-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part2-240-min.webp 240w,              /assets/resized/general/sample-codesearch-part2-320-min.webp 320w,              /assets/resized/general/sample-codesearch-part2-480-min.webp 480w,              /assets/resized/general/sample-codesearch-part2-800-min.webp 800w,              /assets/resized/general/sample-codesearch-part2-1600-min.webp 1600w,              /assets/resized/general/sample-codesearch-part2-3200-min.webp 3200w,            /assets/resized/general/sample-codesearch-part2-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part2-240-min.jpg 240w,              /assets/resized/general/sample-codesearch-part2-320-min.jpg 320w,              /assets/resized/general/sample-codesearch-part2-480-min.jpg 480w,              /assets/resized/general/sample-codesearch-part2-800-min.jpg 800w,              /assets/resized/general/sample-codesearch-part2-1600-min.jpg 1600w,              /assets/resized/general/sample-codesearch-part2-3200-min.jpg 3200w,            /assets/resized/general/sample-codesearch-part2-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/sample-codesearch-part2-240.png 240w,          /assets/resized/general/sample-codesearch-part2-320.png 320w,          /assets/resized/general/sample-codesearch-part2-480.png 480w,          /assets/resized/general/sample-codesearch-part2-800.png 800w,          /assets/resized/general/sample-codesearch-part2-1600.png 1600w,          /assets/resized/general/sample-codesearch-part2-3200.png 3200w,       /assets/general/sample-codesearch-part2.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/sample-codesearch-part2-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Sample search for actions in YAML files&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Better, but still some extraneous results. Let’s try &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&quot;actions/&quot;&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/general/sample-codesearch-part3.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part3-240-min.avif 240w,              /assets/resized/general/sample-codesearch-part3-320-min.avif 320w,              /assets/resized/general/sample-codesearch-part3-480-min.avif 480w,              /assets/resized/general/sample-codesearch-part3-800-min.avif 800w,              /assets/resized/general/sample-codesearch-part3-1600-min.avif 1600w,              /assets/resized/general/sample-codesearch-part3-3200-min.avif 3200w,            /assets/resized/general/sample-codesearch-part3-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part3-240-min.webp 240w,              /assets/resized/general/sample-codesearch-part3-320-min.webp 320w,              /assets/resized/general/sample-codesearch-part3-480-min.webp 480w,              /assets/resized/general/sample-codesearch-part3-800-min.webp 800w,              /assets/resized/general/sample-codesearch-part3-1600-min.webp 1600w,              /assets/resized/general/sample-codesearch-part3-3200-min.webp 3200w,            /assets/resized/general/sample-codesearch-part3-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part3-240-min.jpg 240w,              /assets/resized/general/sample-codesearch-part3-320-min.jpg 320w,              /assets/resized/general/sample-codesearch-part3-480-min.jpg 480w,              /assets/resized/general/sample-codesearch-part3-800-min.jpg 800w,              /assets/resized/general/sample-codesearch-part3-1600-min.jpg 1600w,              /assets/resized/general/sample-codesearch-part3-3200-min.jpg 3200w,            /assets/resized/general/sample-codesearch-part3-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/sample-codesearch-part3-240.png 240w,          /assets/resized/general/sample-codesearch-part3-320.png 320w,          /assets/resized/general/sample-codesearch-part3-480.png 480w,          /assets/resized/general/sample-codesearch-part3-800.png 800w,          /assets/resized/general/sample-codesearch-part3-1600.png 1600w,          /assets/resized/general/sample-codesearch-part3-3200.png 3200w,       /assets/general/sample-codesearch-part3.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/sample-codesearch-part3-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Sample search for actions/ in YAML files&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Ah-ha! Since I know &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;upload-artifact&lt;/code&gt; has a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v2&lt;/code&gt; version available, let’s find all the instances
+where I’m still using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;v1&lt;/code&gt; of the action:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/assets/general/sample-codesearch-part4.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part4-240-min.avif 240w,              /assets/resized/general/sample-codesearch-part4-320-min.avif 320w,              /assets/resized/general/sample-codesearch-part4-480-min.avif 480w,              /assets/resized/general/sample-codesearch-part4-800-min.avif 800w,              /assets/resized/general/sample-codesearch-part4-1600-min.avif 1600w,              /assets/resized/general/sample-codesearch-part4-3200-min.avif 3200w,            /assets/resized/general/sample-codesearch-part4-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part4-240-min.webp 240w,              /assets/resized/general/sample-codesearch-part4-320-min.webp 320w,              /assets/resized/general/sample-codesearch-part4-480-min.webp 480w,              /assets/resized/general/sample-codesearch-part4-800-min.webp 800w,              /assets/resized/general/sample-codesearch-part4-1600-min.webp 1600w,              /assets/resized/general/sample-codesearch-part4-3200-min.webp 3200w,            /assets/resized/general/sample-codesearch-part4-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/sample-codesearch-part4-240-min.jpg 240w,              /assets/resized/general/sample-codesearch-part4-320-min.jpg 320w,              /assets/resized/general/sample-codesearch-part4-480-min.jpg 480w,              /assets/resized/general/sample-codesearch-part4-800-min.jpg 800w,              /assets/resized/general/sample-codesearch-part4-1600-min.jpg 1600w,              /assets/resized/general/sample-codesearch-part4-3200-min.jpg 3200w,            /assets/resized/general/sample-codesearch-part4-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/sample-codesearch-part4-240.png 240w,          /assets/resized/general/sample-codesearch-part4-320.png 320w,          /assets/resized/general/sample-codesearch-part4-480.png 480w,          /assets/resized/general/sample-codesearch-part4-800.png 800w,          /assets/resized/general/sample-codesearch-part4-1600.png 1600w,          /assets/resized/general/sample-codesearch-part4-3200.png 3200w,       /assets/general/sample-codesearch-part4.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/sample-codesearch-part4-240.png&quot; width=&quot;3840&quot; height=&quot;1214&quot; alt=&quot;Sample search for actions/upload-artifact@v1 in YAML files&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;As you get better at Code Search, you’ll be able to skip straight to the last step, but this demo
+shows the power of having killer search capabilities.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Happy code searching!&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Tips" /><category term="Search" /><category term="GitHub" /><summary type="html">When it comes to finding a piece of code, GitHub’s search can be less than helpful at times. In stark contrast to that, the public version of Google’s Code Search tooling absolutely kicks ass. cs.android.com and cs.opensource.google are my go-to tools for finding open source Google code, but unfortunately, they’re just that: Google Code Search. If you’re looking for non-Google code, you’re out of luck. Until now.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/general/gradle-codesearch-comparison.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/general/gradle-codesearch-comparison.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Customize GitHub’s code font</title><link href="https://alexsaveau.dev/blog/tips/github/customize-github-code-font" rel="alternate" type="text/html" title="Customize GitHub’s code font" /><published>2020-05-17T00:00:00+00:00</published><updated>2020-06-17T22:29:04+00:00</updated><id>https://alexsaveau.dev/blog/tips/github/customize-github-code-font</id><content type="html" xml:base="https://alexsaveau.dev/blog/tips/github/customize-github-code-font">&lt;p&gt;It occurred to me yesterday that I’ve spent way too much time nitpicking over my IDE’s font, but
+then come time for code reviews… not a ligature in sight. Here’s a quick guide to change that.&lt;/p&gt;
+
+&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+
+&lt;p&gt;Install &lt;a href=&quot;https://github.com/sindresorhus/refined-github#install&quot;&gt;Refined GitHub&lt;/a&gt;. It’s probably a
+sin at this point to not use that extension. 😉&lt;/p&gt;
+
+&lt;h2 id=&quot;change-your-font&quot;&gt;Change your font&lt;/h2&gt;
+
+&lt;p&gt;In Refined GitHub’s settings (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chrome://extensions/?options=hlepfoohegkhhmjieoechaddaejaokhf&lt;/code&gt;),
+paste in this custom CSS:&lt;/p&gt;
+
+&lt;div class=&quot;language-css highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;/*
+The wght@450 part is the font weight.
+If you want less or more boldness, decrease or increase this number.
+*/&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;@import&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;url(&quot;https://fonts.googleapis.com/css2?family=Fira+Code:wght@450&amp;amp;display=swap&quot;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;pre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;code&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;.blob-code&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;.blob-code-marker&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nl&quot;&gt;font-family&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;'Fira Code'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;monospace&lt;/span&gt; &lt;span class=&quot;cp&quot;&gt;!important&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I personally love Fira Code, but you can change this to whatever you want as long as the font is
+hosted somewhere.&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Before&lt;/th&gt;
+      &lt;th&gt;After&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;a href=&quot;/assets/general/default-github-code-font.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/default-github-code-font-240-min.avif 240w,              /assets/resized/general/default-github-code-font-320-min.avif 320w,              /assets/resized/general/default-github-code-font-480-min.avif 480w,              /assets/resized/general/default-github-code-font-800-min.avif 800w,              /assets/resized/general/default-github-code-font-1600-min.avif 1600w,              /assets/resized/general/default-github-code-font-3200-min.avif 3200w,            /assets/resized/general/default-github-code-font-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/default-github-code-font-240-min.webp 240w,              /assets/resized/general/default-github-code-font-320-min.webp 320w,              /assets/resized/general/default-github-code-font-480-min.webp 480w,              /assets/resized/general/default-github-code-font-800-min.webp 800w,              /assets/resized/general/default-github-code-font-1600-min.webp 1600w,              /assets/resized/general/default-github-code-font-3200-min.webp 3200w,            /assets/resized/general/default-github-code-font-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/default-github-code-font-240-min.jpg 240w,              /assets/resized/general/default-github-code-font-320-min.jpg 320w,              /assets/resized/general/default-github-code-font-480-min.jpg 480w,              /assets/resized/general/default-github-code-font-800-min.jpg 800w,              /assets/resized/general/default-github-code-font-1600-min.jpg 1600w,              /assets/resized/general/default-github-code-font-3200-min.jpg 3200w,            /assets/resized/general/default-github-code-font-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/default-github-code-font-240.png 240w,          /assets/resized/general/default-github-code-font-320.png 320w,          /assets/resized/general/default-github-code-font-480.png 480w,          /assets/resized/general/default-github-code-font-800.png 800w,          /assets/resized/general/default-github-code-font-1600.png 1600w,          /assets/resized/general/default-github-code-font-3200.png 3200w,       /assets/general/default-github-code-font.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/default-github-code-font-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Default GitHub font&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;/assets/general/custom-github-code-font.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/custom-github-code-font-240-min.avif 240w,              /assets/resized/general/custom-github-code-font-320-min.avif 320w,              /assets/resized/general/custom-github-code-font-480-min.avif 480w,              /assets/resized/general/custom-github-code-font-800-min.avif 800w,              /assets/resized/general/custom-github-code-font-1600-min.avif 1600w,              /assets/resized/general/custom-github-code-font-3200-min.avif 3200w,            /assets/resized/general/custom-github-code-font-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/custom-github-code-font-240-min.webp 240w,              /assets/resized/general/custom-github-code-font-320-min.webp 320w,              /assets/resized/general/custom-github-code-font-480-min.webp 480w,              /assets/resized/general/custom-github-code-font-800-min.webp 800w,              /assets/resized/general/custom-github-code-font-1600-min.webp 1600w,              /assets/resized/general/custom-github-code-font-3200-min.webp 3200w,            /assets/resized/general/custom-github-code-font-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/custom-github-code-font-240-min.jpg 240w,              /assets/resized/general/custom-github-code-font-320-min.jpg 320w,              /assets/resized/general/custom-github-code-font-480-min.jpg 480w,              /assets/resized/general/custom-github-code-font-800-min.jpg 800w,              /assets/resized/general/custom-github-code-font-1600-min.jpg 1600w,              /assets/resized/general/custom-github-code-font-3200-min.jpg 3200w,            /assets/resized/general/custom-github-code-font-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/custom-github-code-font-240.png 240w,          /assets/resized/general/custom-github-code-font-320.png 320w,          /assets/resized/general/custom-github-code-font-480.png 480w,          /assets/resized/general/custom-github-code-font-800.png 800w,          /assets/resized/general/custom-github-code-font-1600.png 1600w,          /assets/resized/general/custom-github-code-font-3200.png 3200w,       /assets/general/custom-github-code-font.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/custom-github-code-font-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Custom GitHub code font&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;That’s it! Enjoy.&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Tips" /><category term="GitHub" /><summary type="html">It occurred to me yesterday that I’ve spent way too much time nitpicking over my IDE’s font, but then come time for code reviews… not a ligature in sight. Here’s a quick guide to change that.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/me.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Save money with this one Firestore free quota trick for CRON jobs</title><link href="https://alexsaveau.dev/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs" rel="alternate" type="text/html" title="Save money with this one Firestore free quota trick for CRON jobs" /><published>2018-11-18T00:00:00+00:00</published><updated>2020-06-17T22:29:04+00:00</updated><id>https://alexsaveau.dev/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs</id><content type="html" xml:base="https://alexsaveau.dev/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs">&lt;p&gt;I’m sorry, but I just couldn’t resist that clickbaity title. 😛 Jokes aside, let’s say you have a
+monthly CRON job that empties out your users’ trash and does some other Firestore related cleanup.
+This is a great use of Firebase Cloud Functions, but it comes at a cost: you’re
+creating/updating/deleting documents all in one go.&lt;/p&gt;
+
+&lt;p&gt;Remember, Firestore free quota resets daily. So if you’re too small to max out your free quota every
+day, but too big to stay on the Spark plan, you should consider running &lt;em&gt;daily&lt;/em&gt; jobs instead.&lt;/p&gt;
+
+&lt;p&gt;As long as your Cloud Functions only query the data they’re going to process, then it’ll be far
+cheaper to run a job every day and take full advantage of that free quota. As an added bonus, you’ll
+be able to better predict your monthly bill because you’ll be spreading out Firestore usage over
+each day.&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/chris-pratt.gif&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;    &lt;!-- .webp images --&gt;    &lt;!-- .jpg images --&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/chris-pratt-240.gif 240w,          /assets/resized/chris-pratt-320.gif 320w,       /assets/chris-pratt.gif 356w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/chris-pratt-240.gif&quot; width=&quot;356&quot; height=&quot;200&quot; alt=&quot;Chris Pratt Happy&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Free money?&lt;/p&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;running-daily-jobs&quot;&gt;Running daily jobs&lt;/h2&gt;
+
+&lt;p&gt;Running a daily CRON job is ridiculously easy to do: simply create a
+&lt;a href=&quot;https://cloud.google.com/scheduler/&quot;&gt;Cloud Scheduler&lt;/a&gt; job set to run at 3am each morning
+(&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0 3 * * *&lt;/code&gt;) that publishes an empty data payload (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;{}&lt;/code&gt;) to a topic of your choice (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;daily-tick&lt;/code&gt;).
+It’ll look something like this:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/firebase/daily-tick.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/firebase/daily-tick-240-min.avif 240w,              /assets/resized/firebase/daily-tick-320-min.avif 320w,              /assets/resized/firebase/daily-tick-480-min.avif 480w,              /assets/resized/firebase/daily-tick-800-min.avif 800w,              /assets/resized/firebase/daily-tick-1600-min.avif 1600w,            /assets/resized/firebase/daily-tick-min.avif 2207w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/firebase/daily-tick-240-min.webp 240w,              /assets/resized/firebase/daily-tick-320-min.webp 320w,              /assets/resized/firebase/daily-tick-480-min.webp 480w,              /assets/resized/firebase/daily-tick-800-min.webp 800w,              /assets/resized/firebase/daily-tick-1600-min.webp 1600w,            /assets/resized/firebase/daily-tick-min.webp 2207w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/firebase/daily-tick-240-min.jpg 240w,              /assets/resized/firebase/daily-tick-320-min.jpg 320w,              /assets/resized/firebase/daily-tick-480-min.jpg 480w,              /assets/resized/firebase/daily-tick-800-min.jpg 800w,              /assets/resized/firebase/daily-tick-1600-min.jpg 1600w,            /assets/resized/firebase/daily-tick-min.jpg 2207w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/firebase/daily-tick-240.png 240w,          /assets/resized/firebase/daily-tick-320.png 320w,          /assets/resized/firebase/daily-tick-480.png 480w,          /assets/resized/firebase/daily-tick-800.png 800w,          /assets/resized/firebase/daily-tick-1600.png 1600w,       /assets/firebase/daily-tick.png 2207w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/firebase/daily-tick-240.png&quot; width=&quot;2207&quot; height=&quot;140&quot; alt=&quot;GCP Scheduler Daily Tick&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;This tick is completely free!&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;In your functions’ index file, subscribe to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;daily-tick&lt;/code&gt; pubsub event and you’re good to go.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Hopefully this will help you save a few bucks. Happy coding!&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Firebase" /><summary type="html">I’m sorry, but I just couldn’t resist that clickbaity title. 😛 Jokes aside, let’s say you have a monthly CRON job that empties out your users’ trash and does some other Firestore related cleanup. This is a great use of Firebase Cloud Functions, but it comes at a cost: you’re creating/updating/deleting documents all in one go.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/me.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Saving FirebaseUI RecyclerView state</title><link href="https://alexsaveau.dev/blog/firebase/android/saving-firebase-ui-recycler-view-state" rel="alternate" type="text/html" title="Saving FirebaseUI RecyclerView state" /><published>2018-11-09T00:00:00+00:00</published><updated>2020-06-17T22:29:04+00:00</updated><id>https://alexsaveau.dev/blog/firebase/android/saving-firebase-ui-recycler-view-state</id><content type="html" xml:base="https://alexsaveau.dev/blog/firebase/android/saving-firebase-ui-recycler-view-state">&lt;p&gt;FirebaseUI’s database libraries are a great way to quickly and seamlessly bind data to the UI.
+Unfortunately, that emphasis on ease-of-use and configurability makes automagically saving and
+restoring RecyclerView state on the library side of things extremely difficult. Luckily, it’s not
+too hard to do yourself.&lt;/p&gt;
+
+&lt;h2 id=&quot;manually-building-database-observables&quot;&gt;Manually building database observables&lt;/h2&gt;
+
+&lt;p&gt;When you first start out with FUI, you’ll most likely be creating an adapter from a query directly:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;val options = FirestoreRecyclerOptions.Builder&amp;lt;Chat&amp;gt;()
+        .setQuery(query, Chat::class.java)
+        .setLifecycleOwner(this)
+        .build()
+// ...
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/b4d7a8595cdfe8eaa47e378cd4bcca27.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Back to the basics&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;Under the hood, the adapter is actually building a &lt;em&gt;backing observable snapshot array&lt;/em&gt;. That’s a lot
+of fancy words, so let’s parse them into something simpler:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Backing&lt;/em&gt;: it’s the data source powering your RecyclerView&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Observable&lt;/em&gt;: you can be notified when data changes&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Snapshot&lt;/em&gt;: these are your conventional &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DocumentSnapshot&lt;/code&gt;s for Firestore and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DataSnapshot&lt;/code&gt;s in
+the RTDB’s case&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Array&lt;/em&gt;: it’s a list of those snapshots&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;At a high level, you can think of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ObservableSnapshotArray&lt;/code&gt; as an always up-to-date window into
+your data.&lt;/p&gt;
+
+&lt;p&gt;With that in mind, we can manually build the adapter options from a custom array:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;val array = FirestoreArray(query, ClassSnapshotParser(Chat::class.java))
+
+val options = FirestoreRecyclerOptions.Builder&amp;lt;Chat&amp;gt;()
+        .setSnapshotArray(array)
+        .setLifecycleOwner(this)
+        .build()
+// ...
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/f77831b9f0019dd7ed0ff1cb444af354.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;👋 boilerplate&lt;/p&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;keeping-data-hot&quot;&gt;Keeping data hot&lt;/h2&gt;
+
+&lt;p&gt;Currently, that array is going to be recreated and its data re-queried &lt;em&gt;every single time&lt;/em&gt; our
+activity starts. That’s obviously not what we want. 😢&lt;/p&gt;
+
+&lt;p&gt;To make sure we never have to reload the same data twice while our app is in memory, we can create a
+ViewModel to store the array with an always-on listener:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;class ChatsHolder : ViewModel() {
+    val chats = FirestoreArray(query, ClassSnapshotParser(Chat::class.java))
+
+    init {
+        chats.addChangeEventListener(KeepAliveListener)
+    }
+
+    override fun onCleared() {
+        chats.removeChangeEventListener(KeepAliveListener)
+    }
+
+    private object KeepAliveListener : ChangeEventListener {
+        override fun onDataChanged() = Unit
+        override fun onChildChanged(
+                type: ChangeEventType, snapshot: DocumentSnapshot, newIndex: Int, oldIndex: Int
+        ) = Unit
+        override fun onError(e: FirebaseFirestoreException) = Unit
+    }
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/cee381d62cde2668b640d0d976f66834.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;The noop listener tells FUI to keep an active connection even when your view is gone&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;When creating the adapter, simply use the array stored in your &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ChatsHolder&lt;/code&gt;:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;val holder = ViewModelProviders.of(this).get&amp;lt;ChatsHolder&amp;gt;()
+
+val options = FirestoreRecyclerOptions.Builder&amp;lt;Chat&amp;gt;()
+        .setSnapshotArray(holder.chats)
+        .setLifecycleOwner(this)
+        .build()
+// ...
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/2ea6f2b106dd746b8954bcf617a17d4d.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;The VM saves us from re-querying our data&lt;/p&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;creating-an-infallible-adapter&quot;&gt;Creating an infallible adapter&lt;/h2&gt;
+
+&lt;p&gt;Now that your data isn’t reloaded on activity start, there’s just one problem left to solve:
+restoring the user’s scroll position. Because the array can change even though the adapter isn’t
+listening for updates, FUI has to clear the adapter.&lt;/p&gt;
+
+&lt;p&gt;To get around this issue, we can manually save the LayoutManager’s state, which includes scroll
+position:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;/**
+ * A [FirestoreRecyclerAdapter] whose state can be saved regardless of database connection changes.
+ *
+ * This adapter will save its state across basic stop/start listening lifecycles, config changes,
+ * and even full blown process death. Extenders _must_ call [SavedStateAdapter.onSaveInstanceState]
+ * in the Activity/Fragment holding the adapter.
+ */
+abstract class SavedStateAdapter&amp;lt;T, VH : RecyclerView.ViewHolder&amp;gt;(
+        options: FirestoreRecyclerOptions&amp;lt;T&amp;gt;,
+        savedInstanceState: Bundle?,
+        private val recyclerView: RecyclerView
+) : FirestoreRecyclerAdapter&amp;lt;T, VH&amp;gt;(options) {
+    private val RecyclerView.state get() = layoutManager?.onSaveInstanceState()
+    private var savedState: Parcelable? = savedInstanceState?.getParcelable(SAVED_STATE_KEY)
+
+    fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(SAVED_STATE_KEY, recyclerView.state)
+    }
+
+    override fun stopListening() {
+        // Save RV state before adapter cleanup occurs
+        savedState = recyclerView.state
+        super.stopListening()
+    }
+
+    override fun onDataChanged() {
+        savedState?.let { recyclerView.layoutManager?.onRestoreInstanceState(it) }
+        savedState = null
+    }
+
+    private companion object {
+        const val SAVED_STATE_KEY = &amp;quot;layout_manager_saved_state&amp;quot;
+    }
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/d5c9a3ce8e9af686976212efd44a2db9.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;This is ugly, I know 😢&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;Just remember to call the adapter’s &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;onSaveInstanceState&lt;/code&gt; in your fragment or activity.&lt;/p&gt;
+
+&lt;h2 id=&quot;background-considerations&quot;&gt;Background considerations&lt;/h2&gt;
+
+&lt;p&gt;Even though everything is now working, there’s one last consideration to keep in mind: what happens
+when your app is in the background for extended periods of time? Thanks to the ViewModel, you’ll
+keep an active connection to the database until your activity dies — but that wastes the user’s data
+and your money.&lt;/p&gt;
+
+&lt;p&gt;Thankfully, the lifecycle team thought of this and created the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ProcessLifecycleOwner&lt;/code&gt;, which allows
+you to know when your app is in the background as opposed to updating because of a configuration
+change. Here’s how you would kill your database connection when your app goes into the background:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;class ChatsHolder : ViewModel(), DefaultLifecycleObserver {
+    val chats = FirestoreArray(query, ClassSnapshotParser(Chat::class.java))
+
+    init {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        chats.addChangeEventListener(KeepAliveListener)
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        chats.removeChangeEventListener(KeepAliveListener)
+    }
+
+    override fun onCleared() {
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(this)
+        onStop(ProcessLifecycleOwner.get())
+    }
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/07ac24ce65a8da118c913d3b37c9cfa7.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Your users will thank you later&lt;/p&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;closing-thoughts&quot;&gt;Closing thoughts&lt;/h2&gt;
+
+&lt;p&gt;I hope you found this short guide to saving and restoring RecyclerView states helpful. Ideally,
+we’ll find a way to fix this directly in FirebaseUI, but that’s unlikely to happen anytime soon.
+Please let me know if there’s anything else you’re struggling with and I might write another
+piece. 😊&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Firebase" /><category term="Android" /><summary type="html">FirebaseUI’s database libraries are a great way to quickly and seamlessly bind data to the UI. Unfortunately, that emphasis on ease-of-use and configurability makes automagically saving and restoring RecyclerView state on the library side of things extremely difficult. Luckily, it’s not too hard to do yourself.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/me.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Advanced Kotlin Coroutines tips and tricks</title><link href="https://alexsaveau.dev/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks" rel="alternate" type="text/html" title="Advanced Kotlin Coroutines tips and tricks" /><published>2018-10-30T00:00:00+00:00</published><updated>2020-06-17T22:29:04+00:00</updated><id>https://alexsaveau.dev/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks</id><content type="html" xml:base="https://alexsaveau.dev/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks">&lt;p&gt;Kotlin Coroutines starts off incredibly simple: just put some long running operation in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt; and
+you’re good, right? For simple cases, sure. But pretty soon, the complexity inherent to concurrency
+and parallelism starts piling up.&lt;/p&gt;
+
+&lt;p&gt;Here’s what you need to know when you’re knee deep in the coroutine trenches.&lt;/p&gt;
+
+&lt;h2 id=&quot;cancellation--blocking-work--&quot;&gt;Cancellation + blocking work = 😈&lt;/h2&gt;
+
+&lt;p&gt;There’s no way to get around it: you’ll have to use good ol’ Java streams at some point or another.
+One problem (of many 😉) with streams is that they block the current thread. That’s bad news in the
+coroutines world. Now, if you want to cancel a coroutine, you’ll have to wait for the read or write
+to complete before you can continue.&lt;/p&gt;
+
+&lt;p&gt;As a simple reproducible example, let’s say you open a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ServerSocket&lt;/code&gt; and wait for a connection with
+a 1 second timeout:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;runBlocking(Dispatchers.IO) {
+    withTimeout(1000) {
+        val socket = ServerSocket(42)
+        
+         // We&amp;#39;re stuck here forever until someone accepts. Don&amp;#39;t you want to know the answer? 😜
+        socket.accept()
+    }
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/7494c19538579dd0567853fe3251a973.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Should work, right? Nope.&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;Now you’re feeling a bit like this: 😖. So how do we fix it?&lt;/p&gt;
+
+&lt;p&gt;When &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Closeable&lt;/code&gt; APIs are well built, they support closing the stream from any thread and will fail
+appropriately.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: in general, APIs from the JDK follow those best practices, but beware of any third party
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Closeable&lt;/code&gt; APIs that may not. You’ve been warned.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Thanks to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;suspendCancellableCoroutine&lt;/code&gt; function, we can close any stream when a coroutine is
+cancelled:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;public suspend inline fun &amp;lt;T : Closeable?, R&amp;gt; T.useCancellably(
+        crossinline block: (T) -&amp;gt; R
+): R = suspendCancellableCoroutine { cont -&amp;gt;
+    cont.invokeOnCancellation { this?.close() }
+    cont.resume(use(block))
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/ebacfb46c24156c7af020da63cf37822.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Be sure this works with the API you are using!&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;Now that our blocking &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;accept&lt;/code&gt; call is wrapped in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;useCancellably&lt;/code&gt;, the coroutine will fail when the
+timeout occurs.&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;runBlocking(Dispatchers.IO) {
+    withTimeout(1000) {
+        val socket = ServerSocket(42)
+
+        // Blows up with `SocketException: socket closed`. Yay!
+        socket.useCancellably { it.accept() }
+    }
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/05c9453e8afd48fc1651b2b611a2f3cf.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Success!&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;But what if you can’t support cancellation at all? Here’s what you need to watch out for:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If you use any instance properties/functions from your coroutine’s enclosing class, it will be
+leaked even if you cancel the coroutine. This is especially relevant if you think you’re cleaning
+up resources in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;onDestroy&lt;/code&gt;. &lt;strong&gt;Workaround:&lt;/strong&gt; move the coroutine to a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ViewModel&lt;/code&gt; or other
+non-context class and subscribe to its result.&lt;/li&gt;
+  &lt;li&gt;Make sure to use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Dispatchers.IO&lt;/code&gt; for blocking work since that allows Kotlin to set aside some
+threads that it expects to be waiting indefinitely.&lt;/li&gt;
+  &lt;li&gt;Use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;suspendCancellableCoroutine&lt;/code&gt; over &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;suspendCoroutine&lt;/code&gt; wherever possible.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;launch-vs-async&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt; vs. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;async&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;Since the top SO answers about these two builders are out-of-date, I thought I’d touch upon their
+differences again.&lt;/p&gt;
+
+&lt;h3 id=&quot;launch-bubbles-up-exceptions&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt; bubbles up exceptions&lt;/h3&gt;
+
+&lt;p&gt;When a coroutines crashes, its parent is cancelled which in turn cancels all the parent’s children.
+Once coroutines throughout the tree have finished cancelling, the exception is sent to the current
+context’s exception handler. On Android, that means &lt;em&gt;your app will crash&lt;/em&gt;, regardless of what
+dispatcher you were using.&lt;/p&gt;
+
+&lt;h3 id=&quot;async-holds-on-to-its-exceptions&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;async&lt;/code&gt; holds on to its exceptions&lt;/h3&gt;
+
+&lt;p&gt;That means &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;await()&lt;/code&gt; explicitly handles all exceptions and installing a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineExceptionHandler&lt;/code&gt;
+will have no effect.&lt;/p&gt;
+
+&lt;h3 id=&quot;launch-blocks-the-parent-scope&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt; “blocks” the parent scope&lt;/h3&gt;
+
+&lt;p&gt;While the function will return immediately, its parent scope will &lt;em&gt;not&lt;/em&gt; finish until all coroutines
+built with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt; have completed one way or another. This makes calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;join()&lt;/code&gt; for all your
+child jobs at the end of the parent unnecessary if you simply want to wait for those coroutines to
+finish.&lt;/p&gt;
+
+&lt;p&gt;Unlike what you might expect, the outer scope will still wait for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;async&lt;/code&gt; coroutines to complete
+even if &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;await()&lt;/code&gt; is not called.&lt;/p&gt;
+
+&lt;h3 id=&quot;async-returns-a-result&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;async&lt;/code&gt; returns a result&lt;/h3&gt;
+
+&lt;p&gt;This one’s pretty simple: if you need a result out of your coroutine, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;async&lt;/code&gt; is your only option.
+If you don’t need a result, use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt; to create side effects. And only if you need those side
+effects to complete before moving on do you need to use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;join()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;join-vs-await&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;join()&lt;/code&gt; vs. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;await()&lt;/code&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;join()&lt;/code&gt; does &lt;em&gt;not&lt;/em&gt; rethrow exceptions while &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;await()&lt;/code&gt; will. However, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;join()&lt;/code&gt; cancels your
+coroutine if an error occurred, meaning any code after the suspending call to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;join()&lt;/code&gt; is not
+invoked.&lt;/p&gt;
+
+&lt;h2 id=&quot;logging-exceptions&quot;&gt;Logging exceptions&lt;/h2&gt;
+
+&lt;p&gt;Now that you understand how differently exceptions are handled depending on which builder you use,
+you’re left with a dilemma: you want to log exceptions without crashing (so we can’t use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt;),
+but you don’t want to manually &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;try&lt;/code&gt;/&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;catch&lt;/code&gt; them all (so we can’t use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;async&lt;/code&gt;). So that leaves us
+with… nothing? Thankfully not.&lt;/p&gt;
+
+&lt;p&gt;Logging exceptions is where the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineExceptionHandler&lt;/code&gt; comes in handy. But first, let’s take a
+moment to understand what actually happens when an exception is thrown in a coroutine:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The exception is caught and then resumed through a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Continuation&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;If your code doesn’t handle the exception and it isn’t a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CancellationException&lt;/code&gt;, the first
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineExceptionHandler&lt;/code&gt; is requested through the current &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineContext&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;If a handler isn’t found or it errors, the exception is sent to platform specific code.&lt;/li&gt;
+  &lt;li&gt;On the JVM, a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ServiceLoader&lt;/code&gt; is used to locate global handlers.&lt;/li&gt;
+  &lt;li&gt;Once all handlers have been invoked or one of them errors, the current thread’s exception handler
+gets invoked.&lt;/li&gt;
+  &lt;li&gt;If the current thread doesn’t handle the exception, it bubbles up to the thread group and then
+finally to the default exception handler.&lt;/li&gt;
+  &lt;li&gt;Crash!&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;With that in mind, we have a few options:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Install a handler per thread, but that’s not realistic.&lt;/li&gt;
+  &lt;li&gt;Install the default handler, but then errors from the main thread won’t crash your app and you’ll
+be left in a potentially bad state.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://gist.github.com/SUPERCILEX/f4b01ccf6fd4ef7ec0a85dbd59c89d6c&quot;&gt;Add the handler as a service&lt;/a&gt;
+which will be invoked when any coroutine built with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;launch&lt;/code&gt; crashes (hacky).&lt;/li&gt;
+  &lt;li&gt;Use your own custom scope with a handler attached instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GlobalScope&lt;/code&gt; or add the handler to
+every scope you use, but that’s annoying and makes logging optional instead of the default.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That last solution is preferred because it is flexible while requiring minimal code and hacks.&lt;/p&gt;
+
+&lt;p&gt;For app wide jobs, you’ll use an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppScope&lt;/code&gt; with a logging handler. For any other jobs, you can add
+the handler when logging is appropriate over crashing.&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;val LoggingExceptionHandler = CoroutineExceptionHandler { _, t -&amp;gt;
+    Crashlytics.logException(t)
+}
+val AppScope = GlobalScope + LoggingExceptionHandler
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/0dcb8468c7b19ff1a901dc730fb86828.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Not too shabby&lt;/p&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;closing-thoughts&quot;&gt;Closing thoughts&lt;/h2&gt;
+
+&lt;p&gt;Anytime we have to deal with edge cases, things get messy pretty fast. I hope this article helped
+you understand the variety of problems you can run into given subpar conditions and what potential
+solutions you can apply.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Happy Kotlining!&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Kotlin" /><category term="Android" /><summary type="html">Kotlin Coroutines starts off incredibly simple: just put some long running operation in launch and you’re good, right? For simple cases, sure. But pretty soon, the complexity inherent to concurrency and parallelism starts piling up.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/kotlin/kotlin-banner.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/kotlin/kotlin-banner.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Version and automate your Play Store listings with Gradle Play Publisher v2.0</title><link href="https://alexsaveau.dev/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0" rel="alternate" type="text/html" title="Version and automate your Play Store listings with Gradle Play Publisher v2.0" /><published>2018-10-09T00:00:00+00:00</published><updated>2020-06-17T22:29:04+00:00</updated><id>https://alexsaveau.dev/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0</id><content type="html" xml:base="https://alexsaveau.dev/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0">&lt;p&gt;Have you ever wanted to keep track of changes going into your Play Store listings? Are you on a big
+team where managing “who has access to what” is a nightmare? Or, are you perhaps managing dozens of
+White Label distributions?&lt;/p&gt;
+
+&lt;p&gt;Excited yet? No? How about being able to continuously build and deploy your app every time you push
+to GitHub? If CI doesn’t get you excited, then I don’t what will! 🤓&lt;/p&gt;
+
+&lt;p&gt;If you’ve used v1.x versions of the plugin before and thought there was room for improvement, you’re
+not alone. Gradle Play Publisher v2.0 (GPP) covers all of the aforementioned cases and beyond. v2.0
+adds more new features than I have fingers — and that’s not even including minor improvements or bug
+fixes!&lt;/p&gt;
+
+&lt;p&gt;Without further ado, let’s begin!&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-started&quot;&gt;Getting started&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;If you come from the v1.0 world, a lot has changed—hopefully all for the better! Be sure to read
+the &lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/releases/tag/2.0.0-beta1#breaking&quot;&gt;migration guide&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;If this is your first time publishing an app, you should probably start playing with the web console
+first since &lt;em&gt;the initial app upload must be performed through the Play Console&lt;/em&gt; anyway. Otherwise,
+you should be able to breeze through the setup.&lt;/p&gt;
+
+&lt;h3 id=&quot;setting-up-a-service-account&quot;&gt;Setting up a Service Account&lt;/h3&gt;
+
+&lt;p&gt;Ironically, I find the Microsoft
+&lt;a href=&quot;https://docs.microsoft.com/en-us/appcenter/distribution/stores/googleplay#setting-up-api-access-clients&quot;&gt;App Center docs&lt;/a&gt;
+to be waaay better than Google’s own haphazard mess. Some notes:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Don’t give the Service Account any roles when asked. This is recommended so the impact will be
+minimal if your keys get lost or stolen. Especially &lt;strong&gt;don’t give the Service Account the Owner
+role&lt;/strong&gt; — that’s just ridiculous and I’m not sure why Microsoft wants that kind of access.&lt;/li&gt;
+  &lt;li&gt;I name my Service Account &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CI&lt;/code&gt; and use the same credentials for all of my CI tasks so I have a
+single kill switch if something goes wrong.&lt;/li&gt;
+  &lt;li&gt;When granting the service account access to the Play Console, &lt;em&gt;GPP only needs access to publish to
+alpha and beta channels at a bare minimum&lt;/em&gt;. However, you’ll most likely also want to let GPP
+manage your listings. As for the production channel, I don’t let my Service Account touch it since
+that’s a sensitive place to be. Again, it’s all about minimizing the impact of a lost or stolen
+Service Account since you’ll most likely be
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher#encrypting-service-account-keys&quot;&gt;committing it to source control in some form or another&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;applying-the-plugin&quot;&gt;Applying the plugin&lt;/h3&gt;
+
+&lt;p&gt;Check out the
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/blob/master/README.md#installation&quot;&gt;README&lt;/a&gt; for
+the most up-to-date instructions.&lt;/p&gt;
+
+&lt;h3 id=&quot;bootstrapping-your-project&quot;&gt;Bootstrapping your project&lt;/h3&gt;
+
+&lt;p&gt;You most likely already have listing details like an app title and description, promo graphics,
+release notes, etc. Wouldn’t it be nice if this could automatically be downloaded for you? Well…
+surprise! GPP does this for you. It’s as simple as running the bootstrap task:
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./gradlew bootstrap&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;getting-full-resolution-images&quot;&gt;Getting full resolution images&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Edit:&lt;/strong&gt; this is no longer necessary as of beta 2.&lt;/p&gt;
+
+&lt;p&gt;Sadly, there’s a caveat to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bootstrap&lt;/code&gt; task: the Android Publisher API only returns image
+previews — not all that helpful if you’re trying to turn around and republish them:&lt;/p&gt;
+
+&lt;iframe src=&quot;https://cdn.embedly.com/widgets/media.html?type=text%2Fhtml&amp;amp;key=a19fcc184b9711e1b4764040d3dc5c07&amp;amp;schema=twitter&amp;amp;url=https%3A//twitter.com/supercilex/status/1010028428215513088&amp;amp;image=https%3A//i.embed.ly/1/image%3Furl%3Dhttps%253A%252F%252Fpbs.twimg.com%252Fprofile_images%252F984942813426024451%252FLCKIEkHL_400x400.jpg%26key%3Da19fcc184b9711e1b4764040d3dc5c07&quot; loading=&quot;lazy&quot; allowfullscreen=&quot;&quot; frameborder=&quot;0&quot; width=&quot;100%&quot; height=&quot;586&quot; title=&quot;Alex Saveau on Twitter&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Maybe with enough RTs Google will oblige?&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;So, how do we get around this? There are two solutions:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;😃 You saved your screenshots somewhere and can just replace the downloaded previews with the
+real ones.&lt;/li&gt;
+  &lt;li&gt;😡 You have to manually extract each screenshot from the Play Console.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;#2 is somewhat unpleasant, so brace yourself:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Find your app’s listing under &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Store presence&lt;/code&gt; ➡️ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Store listing&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Scroll down to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Graphic Assets&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;For each screenshot, right click it and select &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Inspect&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Right above the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;div&lt;/code&gt;, there will be an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;img&lt;/code&gt; tag with a link to the scaled-down version which
+looks like this:
+&lt;a href=&quot;https://lh3.googleusercontent.com/lmkCVdLXkHJ0E28prBee9uqDjWN_Ta1s9OcO47S4j2Ke_KtYQgXX_TnefpQr17cGLoI=h150-rw&quot;&gt;https://lh3.googleusercontent.com/…=h150-rw&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Replace the param value (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;h150-rw&lt;/code&gt;) with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;h15000&lt;/code&gt; so you get the highest resolution as a PNG. The
+link should now look like this:
+&lt;a href=&quot;https://lh3.googleusercontent.com/lmkCVdLXkHJ0E28prBee9uqDjWN_Ta1s9OcO47S4j2Ke_KtYQgXX_TnefpQr17cGLoI=h15000&quot;&gt;https://lh3.googleusercontent.com/…=h15000&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Rinse and repeat 🔄&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;This process is painful. I know. I’m sorry. Maybe now that will motivate you to try and get the
+Google Play team’s attention?&lt;/p&gt;
+
+&lt;h2 id=&quot;using-gradle-play-publisher&quot;&gt;Using Gradle Play Publisher&lt;/h2&gt;
+
+&lt;p&gt;As mentioned earlier, GPP includes a plethora of features. In fact, the plugin is almost feature
+complete in the sense that we cover every important
+&lt;a href=&quot;https://developers.google.com/android-publisher&quot;&gt;Android Publisher API&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;While GPP’s comprehensive
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/blob/master/README.md&quot;&gt;README&lt;/a&gt; explains the
+&lt;em&gt;how&lt;/em&gt;, it isn’t intended to provide the &lt;em&gt;why&lt;/em&gt;. That’s where this article comes in. Below, you’ll
+find various use cases to improve your productivity.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-basics&quot;&gt;The basics&lt;/h3&gt;
+
+&lt;p&gt;Since GPP is a Gradle plugin, you can publish your app artifacts and listing from the command line.
+While that may not be too exciting, it can be a huge productivity boost if you need to upload APK
+splits or update your app’s translations all at once.&lt;/p&gt;
+
+&lt;h3 id=&quot;versioning-your-metadata&quot;&gt;Versioning your metadata&lt;/h3&gt;
+
+&lt;p&gt;I doubt I need to tell you why versioning is important, however, here’s a
+&lt;a href=&quot;https://www.git-tower.com/learn/git/ebook/en/command-line/basics/why-use-version-control&quot;&gt;reminder&lt;/a&gt;
+if that’s not the case.&lt;/p&gt;
+
+&lt;h3 id=&quot;publishing-from-a-ci-environment&quot;&gt;Publishing from a CI environment&lt;/h3&gt;
+
+&lt;p&gt;One of the cooler use cases for GPP is publishing app updates on every build. You’ll first need to
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/blob/master/README.md#encrypting-service-account-keys&quot;&gt;encrypt your credentials&lt;/a&gt;,
+but with that done, simply run your Gradle tasks as you normally would. I
+&lt;a href=&quot;https://github.com/SUPERCILEX/Robot-Scouter/blob/2979fd4fa4a785c4678788333db2bcd1e747694c/buildSrc/src/main/kotlin/com/supercilex/robotscouter/build/tasks/Setup.kt#L18-L24&quot;&gt;extract my secrets&lt;/a&gt;
+straight from Gradle.&lt;/p&gt;
+
+&lt;h3 id=&quot;automatically-incrementing-the-version-code-on-every-build&quot;&gt;Automatically incrementing the version code on every build&lt;/h3&gt;
+
+&lt;p&gt;This is GPP’s coolest feature! Not only can you publish your app from CI, but you also won’t have to
+ever touch version codes again. Just push code and &lt;em&gt;voila&lt;/em&gt;, a new version of your app is published
+with the lowest version code available.&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;android {
+    defaultConfig {
+        versionCode = 1 // Updated on every build
+    }
+}
+
+play {
+    // ...
+    resolutionStrategy = &amp;quot;auto&amp;quot;
+    outputProcessor = { // this: ApkVariantOutput
+        versionNameOverride = &amp;quot;$versionNameOverride.$versionCode&amp;quot; // Looks something like 2.0.0.5367
+    }
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/13416fd977ebc2c37fdd5c232faf558a.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Automatically pick the right version code&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;As a bonus, you can easily revert a change simply by triggering a rebuild on an older commit!&lt;/p&gt;
+
+&lt;h3 id=&quot;publishing-to-both-the-internal-and-alpha-tracks-at-once-kinda&quot;&gt;Publishing to both the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;internal&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;alpha&lt;/code&gt; tracks at once (kinda)&lt;/h3&gt;
+
+&lt;p&gt;If you haven’t been using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;internal&lt;/code&gt; track, you’re doing yourself a disservice — it’s insanely
+fast! The problem is that it’s meant to be, well… internal. What if you could publish your app to
+both the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;internal&lt;/code&gt; track and then immediately to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;alpha&lt;/code&gt; track so your team gets the fastest
+updates while the outside world also gets your freshly baked builds?&lt;/p&gt;
+
+&lt;p&gt;You can do this with GPP by promoting a release. On CI, you would run
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./gradlew publishBundle &amp;amp;&amp;amp; ./gradlew promoteArtifact --track alpha&lt;/code&gt;. That’s it!&lt;/p&gt;
+
+&lt;h3 id=&quot;generating-release-notes-on-the-fly&quot;&gt;Generating release notes on the fly&lt;/h3&gt;
+
+&lt;p&gt;How many times have you wished you could provide a better experience to your beta testers?
+(Hopefully it’s pretty often 😀.) With GPP, you can generate release notes from your commit messages
+to let your testers know what you’re up to.&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;// Create the changelog generator task
+// Here&amp;#39;s an example of what GenerateChangelog could look like:
+// https://github.com/SUPERCILEX/Robot-Scouter/blob/master/buildSrc/src/main/kotlin/com/supercilex/robotscouter/build/tasks/GenerateChangelog.kt
+val generateChangelog = project.tasks.register&amp;lt;GenerateChangelog&amp;gt;(&amp;quot;generateReleaseChangelog&amp;quot;)
+
+// Add it as a dependency to GPP&amp;#39;s publishing task
+project.tasks.named(&amp;quot;publishBundle&amp;quot;).configure {
+    dependsOn(generateChangelog)
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/b0c5fb9756497e3f2b985fcabc7fd272.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Help your beta testers test your app!&lt;/p&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;generating-screenshots-on-the-fly&quot;&gt;Generating screenshots on the fly&lt;/h3&gt;
+
+&lt;p&gt;This is a hypothetical since I haven’t done it yet, but if you had a process to automatically
+generate screenshots, you could pipe those to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;play&lt;/code&gt; folder and automatically publish your newly
+minted screenshots with the rest of your app on every build.&lt;/p&gt;
+
+&lt;h3 id=&quot;automate-all-the-things&quot;&gt;Automate all the things!&lt;/h3&gt;
+
+&lt;p&gt;If you’ve thought of a use case I haven’t mentioned, please share it with me! I’d love to hear what
+people are building with GPP. And, if there’s something you don’t think is possible yet, feel free
+to &lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/issues/new?template=feature-request.md&quot;&gt;file an issue&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;how-does-it-work&quot;&gt;How does it work?&lt;/h2&gt;
+
+&lt;p&gt;Since the best way to figure out how something works is to
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/tree/master/play/plugin/src/main/kotlin/com/github/triplet/gradle/play&quot;&gt;poke at the source code&lt;/a&gt;
+yourself, I won’t go into too many details.&lt;/p&gt;
+
+&lt;p&gt;If you’re looking to contribute, here are the basics you’ll need to know:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PlayPublisherPlugin&lt;/code&gt; is where everything starts. You’ll find task definitions,
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PlayPublisherExtension&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PlayAccountConfigExtension&lt;/code&gt; setup, and a few other lifecycle tidbits.&lt;/li&gt;
+  &lt;li&gt;Most tasks extend &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PlayPublishTaskBase&lt;/code&gt; which helps access the publishing API.&lt;/li&gt;
+  &lt;li&gt;You’ll need an instance of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AndroidPublisher.Edits&lt;/code&gt; and an edit ID (provided by
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PlayPublishTaskBase&lt;/code&gt;) to use the API.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: if you’re thinking of creating a new task, definitely
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/issues/new?template=feature-request.md&quot;&gt;file an issue&lt;/a&gt;
+first so we can work with you to fit all the pieces I haven’t mentioned yet together.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;meet-the-team-&quot;&gt;Meet the team 👋&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://twitter.com/devhu&quot;&gt;Björn Hurling&lt;/a&gt; and &lt;a href=&quot;https://twitter.com/DerGreeny&quot;&gt;Christian Becker&lt;/a&gt;
+both incubated the project while &lt;a href=&quot;https://twitter.com/gtcompscientist&quot;&gt;Charles Anderson&lt;/a&gt; and
+&lt;a href=&quot;https://twitter.com/SUPERCILEX&quot;&gt;I&lt;/a&gt; coincidentally both joined the project in the same week to
+kickstart the v2.0 spree. Björn is currently the Merge Master and Publishing Wizard.&lt;/p&gt;
+
+&lt;p&gt;All of us are happy to help and get feedback, so don’t hesitate to ping us on the interwebs.&lt;/p&gt;
+
+&lt;h2 id=&quot;future-plans&quot;&gt;Future plans&lt;/h2&gt;
+
+&lt;p&gt;That’s a wrap! I hope you enjoyed this look into what GPP v2.0 has to offer. While we think we have
+99% of use cases covered, &lt;em&gt;please
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/issues/new?template=feature-request.md&quot;&gt;file an issue&lt;/a&gt;
+if there’s anything you think could be improved&lt;/em&gt; — we’ll use this feedback to decide what to work on
+next. And of course, don’t hesitate to
+&lt;a href=&quot;https://github.com/Triple-T/gradle-play-publisher/issues/new?template=bug-report.md&quot;&gt;file bugs&lt;/a&gt;.&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Gradle" /><category term="Automation" /><category term="Android" /><summary type="html">Have you ever wanted to keep track of changes going into your Play Store listings? Are you on a big team where managing “who has access to what” is a nightmare? Or, are you perhaps managing dozens of White Label distributions?</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/gradle/gpp.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/gradle/gpp.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">DIY Gradle build optimization</title><link href="https://alexsaveau.dev/blog/gradle/performance/diy-gradle-build-optimization" rel="alternate" type="text/html" title="DIY Gradle build optimization" /><published>2018-09-05T00:00:00+00:00</published><updated>2020-06-17T22:29:04+00:00</updated><id>https://alexsaveau.dev/blog/gradle/performance/diy-gradle-build-optimization</id><content type="html" xml:base="https://alexsaveau.dev/blog/gradle/performance/diy-gradle-build-optimization">&lt;p&gt;If you’re anything like me a few months ago, you’ve hit a breaking point. You’re feeling something
+akin to desperation and you don’t know what to do. You’ve already tried all the classic tricks like
+fiddling with JVM args and Gradle properties, but to no avail.&lt;/p&gt;
+
+&lt;p&gt;I’m going to show you how to &lt;em&gt;actually&lt;/em&gt; improve your build performance through rigorous analysis and
+testing. That means I’m not going to throw random hacks at you for copypastaing — if you were hoping
+for a quick fix, dry up your tears and buckle up, ‘cause we’re about to get into the nitty-gritty by
+analysing your build to find the bottlenecks.&lt;/p&gt;
+
+&lt;h2 id=&quot;gradle-101&quot;&gt;Gradle 101&lt;/h2&gt;
+
+&lt;p&gt;For any job, I think it’s important to understand the fundamentals of your tooling. As an Android
+developer, the official tool is Gradle, which I feel comes with a lot of misconceptions. To start,
+let’s dispel some of the common ones.&lt;/p&gt;
+
+&lt;h3 id=&quot;whats-the-difference-between-android-studio-and-gradle&quot;&gt;What’s the difference between Android Studio and Gradle?&lt;/h3&gt;
+
+&lt;p&gt;This is something a lot of people struggle with: they equate Studio with Gradle. While the two tools
+do talk to each other (hence those annoying “Update the Gradle plugin” dialogs), they have very few
+similarities. One is a fancy editor, the other an automation tool.&lt;/p&gt;
+
+&lt;p&gt;Case in point, Gradle couldn’t care less who’s using it — heck, you could be writing code in
+Notepad++ (ew!) or vim (☠️) and Gradle would be none the wiser. For example, everything could be
+underlined in red in the IDE, but running &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./gradlew assembleDebug&lt;/code&gt; works just fine. (That usually
+means you have to delete the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.idea/libraries&lt;/code&gt; folder to force IntelliJ to refresh its indices BTW.)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;At its core, Gradle primarily cares about the files it gobbles up, and those it spits out.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Tip: if you want to improve your understanding of Gradle, migrate to the
+&lt;a href=&quot;https://github.com/gradle/kotlin-dsl&quot;&gt;Kotlin DSL&lt;/a&gt; using
+&lt;a href=&quot;https://guides.gradle.org/migrating-build-logic-from-groovy-to-kotlin/&quot;&gt;this handy guide&lt;/a&gt; — you’ll
+be able to Ctrl + B to your heart’s content.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;so-whats-the-android-gradle-plugin-then&quot;&gt;So what’s the Android Gradle Plugin then?&lt;/h3&gt;
+
+&lt;p&gt;Well, Gradle on its own doesn’t actually do anything. If you don’t apply any plugins, you’ll only
+get built-in tasks like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;help&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tasks&lt;/code&gt;, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;buildEnvironment&lt;/code&gt; — those aren’t going to build your
+brilliant ideas. Wait, I figured it out! That’s the secret to getting sub-second builds: don’t
+actually build anything!&lt;/p&gt;
+
+&lt;p&gt;Jokes aside, Gradle is an &lt;em&gt;automation&lt;/em&gt; tool, not necessarily a build tool — it merely operates on
+input files to generate output files. The rest is whatever you make of it: network requests, running
+shell scripts… anything you can do from the command line, you can do it from Gradle.&lt;/p&gt;
+
+&lt;p&gt;However, if you’re going to do something, Gradle needs to know what that something is — that’s where
+plugins come in: they &lt;em&gt;configure&lt;/em&gt; your build. They tell Gradle what units of work, or &lt;em&gt;tasks&lt;/em&gt;, are
+available for you to run.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;TL;DR: plugins such as the Android Gradle Plugin (AGP) tell Gradle what tasks are available
+(configuration step) and you then run them (execution step).&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;analysing-your-current-build-performance&quot;&gt;Analysing your current build performance&lt;/h2&gt;
+
+&lt;p&gt;With the basics out of the way, we’re going to optimize your build scripts, plugin configuration,
+and task execution. Now, remember how I said this would be an involved process? Well, you’re being
+involved. 😁&lt;/p&gt;
+
+&lt;h3 id=&quot;add-the-build-scan-plugin&quot;&gt;Add the build scan plugin&lt;/h3&gt;
+
+&lt;p&gt;While Gradle includes the build scan plugin by default since v2.0, you’ll want to add it manually to
+ensure you get the latest version and don’t have to agree to the ToS every time.&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;buildscript { ... }
+
+plugins {
+    // Check for the latest version here: https://plugins.gradle.org/plugin/com.gradle.build-scan
+    id(&amp;quot;com.gradle.build-scan&amp;quot;) version &amp;quot;1.16&amp;quot;
+}
+
+buildScan {
+    setTermsOfServiceUrl(&amp;quot;https://gradle.com/terms-of-service&amp;quot;)
+    setTermsOfServiceAgree(&amp;quot;yes&amp;quot;)
+
+    // Keep this while optimizing your builds,
+    // but then remove it once you&amp;#39;re done — unless you want to share all future builds with Gradle.
+    // If removed, you can still get build scans by using the --scan option.
+    publishAlways()
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/1a45522316213336b2d92fb280833058.js&quot;&gt; &lt;/script&gt;
+
+&lt;div style=&quot;text-align: center&quot; class=&quot;text-gray&quot;&gt;&lt;p class=&quot;gist-caption&quot;&gt;Simple build scan plugin configuration&lt;/p&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;gather-basic-benchmarks&quot;&gt;Gather basic benchmarks&lt;/h3&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./gradlew help&lt;/code&gt; twice and then open up the scan for the second run. Ditto for
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./gradlew assembleDebug --rerun-tasks&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./gradlew assembleDebug&lt;/code&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: we’re running the build twice to get the best approximation of your real-world build
+performance, including any caching and other optimizations.&lt;/p&gt;
+
+  &lt;p&gt;If you’re able to invest the extra time and effort to step up your game,
+&lt;strong&gt;&lt;a href=&quot;https://github.com/gradle/gradle-profiler#benchmarking-a-build&quot;&gt;benchmark&lt;/a&gt; your builds with the
+&lt;a href=&quot;https://github.com/gradle/gradle-profiler&quot;&gt;Gradle Profiler&lt;/a&gt; to get much more accurate results.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;You now have three benchmarks:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Configuration time&lt;/li&gt;
+  &lt;li&gt;Clean build execution time&lt;/li&gt;
+  &lt;li&gt;Incremental build execution time&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;These are the 3 scenarios we’re going to be optimizing, starting with configuration time.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Tip: whenever you change something, rerun the build to make sure said change had the impact you
+thought it did.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;project-stats&quot;&gt;Project stats&lt;/h3&gt;
+
+&lt;p&gt;To give you a better idea of how your build should be performing compared to mine, here are the
+&lt;span data-proofer-ignore=&quot;&quot;&gt;
+&lt;a href=&quot;https://api.codetabs.com/v1/loc?github=SUPERCILEX/Robot-Scouter&quot;&gt;stats for my test project&lt;/a&gt;.
+&lt;/span&gt;
+(~15 modules and ~20,000 lines of Android related code as of this writing.)&lt;/p&gt;
+
+&lt;div class=&quot;slim-title&quot;&gt;
+
+
+&lt;div class=&quot;github-component d-flex flex-column flex-justify-between height-full text-left border border-gray-light bg-white rounded-1 p-3&quot;&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;d-flex flex-justify-between flex-items-start mb-1&quot;&gt;
+      &lt;h1 class=&quot;f4 lh-condensed mb-1&quot;&gt;
+        &lt;a class=&quot;selectively-underline text-defaults&quot; href=&quot;https://github.com/SUPERCILEX/Robot-Scouter&quot;&gt;
+          &lt;svg height=&quot;20&quot; class=&quot;octicon octicon-repo mr-1 v-align-middle icon-color&quot; fill=&quot;#586069&quot; aria-label=&quot;repo&quot; viewBox=&quot;0 0 16 16&quot; version=&quot;1.1&quot; width=&quot;20&quot; role=&quot;img&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;
+          &lt;span&gt;Robot-Scouter&lt;/span&gt;
+        &lt;/a&gt;
+      &lt;/h1&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;text-gray mb-2 ws-normal&quot;&gt;:robot: Easy, efficient, and collaborative FIRST robot scouting&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;d-flex f6&quot;&gt;
+    
+      &lt;a href=&quot;https://github.com/trending?l=Kotlin&quot; class=&quot;d-inline-block link-gray mr-4 selectively-underline&quot;&gt;
+        &lt;span class=&quot;repo-language-color ml-0 mr-1&quot; style=&quot;background-color:#F18E33&quot;&gt;&lt;/span&gt;
+        &lt;span itemprop=&quot;programmingLanguage&quot;&gt;Kotlin&lt;/span&gt;
+      &lt;/a&gt;
+    
+    
+      &lt;a href=&quot;https://github.com/SUPERCILEX/Robot-Scouter/stargazers&quot; class=&quot;d-inline-block link-gray mr-4 selectively-underline&quot;&gt;
+        &lt;svg class=&quot;octicon octicon-star mr-1 icon-color&quot; viewBox=&quot;0 0 14 16&quot; version=&quot;1.1&quot; width=&quot;14&quot; height=&quot;16&quot; aria-hidden=&quot;true&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M14 6l-4.9-.64L7 1 4.9 5.36 0 6l3.6 3.26L2.67 14 7 11.67 11.33 14l-.93-4.74L14 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;
+        &lt;span&gt;94&lt;/span&gt;
+      &lt;/a&gt;
+    
+    
+      &lt;a href=&quot;https://github.com/SUPERCILEX/Robot-Scouter/network/members&quot; class=&quot;d-inline-block link-gray mr-4 selectively-underline&quot;&gt;
+        &lt;svg class=&quot;octicon octicon-git-branch mr-1 icon-color&quot; viewBox=&quot;0 0 10 16&quot; version=&quot;1.1&quot; width=&quot;10&quot; height=&quot;16&quot; aria-hidden=&quot;true&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M10 5c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v.3c-.02.52-.23.98-.63 1.38-.4.4-.86.61-1.38.63-.83.02-1.48.16-2 .45V4.72a1.993 1.993 0 0 0-1-3.72C.88 1 0 1.89 0 3a2 2 0 0 0 1 1.72v6.56c-.59.35-1 .99-1 1.72 0 1.11.89 2 2 2 1.11 0 2-.89 2-2 0-.53-.2-1-.53-1.36.09-.06.48-.41.59-.47.25-.11.56-.17.94-.17 1.05-.05 1.95-.45 2.75-1.25S8.95 7.77 9 6.73h-.02C9.59 6.37 10 5.73 10 5zM2 1.8c.66 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2C1.35 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2zm0 12.41c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm6-8c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;
+        &lt;span&gt;37&lt;/span&gt;
+      &lt;/a&gt;
+    
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;h2 id=&quot;general-optimization&quot;&gt;General optimization&lt;/h2&gt;
+
+&lt;p&gt;Before getting into the specifics, let’s make sure you have the basics down:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://gradle.org/releases/&quot;&gt;Latest&lt;/a&gt; Gradle version&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.android.com/studio/releases/gradle-plugin&quot;&gt;Latest&lt;/a&gt; AGP version&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blog.jetbrains.com/kotlin/category/releases/&quot;&gt;Latest&lt;/a&gt; Kotlin version&lt;/li&gt;
+  &lt;li&gt;Don’t disable the Gradle Daemon&lt;/li&gt;
+  &lt;li&gt;Make sure &lt;a href=&quot;https://docs.gradle.org/current/userguide/build_cache.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;org.gradle.caching=true&lt;/code&gt;&lt;/a&gt;
+in your &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;gradle.properties&lt;/code&gt; file&lt;/li&gt;
+  &lt;li&gt;If possible, enable
+&lt;a href=&quot;https://guides.gradle.org/performance/#parallel_execution&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;org.gradle.parallel&lt;/code&gt;&lt;/a&gt; too, especially
+if you have multiple modules&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Tip: since keeping track of the latest version of X is always a pain, I’d recommend using a
+&lt;a href=&quot;https://github.com/ben-manes/gradle-versions-plugin&quot;&gt;version checker plugin&lt;/a&gt;. TBH, I’m not sure why
+this isn’t part of Gradle by default.&lt;/p&gt;
+
+  &lt;p&gt;Bonus: if you’re using an age-old machine, do yourself a favor and toss it out. At the end of the
+day, crappy hardware equals crappy performance. The only solution there is getting a new machine.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;optimizing-configuration-time&quot;&gt;Optimizing configuration time&lt;/h2&gt;
+
+&lt;p&gt;Getting back to business, you should have a build scan that looks something like this:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-summary.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-summary-240-min.avif 240w,              /assets/resized/gradle/build-scan-summary-320-min.avif 320w,              /assets/resized/gradle/build-scan-summary-480-min.avif 480w,              /assets/resized/gradle/build-scan-summary-800-min.avif 800w,              /assets/resized/gradle/build-scan-summary-1600-min.avif 1600w,              /assets/resized/gradle/build-scan-summary-3200-min.avif 3200w,            /assets/resized/gradle/build-scan-summary-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-summary-240-min.webp 240w,              /assets/resized/gradle/build-scan-summary-320-min.webp 320w,              /assets/resized/gradle/build-scan-summary-480-min.webp 480w,              /assets/resized/gradle/build-scan-summary-800-min.webp 800w,              /assets/resized/gradle/build-scan-summary-1600-min.webp 1600w,              /assets/resized/gradle/build-scan-summary-3200-min.webp 3200w,            /assets/resized/gradle/build-scan-summary-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-summary-240-min.jpg 240w,              /assets/resized/gradle/build-scan-summary-320-min.jpg 320w,              /assets/resized/gradle/build-scan-summary-480-min.jpg 480w,              /assets/resized/gradle/build-scan-summary-800-min.jpg 800w,              /assets/resized/gradle/build-scan-summary-1600-min.jpg 1600w,              /assets/resized/gradle/build-scan-summary-3200-min.jpg 3200w,            /assets/resized/gradle/build-scan-summary-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-summary-240.png 240w,          /assets/resized/gradle/build-scan-summary-320.png 320w,          /assets/resized/gradle/build-scan-summary-480.png 480w,          /assets/resized/gradle/build-scan-summary-800.png 800w,          /assets/resized/gradle/build-scan-summary-1600.png 1600w,          /assets/resized/gradle/build-scan-summary-3200.png 3200w,       /assets/gradle/build-scan-summary.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-summary-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Build Scan Summary&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;The Summary tab&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;Drilling down into the Performance tab, you’ll find all sorts of details about your build:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-performance.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-performance-240-min.avif 240w,              /assets/resized/gradle/build-scan-performance-320-min.avif 320w,              /assets/resized/gradle/build-scan-performance-480-min.avif 480w,              /assets/resized/gradle/build-scan-performance-800-min.avif 800w,              /assets/resized/gradle/build-scan-performance-1600-min.avif 1600w,              /assets/resized/gradle/build-scan-performance-3200-min.avif 3200w,            /assets/resized/gradle/build-scan-performance-min.avif 3294w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-performance-240-min.webp 240w,              /assets/resized/gradle/build-scan-performance-320-min.webp 320w,              /assets/resized/gradle/build-scan-performance-480-min.webp 480w,              /assets/resized/gradle/build-scan-performance-800-min.webp 800w,              /assets/resized/gradle/build-scan-performance-1600-min.webp 1600w,              /assets/resized/gradle/build-scan-performance-3200-min.webp 3200w,            /assets/resized/gradle/build-scan-performance-min.webp 3294w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-performance-240-min.jpg 240w,              /assets/resized/gradle/build-scan-performance-320-min.jpg 320w,              /assets/resized/gradle/build-scan-performance-480-min.jpg 480w,              /assets/resized/gradle/build-scan-performance-800-min.jpg 800w,              /assets/resized/gradle/build-scan-performance-1600-min.jpg 1600w,              /assets/resized/gradle/build-scan-performance-3200-min.jpg 3200w,            /assets/resized/gradle/build-scan-performance-min.jpg 3294w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-performance-240.png 240w,          /assets/resized/gradle/build-scan-performance-320.png 320w,          /assets/resized/gradle/build-scan-performance-480.png 480w,          /assets/resized/gradle/build-scan-performance-800.png 800w,          /assets/resized/gradle/build-scan-performance-1600.png 1600w,          /assets/resized/gradle/build-scan-performance-3200.png 3200w,       /assets/gradle/build-scan-performance.png 3294w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-performance-240.png&quot; width=&quot;3294&quot; height=&quot;1061&quot; alt=&quot;Build Scan Performance&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;The Performance overview tab&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;If your configuration time is above 10 seconds (and you don’t have 300+ modules), something is
+wrong. Otherwise, as long as you’re happy with your configuration time, feel free to skip this section.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: 4 seconds to configure the build is actually terrible — it should only be 1–2 seconds.
+Unfortunately, the Kotlin plugin
+&lt;a href=&quot;https://youtrack.jetbrains.com/issue/KT-26065&quot;&gt;incorrectly resolves dependencies at configuration time&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Ready? Let’s optimize the 💩 out of that configuration time.&lt;/p&gt;
+
+&lt;h3 id=&quot;cache-network-requests&quot;&gt;Cache network requests&lt;/h3&gt;
+
+&lt;p&gt;If you’re doing &lt;a href=&quot;https://stackoverflow.com/a/14804849/4548500&quot;&gt;this&lt;/a&gt;, scroll up to find the
+&lt;a href=&quot;https://docs.gradle.org/current/userguide/dependency_management.html#sec:refreshing-dependencies&quot;&gt;better answer&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Check the network activity tab and make sure there were no requests:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-network.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-network-240-min.avif 240w,              /assets/resized/gradle/build-scan-network-320-min.avif 320w,              /assets/resized/gradle/build-scan-network-480-min.avif 480w,            /assets/resized/gradle/build-scan-network-min.avif 687w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-network-240-min.webp 240w,              /assets/resized/gradle/build-scan-network-320-min.webp 320w,              /assets/resized/gradle/build-scan-network-480-min.webp 480w,            /assets/resized/gradle/build-scan-network-min.webp 687w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-network-240-min.jpg 240w,              /assets/resized/gradle/build-scan-network-320-min.jpg 320w,              /assets/resized/gradle/build-scan-network-480-min.jpg 480w,            /assets/resized/gradle/build-scan-network-min.jpg 687w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-network-240.png 240w,          /assets/resized/gradle/build-scan-network-320.png 320w,          /assets/resized/gradle/build-scan-network-480.png 480w,       /assets/gradle/build-scan-network.png 687w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-network-240.png&quot; width=&quot;687&quot; height=&quot;216&quot; alt=&quot;Build Scan Network Activity&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Zero is my hero&lt;/p&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;dont-do-expensive-operations&quot;&gt;Don’t do expensive operations&lt;/h3&gt;
+
+&lt;p&gt;Look for bottleneck scripts dominating your configuration time. It could be file I/O, processing
+hashes (Git), or anything else unusually expensive. Basically, you shouldn’t ever be executing stuff
+at &lt;em&gt;configuration&lt;/em&gt; time.&lt;/p&gt;
+
+&lt;p&gt;Aside from my slow &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;afterEvaluate&lt;/code&gt; block (caused by that Kotlin bug I mentioned earlier), everything
+else passes the test with flying colors:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-script-configuration.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-script-configuration-240-min.avif 240w,              /assets/resized/gradle/build-scan-script-configuration-320-min.avif 320w,              /assets/resized/gradle/build-scan-script-configuration-480-min.avif 480w,              /assets/resized/gradle/build-scan-script-configuration-800-min.avif 800w,              /assets/resized/gradle/build-scan-script-configuration-1600-min.avif 1600w,            /assets/resized/gradle/build-scan-script-configuration-min.avif 2334w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-script-configuration-240-min.webp 240w,              /assets/resized/gradle/build-scan-script-configuration-320-min.webp 320w,              /assets/resized/gradle/build-scan-script-configuration-480-min.webp 480w,              /assets/resized/gradle/build-scan-script-configuration-800-min.webp 800w,              /assets/resized/gradle/build-scan-script-configuration-1600-min.webp 1600w,            /assets/resized/gradle/build-scan-script-configuration-min.webp 2334w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-script-configuration-240-min.jpg 240w,              /assets/resized/gradle/build-scan-script-configuration-320-min.jpg 320w,              /assets/resized/gradle/build-scan-script-configuration-480-min.jpg 480w,              /assets/resized/gradle/build-scan-script-configuration-800-min.jpg 800w,              /assets/resized/gradle/build-scan-script-configuration-1600-min.jpg 1600w,            /assets/resized/gradle/build-scan-script-configuration-min.jpg 2334w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-script-configuration-240.png 240w,          /assets/resized/gradle/build-scan-script-configuration-320.png 320w,          /assets/resized/gradle/build-scan-script-configuration-480.png 480w,          /assets/resized/gradle/build-scan-script-configuration-800.png 800w,          /assets/resized/gradle/build-scan-script-configuration-1600.png 1600w,       /assets/gradle/build-scan-script-configuration.png 2334w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-script-configuration-240.png&quot; width=&quot;2334&quot; height=&quot;980&quot; alt=&quot;Build Scan Script Configuration&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Example script configuration time&lt;/p&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;dont-use-the-old-task-apis&quot;&gt;Don’t use the old task APIs&lt;/h3&gt;
+
+&lt;p&gt;Gradle 4.9 came out with a new API that enables
+&lt;a href=&quot;https://docs.gradle.org/current/userguide/task_configuration_avoidance.html&quot;&gt;task configuration avoidance&lt;/a&gt;.
+As of this writing, the AGP doesn’t yet support the new APIs, but the upgrade is targeted for v3.3
+alpha 9.&lt;/p&gt;
+
+&lt;p&gt;In the meantime, make sure you &lt;strong&gt;aren’t using any of the
+&lt;a href=&quot;https://docs.gradle.org/current/userguide/task_configuration_avoidance.html#sec:old_vs_new_configuration_api_overview&quot;&gt;APIs that force task configuration&lt;/a&gt;&lt;/strong&gt;
+— those will come back to haunt you later.&lt;/p&gt;
+
+&lt;h3 id=&quot;use-the-new-task-apis&quot;&gt;Use the new task APIs&lt;/h3&gt;
+
+&lt;p&gt;Conversely, make sure any tasks you create in your build scripts use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;register&lt;/code&gt; instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;create&lt;/code&gt;
+(explicitly or implicitly).&lt;/p&gt;
+
+&lt;h3 id=&quot;profile-the-build&quot;&gt;Profile the build&lt;/h3&gt;
+
+&lt;p&gt;If you’ve found a bottleneck but can’t figure out where the problem is coming from, it’s time to
+&lt;a href=&quot;https://github.com/gradle/gradle-profiler&quot;&gt;profile your build&lt;/a&gt;. I’d recommend using
+&lt;a href=&quot;https://github.com/gradle/gradle-profiler#java-flight-recorder&quot;&gt;JFR&lt;/a&gt; (you’ll need the
+&lt;a href=&quot;https://askubuntu.com/a/521154/456255&quot;&gt;Oracle JDK&lt;/a&gt; and Linux to get Flame graphs):&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./gradle-profiler &lt;span class=&quot;nt&quot;&gt;--profile&lt;/span&gt; jfr &lt;span class=&quot;nt&quot;&gt;--project-dir&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;...&quot;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;help&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;For example, you can see how naughty the Kotlin plugin is (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;o.j.kotlin.g.i.AndroidSubplugin&lt;/code&gt; is
+forcing Gradle to resolve artifacts):&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-flame-graph.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-flame-graph-240-min.avif 240w,              /assets/resized/gradle/build-flame-graph-320-min.avif 320w,              /assets/resized/gradle/build-flame-graph-480-min.avif 480w,              /assets/resized/gradle/build-flame-graph-800-min.avif 800w,              /assets/resized/gradle/build-flame-graph-1600-min.avif 1600w,            /assets/resized/gradle/build-flame-graph-min.avif 2847w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-flame-graph-240-min.webp 240w,              /assets/resized/gradle/build-flame-graph-320-min.webp 320w,              /assets/resized/gradle/build-flame-graph-480-min.webp 480w,              /assets/resized/gradle/build-flame-graph-800-min.webp 800w,              /assets/resized/gradle/build-flame-graph-1600-min.webp 1600w,            /assets/resized/gradle/build-flame-graph-min.webp 2847w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-flame-graph-240-min.jpg 240w,              /assets/resized/gradle/build-flame-graph-320-min.jpg 320w,              /assets/resized/gradle/build-flame-graph-480-min.jpg 480w,              /assets/resized/gradle/build-flame-graph-800-min.jpg 800w,              /assets/resized/gradle/build-flame-graph-1600-min.jpg 1600w,            /assets/resized/gradle/build-flame-graph-min.jpg 2847w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-flame-graph-240.png 240w,          /assets/resized/gradle/build-flame-graph-320.png 320w,          /assets/resized/gradle/build-flame-graph-480.png 480w,          /assets/resized/gradle/build-flame-graph-800.png 800w,          /assets/resized/gradle/build-flame-graph-1600.png 1600w,       /assets/gradle/build-flame-graph.png 2847w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-flame-graph-240.png&quot; width=&quot;2847&quot; height=&quot;2159&quot; alt=&quot;Build Profile Flame Graph&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;🔥&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;And if you can’t figure out whose fault it is but don’t think it’s yours, the Gradle team is always
+happy to take a look at the profiling snapshots: &lt;a href=&quot;mailto:performance@gradle.com&quot;&gt;performance@gradle.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;optimizing-clean-build-execution-time&quot;&gt;Optimizing clean build execution time&lt;/h2&gt;
+
+&lt;p&gt;To be fair, I haven’t really invested in this area because it doesn’t matter all that much for my
+day-to-day development. However, there are still a few basic steps you can take to make sure your
+full builds aren’t excessively slow.&lt;/p&gt;
+
+&lt;h3 id=&quot;tune-jvm-args&quot;&gt;Tune JVM args&lt;/h3&gt;
+
+&lt;p&gt;Ah yes, the classic trick every Gradle build performance article seems to mention. It turns out that
+unless wildly misconfigured, they don’t matter all that much.&lt;/p&gt;
+
+&lt;p&gt;In essence, your goal is to minimize garbage collection while also keeping your overall system
+healthy. So if your heap size is too small, the GC will be thrashing constantly. Too large, and
+you’ll start running out of system memory for other things like Chrome or IntelliJ. As Thanos said,
+you want it to be “perfectly balanced, as all things should be.” Minus all the killing.&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;# Start with 2GB, and check how much time is spent garbage collecting relative to the overall build time.
+# Add UTF-8 file encoding because of https://github.com/gradle/gradle/issues/2270.
+org.gradle.jvmargs=-Xmx2g -Dfile.encoding=UTF-8
+
+# You should almost always enable the build cache.
+org.gradle.caching=true
+
+# If it doesn&amp;#39;t break your build, parallelize it.
+# Otherwise, figure out what tasks are stepping over each other and fix it.
+org.gradle.parallel=true
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/a8c09c08e7417c8d784840c7a6602600.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Now look for “Total garbage collection time” and make sure it doesn’t account for more than 5% of
+your build:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-gc-performance.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-gc-performance-240-min.avif 240w,              /assets/resized/gradle/build-scan-gc-performance-320-min.avif 320w,              /assets/resized/gradle/build-scan-gc-performance-480-min.avif 480w,              /assets/resized/gradle/build-scan-gc-performance-800-min.avif 800w,            /assets/resized/gradle/build-scan-gc-performance-min.avif 966w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-gc-performance-240-min.webp 240w,              /assets/resized/gradle/build-scan-gc-performance-320-min.webp 320w,              /assets/resized/gradle/build-scan-gc-performance-480-min.webp 480w,              /assets/resized/gradle/build-scan-gc-performance-800-min.webp 800w,            /assets/resized/gradle/build-scan-gc-performance-min.webp 966w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-gc-performance-240-min.jpg 240w,              /assets/resized/gradle/build-scan-gc-performance-320-min.jpg 320w,              /assets/resized/gradle/build-scan-gc-performance-480-min.jpg 480w,              /assets/resized/gradle/build-scan-gc-performance-800-min.jpg 800w,            /assets/resized/gradle/build-scan-gc-performance-min.jpg 966w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-gc-performance-240.png 240w,          /assets/resized/gradle/build-scan-gc-performance-320.png 320w,          /assets/resized/gradle/build-scan-gc-performance-480.png 480w,          /assets/resized/gradle/build-scan-gc-performance-800.png 800w,       /assets/gradle/build-scan-gc-performance.png 966w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-gc-performance-240.png&quot; width=&quot;966&quot; height=&quot;862&quot; alt=&quot;Build Scan GC Performance&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;4/124 = 3.2%, looks good&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;If it’s anything more than that, give the Daemon another GB. Rinse &amp;amp; repeat.&lt;/p&gt;
+
+&lt;h3 id=&quot;report-excessively-slow-tasks-to-the-offending-parties-and-disable-them-if-possible&quot;&gt;Report excessively slow tasks to the offending parties (and disable them if possible)&lt;/h3&gt;
+
+&lt;p&gt;If a single task is dominating your build, something is wrong. For example, the Firebase Performance
+plugin is notoriously slow — something that’s painfully obvious in the timeline view:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-timeline-bad.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-timeline-bad-240-min.avif 240w,              /assets/resized/gradle/build-scan-timeline-bad-320-min.avif 320w,              /assets/resized/gradle/build-scan-timeline-bad-480-min.avif 480w,              /assets/resized/gradle/build-scan-timeline-bad-800-min.avif 800w,              /assets/resized/gradle/build-scan-timeline-bad-1600-min.avif 1600w,              /assets/resized/gradle/build-scan-timeline-bad-3200-min.avif 3200w,            /assets/resized/gradle/build-scan-timeline-bad-min.avif 3839w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-timeline-bad-240-min.webp 240w,              /assets/resized/gradle/build-scan-timeline-bad-320-min.webp 320w,              /assets/resized/gradle/build-scan-timeline-bad-480-min.webp 480w,              /assets/resized/gradle/build-scan-timeline-bad-800-min.webp 800w,              /assets/resized/gradle/build-scan-timeline-bad-1600-min.webp 1600w,              /assets/resized/gradle/build-scan-timeline-bad-3200-min.webp 3200w,            /assets/resized/gradle/build-scan-timeline-bad-min.webp 3839w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-timeline-bad-240-min.jpg 240w,              /assets/resized/gradle/build-scan-timeline-bad-320-min.jpg 320w,              /assets/resized/gradle/build-scan-timeline-bad-480-min.jpg 480w,              /assets/resized/gradle/build-scan-timeline-bad-800-min.jpg 800w,              /assets/resized/gradle/build-scan-timeline-bad-1600-min.jpg 1600w,              /assets/resized/gradle/build-scan-timeline-bad-3200-min.jpg 3200w,            /assets/resized/gradle/build-scan-timeline-bad-min.jpg 3839w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-timeline-bad-240.png 240w,          /assets/resized/gradle/build-scan-timeline-bad-320.png 320w,          /assets/resized/gradle/build-scan-timeline-bad-480.png 480w,          /assets/resized/gradle/build-scan-timeline-bad-800.png 800w,          /assets/resized/gradle/build-scan-timeline-bad-1600.png 1600w,          /assets/resized/gradle/build-scan-timeline-bad-3200.png 3200w,       /assets/gradle/build-scan-timeline-bad.png 3839w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-timeline-bad-240.png&quot; width=&quot;3839&quot; height=&quot;1466&quot; alt=&quot;Build Scan Timeline&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Ouch&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;When the task isn’t needed for your dev builds, don’t run it. You can do that by either not applying
+the plugin, or disabling the task itself:&lt;/p&gt;
+
+&lt;noscript&gt;&lt;pre&gt;val isCi = System.getenv(&amp;quot;CI&amp;quot;) != null
+val Project.isReleaseBuild get() = hasProperty(&amp;quot;relBuild&amp;quot;) || isCi
+
+if (isReleaseBuild) apply(plugin = &amp;quot;com.google.firebase.firebase-perf&amp;quot;)
+// OR
+project.tasks.named(&amp;quot;transformClassesWithFirebasePerformancePluginForDebug&amp;quot;).configure {
+    enabled = isReleaseBuild
+}
+&lt;/pre&gt;&lt;/noscript&gt;
+&lt;script src=&quot;https://gist.github.com/054d90c063605c3a3d1ff611ed3d9111.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Now, you’ll have an evenly spread out timeline with the longest tasks rightfully being those like
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;compileDebugKotlin&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-timeline-good.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-timeline-good-240-min.avif 240w,              /assets/resized/gradle/build-scan-timeline-good-320-min.avif 320w,              /assets/resized/gradle/build-scan-timeline-good-480-min.avif 480w,              /assets/resized/gradle/build-scan-timeline-good-800-min.avif 800w,              /assets/resized/gradle/build-scan-timeline-good-1600-min.avif 1600w,            /assets/resized/gradle/build-scan-timeline-good-min.avif 3194w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-timeline-good-240-min.webp 240w,              /assets/resized/gradle/build-scan-timeline-good-320-min.webp 320w,              /assets/resized/gradle/build-scan-timeline-good-480-min.webp 480w,              /assets/resized/gradle/build-scan-timeline-good-800-min.webp 800w,              /assets/resized/gradle/build-scan-timeline-good-1600-min.webp 1600w,            /assets/resized/gradle/build-scan-timeline-good-min.webp 3194w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-timeline-good-240-min.jpg 240w,              /assets/resized/gradle/build-scan-timeline-good-320-min.jpg 320w,              /assets/resized/gradle/build-scan-timeline-good-480-min.jpg 480w,              /assets/resized/gradle/build-scan-timeline-good-800-min.jpg 800w,              /assets/resized/gradle/build-scan-timeline-good-1600-min.jpg 1600w,            /assets/resized/gradle/build-scan-timeline-good-min.jpg 3194w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-timeline-good-240.png 240w,          /assets/resized/gradle/build-scan-timeline-good-320.png 320w,          /assets/resized/gradle/build-scan-timeline-good-480.png 480w,          /assets/resized/gradle/build-scan-timeline-good-800.png 800w,          /assets/resized/gradle/build-scan-timeline-good-1600.png 1600w,       /assets/gradle/build-scan-timeline-good.png 3194w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-timeline-good-240.png&quot; width=&quot;3194&quot; height=&quot;1644&quot; alt=&quot;Build Scan Timeline&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Balance&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;Here’s another example: I noticed that builds running &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;installDebug&lt;/code&gt; were excessively slow because
+of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;makeApkFromBundleForDebug&lt;/code&gt;, so I
+&lt;a href=&quot;https://issuetracker.google.com/issues/112180979&quot;&gt;reported it&lt;/a&gt;. The Studio team found multiple bugs
+and missed performance optimizations.&lt;/p&gt;
+
+&lt;h2 id=&quot;optimizing-incremental-build-execution-time&quot;&gt;Optimizing incremental build execution time&lt;/h2&gt;
+
+&lt;p&gt;The importance of incremental builds is second only to configuration time. You’ll be running them
+dozens (if not hundreds) of times a day, so optimizing them is key.&lt;/p&gt;
+
+&lt;h3 id=&quot;ensure-no-incremental-tasks-are-running&quot;&gt;Ensure no incremental tasks are running&lt;/h3&gt;
+
+&lt;p&gt;If you haven’t changed anything, nothing should happen when you rerun a build. The Studio team is
+doing a great job on this front, but the Play Services team sadly still hasn’t made their
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GoogleServicesTask&lt;/code&gt; incremental:&lt;/p&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/gradle/build-scan-incremental-timeline.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-incremental-timeline-240-min.avif 240w,              /assets/resized/gradle/build-scan-incremental-timeline-320-min.avif 320w,              /assets/resized/gradle/build-scan-incremental-timeline-480-min.avif 480w,              /assets/resized/gradle/build-scan-incremental-timeline-800-min.avif 800w,              /assets/resized/gradle/build-scan-incremental-timeline-1600-min.avif 1600w,              /assets/resized/gradle/build-scan-incremental-timeline-3200-min.avif 3200w,            /assets/resized/gradle/build-scan-incremental-timeline-min.avif 3263w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-incremental-timeline-240-min.webp 240w,              /assets/resized/gradle/build-scan-incremental-timeline-320-min.webp 320w,              /assets/resized/gradle/build-scan-incremental-timeline-480-min.webp 480w,              /assets/resized/gradle/build-scan-incremental-timeline-800-min.webp 800w,              /assets/resized/gradle/build-scan-incremental-timeline-1600-min.webp 1600w,              /assets/resized/gradle/build-scan-incremental-timeline-3200-min.webp 3200w,            /assets/resized/gradle/build-scan-incremental-timeline-min.webp 3263w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/gradle/build-scan-incremental-timeline-240-min.jpg 240w,              /assets/resized/gradle/build-scan-incremental-timeline-320-min.jpg 320w,              /assets/resized/gradle/build-scan-incremental-timeline-480-min.jpg 480w,              /assets/resized/gradle/build-scan-incremental-timeline-800-min.jpg 800w,              /assets/resized/gradle/build-scan-incremental-timeline-1600-min.jpg 1600w,              /assets/resized/gradle/build-scan-incremental-timeline-3200-min.jpg 3200w,            /assets/resized/gradle/build-scan-incremental-timeline-min.jpg 3263w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/gradle/build-scan-incremental-timeline-240.png 240w,          /assets/resized/gradle/build-scan-incremental-timeline-320.png 320w,          /assets/resized/gradle/build-scan-incremental-timeline-480.png 480w,          /assets/resized/gradle/build-scan-incremental-timeline-800.png 800w,          /assets/resized/gradle/build-scan-incremental-timeline-1600.png 1600w,          /assets/resized/gradle/build-scan-incremental-timeline-3200.png 3200w,       /assets/gradle/build-scan-incremental-timeline.png 3263w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/gradle/build-scan-incremental-timeline-240.png&quot; width=&quot;3263&quot; height=&quot;1136&quot; alt=&quot;Build Scan Incremental Timeline&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;C'mon, we're sooo close!&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;If there are tasks you don’t think should be running, click on them to see why the cache was
+invalidated. You’re most likely configuring your build non-deterministically and accidentally
+changing inputs each time.&lt;/p&gt;
+
+&lt;h3 id=&quot;minimize-annotation-processor-use-or-use-incremental-ones&quot;&gt;Minimize annotation processor use (or use &lt;a href=&quot;https://github.com/gradle/gradle/issues/5277&quot;&gt;incremental ones&lt;/a&gt;)&lt;/h3&gt;
+
+&lt;p&gt;Are you using Glide modules just for the prettier &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RequestOptions&lt;/code&gt; syntax? Ask yourself this: &lt;em&gt;is
+losing incremental compilation really worth it?&lt;/em&gt; For me, the answer is no.&lt;/p&gt;
+
+&lt;h3 id=&quot;modularize-your-build&quot;&gt;Modularize your build&lt;/h3&gt;
+
+&lt;p&gt;Yes, I know this one is also a tough cookie, but it’ll pay off in the end. You’ll not only improve
+build performance, but also code quality by enforcing clean separation of concerns between your
+different feature modules.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Caveat: the Kotlin plugin doesn’t yet support
+&lt;a href=&quot;https://blog.gradle.org/incremental-compiler-avoidance&quot;&gt;compilation avoidance&lt;/a&gt; so you won’t see
+huge performance benefits when editing non-leaf modules as of this writing. To be fair, this is
+&lt;a href=&quot;https://github.com/gradle/gradle/issues/5226#issuecomment-393647155&quot;&gt;Gradle’s fault&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;replace-api-dependencies-with-implementation-wherever-possible&quot;&gt;Replace &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;api&lt;/code&gt; dependencies with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;implementation&lt;/code&gt; wherever possible&lt;/h3&gt;
+
+&lt;p&gt;Once you’ve modularized your build, you’ll want to have as many leaf modules as possible. Otherwise,
+their children have to be recompiled whenever they change.&lt;/p&gt;
+
+&lt;h2 id=&quot;next-steps&quot;&gt;Next steps&lt;/h2&gt;
+
+&lt;p&gt;While you may have made performance gains today, that doesn’t mean you won’t mess it up again
+tomorrow. (That was super cynical of me, sorry 😊.) &lt;strong&gt;Share this article with your colleagues&lt;/strong&gt; —
+make sure they aren’t accidentally breaking the rules established throughout the guide.&lt;/p&gt;
+
+&lt;p&gt;I’d also recommend taking advantage of the
+&lt;a href=&quot;https://gradle.com/enterprise/trial/&quot;&gt;Gradle Enterprise free trial&lt;/a&gt; to collect a few weeks worth of
+data and make sure everyone on your team is getting the best possible performance.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Well, that’s a wrap. I hope I’ve given you the tools to fight back growing build times and maximize
+your productivity.&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Gradle" /><category term="Performance" /><summary type="html">If you’re anything like me a few months ago, you’ve hit a breaking point. You’re feeling something akin to desperation and you don’t know what to do. You’ve already tried all the classic tricks like fiddling with JVM args and Gradle properties, but to no avail.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/gradle/abstract-build.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/gradle/abstract-build.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Android development for the Minimalist</title><link href="https://alexsaveau.dev/blog/tips/android/android-development-for-the-minimalist" rel="alternate" type="text/html" title="Android development for the Minimalist" /><published>2018-08-19T00:00:00+00:00</published><updated>2020-06-17T22:29:04+00:00</updated><id>https://alexsaveau.dev/blog/tips/android/android-development-for-the-minimalist</id><content type="html" xml:base="https://alexsaveau.dev/blog/tips/android/android-development-for-the-minimalist">&lt;p&gt;What does your workspace look like? Do you have dozens of Chrome tabs crammed in a single window? Is
+your desktop splattered with icons left and right? Is your editor desperately fighting for space
+against an army of toolbars and windows?&lt;/p&gt;
+
+&lt;p&gt;If your eyes have had enough and are in need of breathing room, you’re in the right place. I’ll show
+you how to declutter your workspace to maximize the laser focus you need to be productive.&lt;/p&gt;
+
+&lt;h2 id=&quot;fading-away-the-operating-system&quot;&gt;Fading away the operating system&lt;/h2&gt;
+
+&lt;p&gt;In an ideal world, my machine would come with Chrome, IntelliJ, and Git. And that’s it. Aside from a
+way to switch windows, I don’t need anything else 99% of the time.&lt;/p&gt;
+
+&lt;p&gt;While you obviously need a proper OS to meet that 1%, it’s possible to fade away most of the clutter
+when you don’t need it. The first step on this journey is to make whichever apps you use the most
+always available in the state you left them in, regardless of how your computer has started:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;For Chrome, you’ll want to have it
+&lt;a href=&quot;https://support.google.com/chrome/answer/95314&quot;&gt;continue where you left off&lt;/a&gt;. IntelliJ already
+does this by default.&lt;/li&gt;
+  &lt;li&gt;To make the experience completely seamless, your most used apps should start along with
+&lt;a href=&quot;https://stackoverflow.com/a/7221787/4548500&quot;&gt;Linux&lt;/a&gt;,
+&lt;a href=&quot;http://osxdaily.com/2006/11/29/how-to-launch-application-on-system-start-in-mac-os-x/&quot;&gt;MacOS&lt;/a&gt;,
+or &lt;a href=&quot;https://support.microsoft.com/en-us/help/4026268/windows-10-change-startup-apps&quot;&gt;Windows&lt;/a&gt;. I
+personally have just Chrome and IntelliJ on the list.&lt;/li&gt;
+  &lt;li&gt;Finally, if your dock or taskbar is visible, hide it. Instead, use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Alt + Tab&lt;/code&gt;
+keyboard shortcut or the three finger trackpad shortcut to switch between windows.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Organizational tip: use two virtual desktops. One for personal stuff like social media and
+vacation planning. Another for work related stuff like IntelliJ and Stack Overflow.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/general/minimalism-article-screenshot.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-article-screenshot-240-min.avif 240w,              /assets/resized/general/minimalism-article-screenshot-320-min.avif 320w,              /assets/resized/general/minimalism-article-screenshot-480-min.avif 480w,              /assets/resized/general/minimalism-article-screenshot-800-min.avif 800w,              /assets/resized/general/minimalism-article-screenshot-1600-min.avif 1600w,              /assets/resized/general/minimalism-article-screenshot-3200-min.avif 3200w,            /assets/resized/general/minimalism-article-screenshot-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-article-screenshot-240-min.webp 240w,              /assets/resized/general/minimalism-article-screenshot-320-min.webp 320w,              /assets/resized/general/minimalism-article-screenshot-480-min.webp 480w,              /assets/resized/general/minimalism-article-screenshot-800-min.webp 800w,              /assets/resized/general/minimalism-article-screenshot-1600-min.webp 1600w,              /assets/resized/general/minimalism-article-screenshot-3200-min.webp 3200w,            /assets/resized/general/minimalism-article-screenshot-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-article-screenshot-240-min.jpg 240w,              /assets/resized/general/minimalism-article-screenshot-320-min.jpg 320w,              /assets/resized/general/minimalism-article-screenshot-480-min.jpg 480w,              /assets/resized/general/minimalism-article-screenshot-800-min.jpg 800w,              /assets/resized/general/minimalism-article-screenshot-1600-min.jpg 1600w,              /assets/resized/general/minimalism-article-screenshot-3200-min.jpg 3200w,            /assets/resized/general/minimalism-article-screenshot-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/minimalism-article-screenshot-240.png 240w,          /assets/resized/general/minimalism-article-screenshot-320.png 320w,          /assets/resized/general/minimalism-article-screenshot-480.png 480w,          /assets/resized/general/minimalism-article-screenshot-800.png 800w,          /assets/resized/general/minimalism-article-screenshot-1600.png 1600w,          /assets/resized/general/minimalism-article-screenshot-3200.png 3200w,       /assets/general/minimalism-article-screenshot.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/minimalism-article-screenshot-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Screenshot of this article&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Me writing this article — Chrome steals the show&lt;/p&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;decluttering-the-editor&quot;&gt;Decluttering the editor&lt;/h2&gt;
+
+&lt;p&gt;Now that you’ve followed the steps above, your primary apps should be front and center, always
+available, and in the state you left them in regardless of what the OS was doing.&lt;/p&gt;
+
+&lt;p&gt;Your next move is to remove noise around the content you’re working on. For example, I keep the
+toolbar hidden when editing a Google Doc. Similar improvements can be made for IntelliJ:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;If horizontal windows like Version Control or Logcat are visible, hide them while you’re coding.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.jetbrains.com/help/idea/manipulating-the-tool-windows.html#show-all&quot;&gt;Hide the sidebars&lt;/a&gt;
+to access them too. Instead, use their individual &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Alt + #&lt;/code&gt; shortcuts, or the global &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Ctrl + E&lt;/code&gt;
+(&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;⌘ E&lt;/code&gt;) one.&lt;/li&gt;
+  &lt;li&gt;Enter full screen mode: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;View | Enter Full Screen&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Enter distraction free mode: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;View | Enter Distraction-Free Mode&lt;/code&gt;. Use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Ctrl + E&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Ctrl + N&lt;/code&gt;
+(&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;⌘ N&lt;/code&gt;) to navigate between files.&lt;/li&gt;
+  &lt;li&gt;Bonus: use
+&lt;a href=&quot;https://github.com/tonsky/FiraCode/wiki/Intellij-products-instructions#version-20182&quot;&gt;font ligatures with Fira Code&lt;/a&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Productivity tip: don’t be afraid to
+&lt;a href=&quot;https://www.jetbrains.com/help/idea/configuring-keyboard-and-mouse-shortcuts.html&quot;&gt;assign your own shortcuts&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;before&quot;&gt;Before&lt;/h3&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/general/minimalism-cluttered.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-cluttered-240-min.avif 240w,              /assets/resized/general/minimalism-cluttered-320-min.avif 320w,              /assets/resized/general/minimalism-cluttered-480-min.avif 480w,              /assets/resized/general/minimalism-cluttered-800-min.avif 800w,              /assets/resized/general/minimalism-cluttered-1600-min.avif 1600w,              /assets/resized/general/minimalism-cluttered-3200-min.avif 3200w,            /assets/resized/general/minimalism-cluttered-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-cluttered-240-min.webp 240w,              /assets/resized/general/minimalism-cluttered-320-min.webp 320w,              /assets/resized/general/minimalism-cluttered-480-min.webp 480w,              /assets/resized/general/minimalism-cluttered-800-min.webp 800w,              /assets/resized/general/minimalism-cluttered-1600-min.webp 1600w,              /assets/resized/general/minimalism-cluttered-3200-min.webp 3200w,            /assets/resized/general/minimalism-cluttered-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-cluttered-240-min.jpg 240w,              /assets/resized/general/minimalism-cluttered-320-min.jpg 320w,              /assets/resized/general/minimalism-cluttered-480-min.jpg 480w,              /assets/resized/general/minimalism-cluttered-800-min.jpg 800w,              /assets/resized/general/minimalism-cluttered-1600-min.jpg 1600w,              /assets/resized/general/minimalism-cluttered-3200-min.jpg 3200w,            /assets/resized/general/minimalism-cluttered-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/minimalism-cluttered-240.png 240w,          /assets/resized/general/minimalism-cluttered-320.png 320w,          /assets/resized/general/minimalism-cluttered-480.png 480w,          /assets/resized/general/minimalism-cluttered-800.png 800w,          /assets/resized/general/minimalism-cluttered-1600.png 1600w,          /assets/resized/general/minimalism-cluttered-3200.png 3200w,       /assets/general/minimalism-cluttered.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/minimalism-cluttered-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Cluttered IDE&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Painfully cluttered&lt;/p&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;after&quot;&gt;After&lt;/h3&gt;
+
+&lt;p&gt;
+
+
+  &lt;a href=&quot;/assets/general/minimalism-clean.png&quot;&gt;  &lt;picture&gt;  &lt;!-- Includes don't work in here for whatever reason, so we need to copy/paste everything. --&gt;  &lt;!-- .avif images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-clean-240-min.avif 240w,              /assets/resized/general/minimalism-clean-320-min.avif 320w,              /assets/resized/general/minimalism-clean-480-min.avif 480w,              /assets/resized/general/minimalism-clean-800-min.avif 800w,              /assets/resized/general/minimalism-clean-1600-min.avif 1600w,              /assets/resized/general/minimalism-clean-3200-min.avif 3200w,            /assets/resized/general/minimalism-clean-min.avif 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/avif&quot; /&gt;    &lt;!-- .webp images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-clean-240-min.webp 240w,              /assets/resized/general/minimalism-clean-320-min.webp 320w,              /assets/resized/general/minimalism-clean-480-min.webp 480w,              /assets/resized/general/minimalism-clean-800-min.webp 800w,              /assets/resized/general/minimalism-clean-1600-min.webp 1600w,              /assets/resized/general/minimalism-clean-3200-min.webp 3200w,            /assets/resized/general/minimalism-clean-min.webp 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/webp&quot; /&gt;    &lt;!-- .jpg images --&gt;          &lt;source srcset=&quot;              /assets/resized/general/minimalism-clean-240-min.jpg 240w,              /assets/resized/general/minimalism-clean-320-min.jpg 320w,              /assets/resized/general/minimalism-clean-480-min.jpg 480w,              /assets/resized/general/minimalism-clean-800-min.jpg 800w,              /assets/resized/general/minimalism-clean-1600-min.jpg 1600w,              /assets/resized/general/minimalism-clean-3200-min.jpg 3200w,            /assets/resized/general/minimalism-clean-min.jpg 3840w    &quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; type=&quot;image/jpeg&quot; /&gt;    &lt;!-- Originals --&gt;    &lt;source srcset=&quot;          /assets/resized/general/minimalism-clean-240.png 240w,          /assets/resized/general/minimalism-clean-320.png 320w,          /assets/resized/general/minimalism-clean-480.png 480w,          /assets/resized/general/minimalism-clean-800.png 800w,          /assets/resized/general/minimalism-clean-1600.png 1600w,          /assets/resized/general/minimalism-clean-3200.png 3200w,       /assets/general/minimalism-clean.png 3840w&quot; sizes=&quot;(min-width: 768px) 85vw, 100vw&quot; /&gt;  &lt;!-- Default --&gt;  &lt;img class=&quot;article-image loads&quot; src=&quot;/assets/resized/general/minimalism-clean-240.png&quot; width=&quot;3840&quot; height=&quot;2160&quot; alt=&quot;Minimalist IDE&quot; loading=&quot;lazy&quot; /&gt;&lt;/picture&gt;&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;div class=&quot;text-gray&quot;&gt;&lt;p class=&quot;caption&quot;&gt;Just you and code&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;If you’re feeling truly adventurous, hide the project view. 😉&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;I hope you find all the extra space refreshing. Enjoy! 😊&lt;/p&gt;</content><author><name>Alex Saveau</name></author><category term="Tips" /><category term="Android" /><summary type="html">What does your workspace look like? Do you have dozens of Chrome tabs crammed in a single window? Is your desktop splattered with icons left and right? Is your editor desperately fighting for space against an army of toolbars and windows?</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/general/minimalism.jpeg" /><media:content medium="image" url="https://alexsaveau.dev/assets/general/minimalism.jpeg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
