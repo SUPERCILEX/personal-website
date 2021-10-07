@@ -5,7 +5,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from subprocess import check_call, STDOUT, PIPE
 from typing import List
 
-from shared import site_dir, removeprefix, downgrade_image
+from shared import site_dir, downgrade_image
 
 assets_dir = 'assets'
 output_assets_dir = 'assets/resized'
@@ -17,11 +17,6 @@ squoosh = '.build/node_modules/.bin/squoosh-cli'
 # These images break the compressor
 # TODO remove when upstream fixes it
 broken_outputs = [
-    'assets/resized/general/gradle-codesearch-comparison-min.avif',
-
-    'assets/resized/firebase/website-health-metrics-min.avif',
-    'assets/resized/firebase/website-health-metrics-3200-min.avif',
-
     'assets/resized/future/final-stop-resolution-min.avif',
     'assets/resized/future/final-stop-resolution-min.webp',
     'assets/resized/future/final-stop-resolution-min.jpg',
@@ -67,11 +62,9 @@ def compress(parent: str, file: str):
             check_call([
                 squoosh,
                 input_path,
-                '--output-dir',
-                output_dir,
-                '--suffix',
-                compressed_file_suffix,
-                f'--{command}',
+                '--output-dir', output_dir,
+                '--suffix', compressed_file_suffix,
+                f'--{command}', 'true',
             ], stdout=PIPE, stderr=STDOUT, timeout=90)
             shutil.copyfile(output_file, os.path.join(site_dir, output_file))
 
