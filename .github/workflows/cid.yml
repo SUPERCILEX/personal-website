@@ -13,6 +13,10 @@ jobs:
         with:
           ruby-version: 2.7
           bundler-cache: true
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
       - name: Site Assets Cache
         uses: actions/cache@v2
         with:

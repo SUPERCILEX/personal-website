@@ -1,7 +1,7 @@
 import os
 import re
 
-from shared import site_dir, removeprefix, downgrade_image
+from shared import site_dir, downgrade_image
 
 assets_url = 'https://alexsaveau.dev/assets/'
 
@@ -25,12 +25,12 @@ def handle_file(file: str):
                 continue
             found.add(url)
 
-            path = removeprefix(url, assets_url)
+            path = url.removeprefix(assets_url)
             if path.startswith('resized/'):
                 continue
 
             downgraded = downgrade_image(path, max_resolution=800, extension='jpg')
-            downgraded = assets_url + removeprefix(downgraded, 'assets/')
+            downgraded = assets_url + downgraded.removeprefix('assets/')
 
             print(f'Downgrading {url} to {downgraded} in {file}')
             new_contents = new_contents.replace(url, downgraded)

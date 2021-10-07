@@ -53,7 +53,7 @@ def compress(parent: str, file: str):
 
     for (file_type, command) in output_formats.items():
         output_dir = parent if resized else \
-            os.path.join(output_assets_dir, removeprefix(removeprefix(parent, assets_dir), '/'))
+            os.path.join(output_assets_dir, parent.removeprefix(assets_dir).removeprefix('/'))
         output_file = os.path.join(output_dir, f'{file_name}{compressed_file_suffix}.{file_type}')
 
         if not os.path.exists(output_file) and output_file not in broken_outputs:
