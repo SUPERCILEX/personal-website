@@ -137,6 +137,16 @@ footer {
   }
 }
 
+@media (min-width: 1942px) {
+  .masthead {
+    max-width: 400px;
+  }
+
+  .content-container {
+    width: 100%;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --hr-color: whitesmoke;

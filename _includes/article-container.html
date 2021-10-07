@@ -3,19 +3,17 @@
     {% include masthead.html metadata=true %}
   </div>
 
-  <div id="article" class="col-md-7 col-lg-8 col-xl-9 px-lg-7 border-top border-md-top-0 bg-gray-light">
-    <div class="px-4 py-6" style="margin-top: -3px;">
-      <div class="mx-auto" style="max-width: 900px;">
-        <div class="f4 mb-6">
-          <div class="f4 scoped-text-defaults">
-            <p class="f5">
-              <a href="{{ include.parent_path | relative_url }}" class="d-flex flex-items-center text-defaults">
-                {% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" aria-label:include.parent %}{{ include.parent }}
-              </a>
-            </p>
+  <div id="article" class="col-md-7 col-lg-8 col-xl-9 px-4 py-6 px-lg-7 border-top border-md-top-0 bg-gray-light content-container">
+    <div class="mx-auto" style="max-width: 900px;">
+      <div class="f4 mb-6">
+        <div class="f4 scoped-text-defaults">
+          <p class="f5">
+            <a href="{{ include.parent_path | relative_url }}" class="d-flex flex-items-center text-defaults">
+              {% octicon chevron-left height:16 class:"mr-2 v-align-middle icon-color" aria-label:include.parent %}{{ include.parent }}
+            </a>
+          </p>
 
-            {{ include.content }}
-          </div>
+          {{ include.content }}
         </div>
       </div>
     </div>
