@@ -30,6 +30,7 @@
             removeAnimation();
           } else {
             e.onload = removeAnimation;
+            e.onerror = removeAnimation;
           }
         }
       });
