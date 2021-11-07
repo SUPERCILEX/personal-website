@@ -1,8 +1,7 @@
 :root {
   --hr-color: gray;
   --footer-color: white;
-  --image-placeholder-outer-gradient: #eaebec;
-  --image-placeholder-inner-gradient: #dadbdc;
+  --loading-pulse-color: #b0b0b0;
 }
 
 body {
@@ -68,27 +67,22 @@ footer {
 }
 
 .loads {
-  animation-duration: 2.5s;
-  animation-fill-mode: forwards;
+  animation-duration: 2s;
+  animation: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   animation-iteration-count: infinite;
-  animation-name: image-placeholder;
-  animation-timing-function: linear;
-  background: linear-gradient(
-                  to right,
-                  var(--image-placeholder-outer-gradient) 8%,
-                  var(--image-placeholder-inner-gradient) 18%,
-                  var(--image-placeholder-outer-gradient) 33%
-  );
-  background-size: 1000px 100%;
-  position: relative;
+  animation-name: pulse;
+
+  background-color: var(--loading-pulse-color);
 }
 
-@keyframes image-placeholder {
-  from {
-    background-position: -1000px 0;
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
   }
-  to {
-    background-position: 1000px 0;
+
+  50% {
+    opacity: .33;
   }
 }
 
@@ -151,8 +145,7 @@ footer {
   :root {
     --hr-color: whitesmoke;
     --footer-color: black;
-    --image-placeholder-outer-gradient: #5f666d;
-    --image-placeholder-inner-gradient: #6f767d;
+    --loading-pulse-color: #383838;
   }
 
   a {
