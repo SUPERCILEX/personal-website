@@ -23,6 +23,11 @@
         "source": "/wealthfront",
         "destination": "https://www.wealthfront.com/c/affiliates/invited/AFFB-0QSH-4D1S-PE56",
         "type": 302
+      },
+      {
+        "source": "/sponsor",
+        "destination": "https://github.com/sponsors/SUPERCILEX",
+        "type": 302
       }
     ],
     "headers": [
