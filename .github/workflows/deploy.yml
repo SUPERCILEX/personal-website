@@ -43,6 +43,7 @@ jobs:
             ${{ runner.os }}-v2-site-
       - name: Generate resume
         run: |
+          mkdir resume
           curl -L --fail --output resume/AlexSaveau.pdf \
             --url https://docs.google.com/document/d/11sHvpwRaWoafEr2k8w5uXaJB0_VuMCtSxQNsErnpet0/export?format=pdf
       - name: Hack timestamps

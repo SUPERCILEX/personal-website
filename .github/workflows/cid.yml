@@ -26,7 +26,6 @@ jobs:
             ${{ runner.os }}-v2-site-
       - name: Prep site
         run: |
-          touch resume/AlexSaveau.pdf
           echo "url: http://localhost:4000" >> _config.yml
           .build/build_site.sh
         env:
@@ -38,7 +37,7 @@ jobs:
             --check-html --check-favicon --check-opengraph \
             --report-eof-tags --report-mismatched-tags --report-invalid-tags --report-missing-names \
             --file-ignore ./build/google1cff0bc53ad1c64c.html \
-            --url-ignore "https://developer.android.com/studio/releases/gradle-plugin" \
+            --url-ignore "https://developer.android.com/studio/releases/gradle-plugin,/resume,/wealthfront,/sponsor" \
             --typhoeus-config '{"headers": {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4356.6 Safari/537.36"}}' \
             ./build
       - name: Upload site

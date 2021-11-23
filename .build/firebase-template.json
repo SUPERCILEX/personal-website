@@ -20,6 +20,11 @@
     ],
     "redirects": [
       {
+        "source": "/resume",
+        "destination": "/resume/AlexSaveau.pdf",
+        "type": 302
+      },
+      {
         "source": "/wealthfront",
         "destination": "https://www.wealthfront.com/c/affiliates/invited/AFFB-0QSH-4D1S-PE56",
         "type": 302
