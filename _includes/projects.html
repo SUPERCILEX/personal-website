@@ -1,3 +1,5 @@
+{% assign num_pub_repos = site.github.public_repositories | size %}
+{% if num_pub_repos != 0 %}
 <h2 id="projects" class="text-defaults">Projects</h2>
 <p class="f4 mb-4 text-gray">GitHub repositories I've built.</p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
@@ -37,3 +39,4 @@
     {% endfor %}
   {% endfor %}
 </div>
+{% endif %}
