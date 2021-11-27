@@ -1,4 +1,10 @@
 {% capture image %}
+  {% if include.src contains '.svg' %}
+  <img class="{{ include.class }}" src="/assets/resized/{{ include.src | relative_url | remove_first: '/assets/' | replace: '.svg', '-min.svg' }}"
+       width="{{ include.width }}"
+       height="{{ include.height }}"
+       alt="{{ include.alt }}" loading="lazy">
+  {% else %}
   {% responsive_image_block %}
     path: "{{ include.src | relative_url | remove_first: '/' }}"
     class: "{{ include.class }} loads"
@@ -7,6 +13,7 @@
     sizes: "{{ include.sizes }}"
     alt: "{{ include.alt }}"
   {% endresponsive_image_block %}
+  {% endif %}
 {% endcapture %}
 
 {% if include.href %}

@@ -9,10 +9,11 @@ from shared import site_dir, downgrade_image
 
 assets_dir = 'assets'
 output_assets_dir = 'assets/resized'
-supported_files = ['.png', '.jpg', '.jpeg']
+supported_files = ['.png', '.jpg', '.jpeg', '.svg']
 output_formats = {'jpg': 'mozjpeg', 'webp': 'webp', 'avif': 'avif'}
 compressed_file_suffix = '-min'
 squoosh = '.build/node_modules/.bin/squoosh-cli'
+svgo = '.build/node_modules/.bin/svgo'
 
 # These images break the compressor
 # TODO remove when upstream fixes it
@@ -49,6 +50,24 @@ def compress(parent: str, file: str):
     if not resized and file_name.endswith(compressed_file_suffix):
         raise Exception(f'Illegal file name ending \'{compressed_file_suffix}\': {input_path}')
     if file_name.endswith(compressed_file_suffix):
+        return
+
+    if extension == '.svg':
+        output_dir = \
+            os.path.join(output_assets_dir, parent.removeprefix(assets_dir).removeprefix('/'))
+        output_file = os.path.join(output_dir, f'{file_name}{compressed_file_suffix}.svg')
+
+        if not os.path.exists(output_file):
+            print(f'Generating {output_file}')
+            check_call([
+                svgo,
+                input_path,
+                '--multipass',
+                '--output', output_file,
+            ], stdout=PIPE, stderr=STDOUT, timeout=90)
+            shutil.copyfile(output_file, os.path.join(site_dir, output_file))
+            print(f'Done processing {output_file}')
+
         return
 
     for (file_type, command) in output_formats.items():

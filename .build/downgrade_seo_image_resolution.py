@@ -26,7 +26,7 @@ def handle_file(file: str):
             found.add(url)
 
             path = url.removeprefix(assets_url)
-            if path.startswith('resized/'):
+            if path.startswith('resized/') or path.endswith('.svg'):
                 continue
 
             downgraded = downgrade_image(path, max_resolution=800, extension='jpg')

@@ -5,6 +5,7 @@
     "csso-cli": "^3.0.0",
     "firebase-tools": "^9.19.0",
     "jest": "^27.2.4",
+    "svgo": "^2.8.0",
     "uncss": "^0.17.3"
   },
   "scripts": {
