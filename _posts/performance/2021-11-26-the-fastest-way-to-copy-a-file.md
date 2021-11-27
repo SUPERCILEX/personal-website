@@ -12,18 +12,18 @@ redirect_from:
 ---
 
 I'm on a mission to find the fastest way to copy and delete files on a modern machine. I thought a
-quick Google search would reveal the answer, but I only found
-this [Stack Overflow post](https://stackoverflow.com/questions/7463689/most-efficient-way-to-copy-a-file-in-linux)
+quick Google search would reveal the answer, but I only found this
+[Stack Overflow post](https://stackoverflow.com/questions/7463689/most-efficient-way-to-copy-a-file-in-linux)
 with people's opinion on the matter (but no proof), a [discussion](https://lwn.net/Articles/789623/)
 on what the kernel can do to improve performance, and various articles claiming you should tar
 directories to copy them faster (there's no chance of that being faster than a properly written
 parallel cp implementation).
 
-The only way to get an objective answer is by writing benchmarks,
-so [here they are](https://github.com/SUPERCILEX/fuc/blob/396d4ebba77c7eb1ecbcafa3ecaf39bcd23a8656/fcp/benches/copy_methods.rs)
-. 😁 The results will be highly dependent on your specific system, so I would recommend simply
-running those benchmarks yourself if you're curious. However, I'll share my findings from running
-these on my ext4 XPS 17 and an APFS Macbook.
+The only way to get an objective answer is by writing benchmarks, so
+[here they are](https://github.com/SUPERCILEX/fuc/blob/396d4ebba77c7eb1ecbcafa3ecaf39bcd23a8656/fcp/benches/copy_methods.rs).
+😁 The results will be highly dependent on your specific system, so I would recommend simply running
+those benchmarks yourself if you're curious. However, I'll share my findings from running these on
+my ext4 XPS 17 and an APFS Macbook.
 
 ## Findings
 
