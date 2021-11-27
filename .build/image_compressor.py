@@ -59,13 +59,17 @@ def compress(parent: str, file: str):
 
         if not os.path.exists(output_file):
             print(f'Generating {output_file}')
+
             check_call([
                 svgo,
                 input_path,
                 '--multipass',
                 '--output', output_file,
             ], stdout=PIPE, stderr=STDOUT, timeout=90)
-            shutil.copyfile(output_file, os.path.join(site_dir, output_file))
+            resized_output = os.path.join(site_dir, output_file)
+            os.makedirs(os.path.dirname(resized_output), exist_ok=True)
+            shutil.copyfile(output_file, resized_output)
+
             print(f'Done processing {output_file}')
 
         return
@@ -85,7 +89,9 @@ def compress(parent: str, file: str):
                 '--suffix', compressed_file_suffix,
                 f'--{command}', 'true',
             ], stdout=PIPE, stderr=STDOUT, timeout=90)
-            shutil.copyfile(output_file, os.path.join(site_dir, output_file))
+            resized_output = os.path.join(site_dir, output_file)
+            os.makedirs(os.path.dirname(resized_output), exist_ok=True)
+            shutil.copyfile(output_file, resized_output)
 
             print(f'Done processing {output_file}')
 
