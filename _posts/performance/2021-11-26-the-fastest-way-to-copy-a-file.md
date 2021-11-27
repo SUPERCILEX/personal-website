@@ -62,28 +62,28 @@ file system supports it, and will come with free improvements as the kernel is u
 ### Copying 1 KiB files with the Kernel cache enabled {#fn:1kib-memcache}
 
 [^1kib-memcache]:
-{% include article-image.html src="assets/performance/file-cp-benches/1kib-memcache.svg" alt="" %}
+{% include article-image.html src="assets/performance/file-cp-benches/1kib-memcache.svg" alt="Benchmark results" %}
 
 <a href="#fnref:1kib-memcache" class="reversefootnote" role="doc-backlink">↩</a>
 
 ### Copying 1 MiB files with the Kernel cache enabled {#fn:1mib-memcache}
 
 [^1mib-memcache]:
-{% include article-image.html src="assets/performance/file-cp-benches/1mib-memcache.svg" alt="" %}
+{% include article-image.html src="assets/performance/file-cp-benches/1mib-memcache.svg" alt="Benchmark results" %}
 
 <a href="#fnref:1mib-memcache" class="reversefootnote" role="doc-backlink">↩</a>
 
 ### Copying 1 MiB files with the Kernel cache disabled for reads {#fn:1mib-uncached}
 
 [^1mib-uncached]:
-{% include article-image.html src="assets/performance/file-cp-benches/1mib-uncached.svg" alt="" %}
+{% include article-image.html src="assets/performance/file-cp-benches/1mib-uncached.svg" alt="Benchmark results" %}
 
 <a href="#fnref:1mib-uncached" class="reversefootnote" role="doc-backlink">↩</a>
 
 ### Copying 32 MiB files with the Kernel cache enabled {#fn:32mib-memcache}
 
 [^32mib-memcache]:
-{% include article-image.html src="assets/performance/file-cp-benches/32mib-memcache.svg" alt="" %}
+{% include article-image.html src="assets/performance/file-cp-benches/32mib-memcache.svg" alt="Benchmark results" %}
 
 Ignore the extra probability of `copy_regular_files` completing in 20ms, that's just happens to be
 the first benchmark that ran before the system reached saturation.
