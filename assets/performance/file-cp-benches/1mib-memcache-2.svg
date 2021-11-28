@@ -87,7 +87,7 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<path stroke='black'  d='M424.91,70.93 L433.91,70.93  '/>	<g transform="translate(416.52,74.83)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Helvetica" >with_memcache/copy_regular_files/1048576</tspan></text>
+		<text><tspan font-family="Helvetica" >with_memcache/copy_file_range/1048576</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -931,4 +931,3 @@
 </g>
 </g>
 </svg>
-
