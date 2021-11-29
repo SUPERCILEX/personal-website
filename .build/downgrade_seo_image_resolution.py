@@ -26,10 +26,13 @@ def handle_file(file: str):
             found.add(url)
 
             path = url.removeprefix(assets_url)
-            if path.startswith('resized/') or path.endswith('.svg'):
+            if path.startswith('resized/'):
                 continue
 
-            downgraded = downgrade_image(path, max_resolution=800, extension='jpg')
+            if path.endswith('.svg'):
+                downgraded = downgrade_image(path)
+            else:
+                downgraded = downgrade_image(path, max_resolution=800, extension='jpg')
             downgraded = assets_url + downgraded.removeprefix('assets/')
 
             print(f'Downgrading {url} to {downgraded} in {file}')
