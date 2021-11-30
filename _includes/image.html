@@ -16,8 +16,14 @@
   {% endif %}
 {% endcapture %}
 
+{% if include.src == include.href and include.src contains '.svg' %}
+  {% capture link %}/assets/resized/{{ include.src | relative_url | remove_first: '/assets/' | replace: '.svg', '-min.svg' }}{% endcapture %}
+{% else %}
+  {% capture link %}{{ include.href | relative_url }}{% endcapture %}
+{% endif %}
+
 {% if include.href %}
-  <a href="{{ include.href | relative_url }}">{{ image | strip_newlines }}</a>
+  <a href="{{ link }}">{{ image | strip_newlines }}</a>
 {% else %}
   {{ image | strip_newlines }}
 {% endif %}
