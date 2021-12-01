@@ -5,13 +5,12 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from subprocess import check_call, PIPE
 from typing import List
 
-from shared import site_dir, downgrade_image
+from shared import site_dir, downgrade_image, strip_compression_suffix, compressed_file_suffix
 
 assets_dir = 'assets'
 output_assets_dir = 'assets/resized'
 supported_files = ['.png', '.jpg', '.jpeg', '.svg']
 output_formats = {'jpg': 'mozjpeg', 'webp': 'webp', 'avif': 'avif'}
-compressed_file_suffix = '-min'
 squoosh = '.build/node_modules/.bin/squoosh-cli'
 svgo = '.build/node_modules/.bin/svgo'
 
@@ -28,16 +27,40 @@ def main():
     pool = ThreadPoolExecutor(max_workers=max(1, int(os.cpu_count() / 2)))
     tasks: List[Future] = []
 
-    for root, subdirs, files in os.walk(assets_dir):
+    for root, _, files in os.walk(assets_dir):
         for file in files:
             tasks.append(pool.submit(compress, root, file))
-    for root, subdirs, files in os.walk(site_dir):
+    for root, _, files in os.walk(site_dir):
         for file in files:
             if file.endswith('.html'):
                 tasks.append(pool.submit(fix_broken_images, os.path.join(root, file)))
 
     for task in tasks:
         task.result()
+    prune()
+
+
+def prune():
+    src_images = set()
+
+    for root, _, files in os.walk(assets_dir):
+        for file in files:
+            path = os.path.join(root, file)
+            if output_assets_dir not in path:
+                src_images.add(os.path.splitext(path)[0])
+
+    for root, _, files in os.walk(output_assets_dir):
+        for file in files:
+            path = os.path.join(root, file)
+            name = strip_compression_suffix(os.path.splitext(file)[0])
+            original_path = os.path.join(
+                assets_dir,
+                os.path.dirname(path).removeprefix(output_assets_dir).removeprefix('/'),
+                name
+            )
+
+            if original_path not in src_images:
+                os.remove(path)
 
 
 def compress(parent: str, file: str):
@@ -47,8 +70,8 @@ def compress(parent: str, file: str):
 
     if extension not in supported_files:
         return
-    if not resized and file_name.endswith(compressed_file_suffix):
-        raise Exception(f'Illegal file name ending \'{compressed_file_suffix}\': {input_path}')
+    if not resized and file_name != strip_compression_suffix(file_name):
+        raise Exception(f'Illegal file name ending for compression: {input_path}')
     if file_name.endswith(compressed_file_suffix):
         return
 

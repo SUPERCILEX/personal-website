@@ -3,6 +3,7 @@ import sys
 from typing import Optional
 
 site_dir = 'build'
+compressed_file_suffix = '-min'
 
 
 def downgrade_image(path: str, max_resolution=None, extension=None):
@@ -10,15 +11,14 @@ def downgrade_image(path: str, max_resolution=None, extension=None):
     compressed_path = os.path.join('assets/resized', os.path.dirname(relative_path))
     (name, old_extension) = os.path.splitext(os.path.basename(relative_path))
 
-    name = name.removesuffix('-min')
-    name_parts = name.split('-')
-    if name_parts and safe_int(name_parts[-1]):
-        name = name.removesuffix('-' + name_parts[-1])
+    name = strip_compression_suffix(name)
     if extension is None:
         extension = old_extension
 
     def extract_resolution(file_path: str) -> int:
-        parts = os.path.basename(os.path.splitext(file_path)[0].removesuffix('-min')).split('-')
+        parts = os.path.basename(
+            os.path.splitext(file_path)[0].removesuffix(compressed_file_suffix)
+        ).split('-')
         if parts and safe_int(parts[-1]):
             return safe_int(parts[-1])
         else:
@@ -41,6 +41,14 @@ def downgrade_image(path: str, max_resolution=None, extension=None):
     compressed_files.sort(key=lambda file: extract_resolution(file))
 
     return os.path.join(compressed_path, compressed_files[-1]) if compressed_files else None
+
+
+def strip_compression_suffix(name):
+    name = name.removesuffix(compressed_file_suffix)
+    name_parts = name.split('-')
+    if name_parts and safe_int(name_parts[-1]):
+        name = name.removesuffix('-' + name_parts[-1])
+    return name
 
 
 def safe_int(val: str) -> Optional[int]:

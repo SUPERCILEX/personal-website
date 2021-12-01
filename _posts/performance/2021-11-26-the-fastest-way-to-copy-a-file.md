@@ -2,7 +2,7 @@
 title: The fastest way to copy a file
 subtitle: With benchmarks!
 
-image: assets/performance/file-cp-benches/1kib-memcache-2.svg
+image: assets/performance/file-cp-benches/1kib-memcache2.svg
 image_alt: Benchmark of copying 1 KiB files with the Kernel cache enabled
 image_caption: "TL;DR: use the <code>copy_file_range</code> syscall if you can"
 
@@ -66,28 +66,28 @@ improvements as the kernel is updated.
 ### Copying 1 KiB files with the Kernel cache enabled {#fn:1kib-memcache}
 
 [^1kib-memcache]:
-{% include article-image.html src="assets/performance/file-cp-benches/1kib-memcache-2.svg" alt="Benchmark results" %}
+{% include article-image.html src="assets/performance/file-cp-benches/1kib-memcache2.svg" alt="Benchmark results" %}
 
 <a href="#fnref:1kib-memcache" class="reversefootnote" role="doc-backlink">↩</a>
 
 ### Copying 1 MiB files with the Kernel cache enabled {#fn:1mib-memcache}
 
 [^1mib-memcache]:
-{% include article-image.html src="assets/performance/file-cp-benches/1mib-memcache-2.svg" alt="Benchmark results" %}
+{% include article-image.html src="assets/performance/file-cp-benches/1mib-memcache2.svg" alt="Benchmark results" %}
 
 <a href="#fnref:1mib-memcache" class="reversefootnote" role="doc-backlink">↩</a>
 
 ### Copying 1 MiB files with the Kernel cache disabled for reads {#fn:1mib-uncached}
 
 [^1mib-uncached]:
-{% include article-image.html src="assets/performance/file-cp-benches/1mib-uncached-2.svg" alt="Benchmark results" %}
+{% include article-image.html src="assets/performance/file-cp-benches/1mib-uncached2.svg" alt="Benchmark results" %}
 
 <a href="#fnref:1mib-uncached" class="reversefootnote" role="doc-backlink">↩</a>
 
 ### Copying 32 MiB files with the Kernel cache enabled {#fn:32mib-memcache}
 
 [^32mib-memcache]:
-{% include article-image.html src="assets/performance/file-cp-benches/32mib-memcache-2.svg" alt="Benchmark results" %}
+{% include article-image.html src="assets/performance/file-cp-benches/32mib-memcache2.svg" alt="Benchmark results" %}
 
 Ignore the extra probability of `copy_file_range` completing in 20ms, that's just happens to be the
 first benchmark that ran before the system reached saturation.
