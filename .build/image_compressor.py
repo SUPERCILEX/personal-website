@@ -60,7 +60,9 @@ def prune():
             )
 
             if original_path not in src_images:
+                print(f'Removing stale image: {path}')
                 os.remove(path)
+                os.remove(os.path.join(site_dir, path))
 
 
 def compress(parent: str, file: str):
