@@ -2,7 +2,7 @@ import os
 import shutil
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor
-from subprocess import check_call, STDOUT, PIPE
+from subprocess import check_call, PIPE
 from typing import List
 
 from shared import site_dir, downgrade_image
@@ -65,7 +65,7 @@ def compress(parent: str, file: str):
                 input_path,
                 '--multipass',
                 '--output', output_file,
-            ], stdout=PIPE, stderr=STDOUT, timeout=90)
+            ], stdout=PIPE, timeout=90)
             resized_output = os.path.join(site_dir, output_file)
             os.makedirs(os.path.dirname(resized_output), exist_ok=True)
             shutil.copyfile(output_file, resized_output)
@@ -88,7 +88,7 @@ def compress(parent: str, file: str):
                 '--output-dir', output_dir,
                 '--suffix', compressed_file_suffix,
                 f'--{command}', 'true',
-            ], stdout=PIPE, stderr=STDOUT, timeout=90)
+            ], stdout=PIPE, timeout=90)
             resized_output = os.path.join(site_dir, output_file)
             os.makedirs(os.path.dirname(resized_output), exist_ok=True)
             shutil.copyfile(output_file, resized_output)

@@ -2,7 +2,7 @@ import os
 import sys
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor
-from subprocess import check_call, PIPE, STDOUT
+from subprocess import check_call, PIPE
 from typing import List
 
 from shared import site_dir
@@ -44,14 +44,14 @@ def compress(css: str, parent: str, file: str):
         '--stylesheets', tmp_css_file,
         '--output', tmp_css_path,
         os.path.join(parent, file),
-    ], stdout=PIPE, stderr=STDOUT, timeout=90)
+    ], stdout=PIPE, timeout=90)
 
     check_call([
         csso,
         '--comments', 'none',
         '--input', tmp_css_path,
         '--output', tmp_css_path,
-    ], stdout=PIPE, stderr=STDOUT, timeout=90)
+    ], stdout=PIPE, timeout=90)
 
     with open(tmp_css_path) as f:
         inline_into_html(f.read(), os.path.join(parent, file))
