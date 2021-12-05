@@ -27,8 +27,8 @@ def read_firebase_config() -> dict:
 
 def write_updated_firebase_config(config: dict, redirects: list):
     existing_redirects: list = config['hosting'].get('redirects', [])
+    redirects.sort(key=lambda r: r['source'])
     existing_redirects.extend(redirects)
-    existing_redirects.sort(key=lambda r: r['source'])
     config['hosting']['redirects'] = existing_redirects
 
     with open(firebase_config_file, mode='w') as f:
