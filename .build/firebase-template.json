@@ -8,20 +8,6 @@
     ],
     "trailingSlash": false,
     "cleanUrls": true,
-    "rewrites": [
-      {
-        "source": "/feed",
-        "destination": "/feed.xml"
-      },
-      {
-        "source": "/sitemap",
-        "destination": "/sitemap.xml"
-      },
-      {
-        "source": "/support",
-        "destination": "/sponsor"
-      }
-    ],
     "headers": [
       {
         "source": "**/*.@(png|jpg|jpeg|webp|avif|gif|svg|ico)",
@@ -40,6 +26,20 @@
             "value": "public, max-age=432000"
           }
         ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/feed",
+        "destination": "/feed.xml"
+      },
+      {
+        "source": "/sitemap",
+        "destination": "/sitemap.xml"
+      },
+      {
+        "source": "/support",
+        "destination": "/sponsor"
       }
     ]
   }
