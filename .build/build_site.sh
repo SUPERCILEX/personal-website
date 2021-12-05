@@ -2,7 +2,6 @@
 set -e
 
 # Download latest resume
-mkdir resume
 curl -L --fail --output resume/AlexSaveau.pdf \
   --url https://docs.google.com/document/d/11sHvpwRaWoafEr2k8w5uXaJB0_VuMCtSxQNsErnpet0/export?format=pdf
 
