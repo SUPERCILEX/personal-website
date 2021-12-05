@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -e
 # Copied from https://github.com/helaili/jekyll-action/blob/f218514e3f6ecc859dc020a18be25fa9e951e449/entrypoint.sh
 
@@ -33,7 +33,7 @@ git config user.name "${GITHUB_ACTOR}" && \
 git config user.email "${GITHUB_ACTOR}@users.noreply.github.com" && \
 git add . && \
 git commit -m "jekyll build from Action ${GITHUB_SHA}" && \
-git push --force $remote_repo master:$remote_branch && \
+git push --force "$remote_repo" master:$remote_branch && \
 rm -fr .git && \
 cd ..
 
