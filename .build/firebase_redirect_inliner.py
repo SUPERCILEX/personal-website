@@ -2,7 +2,7 @@ import json
 import os
 from html.parser import HTMLParser
 
-from shared import site_dir
+from shared import site_dir, site_url
 
 firebase_config_template_file = '.build/firebase-template.json'
 firebase_config_file = 'firebase.json'
@@ -56,7 +56,7 @@ class RedirectLinkExtractor(HTMLParser):
             if attr_name != 'href':
                 raise attr_name
 
-            if url.startswith('https://alexsaveau.dev'):
+            if url.startswith(site_url):
                 url = '/' + url.split('://')[1].split('/', 1)[1]
             self.redirects.append({
                 'source': self.from_path,

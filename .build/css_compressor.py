@@ -21,7 +21,7 @@ def main(prod: bool):
     with open(css_file) as f:
         css = f.read()
 
-    for root, subdirs, files in os.walk(site_dir):
+    for root, _, files in os.walk(site_dir):
         for file in files:
             if file.endswith('.html'):
                 if prod:

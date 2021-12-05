@@ -22,7 +22,3 @@ plugins:
 
 sass:
   style: uncompressed
-
-compress_html:
-  ignore:
-    envs: all

@@ -4,6 +4,7 @@
     "@squoosh/cli": "^0.7.2",
     "csso-cli": "^3.0.0",
     "firebase-tools": "^9.19.0",
+    "html-minifier": "^4.0.0",
     "jest": "^27.2.4",
     "svgo": "^2.8.0",
     "uncss": "^0.17.3"

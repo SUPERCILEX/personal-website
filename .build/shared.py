@@ -2,6 +2,7 @@ import os
 import sys
 from typing import Optional
 
+site_url = 'https://alexsaveau.dev'
 site_dir = 'build'
 compressed_file_suffix = '-min'
 
