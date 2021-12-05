@@ -56,10 +56,11 @@ class RedirectLinkExtractor(HTMLParser):
             if attr_name != 'href':
                 raise attr_name
 
-            relative_path = '/' + url.split('://')[1].split('/', 1)[1]
+            if url.startswith('https://alexsaveau.dev'):
+                url = '/' + url.split('://')[1].split('/', 1)[1]
             self.redirects.append({
                 'source': self.from_path,
-                'destination': relative_path,
+                'destination': url,
                 'type': 302
             })
 
