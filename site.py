@@ -50,6 +50,8 @@ def serve(prod, drafts, fast, live, expires):
     env = ''
     if prod:
         env += ' JEKYLL_ENV=production'
+    if not live:
+        env += ' SERVED_LOCALLY=true'
 
     args = '--future --drafts' if drafts else ''
     if fast:

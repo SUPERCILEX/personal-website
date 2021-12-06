@@ -7,6 +7,7 @@ from typing import List
 from shared import site_dir, site_url
 
 html_minifier = '.build/node_modules/.bin/html-minifier'
+served_locally = os.environ.get('SERVED_LOCALLY', '') == 'true'
 
 
 def main():
@@ -24,6 +25,10 @@ def main():
 
 def compress(parent: str, file: str):
     path = os.path.join(parent, file)
+    maybe_trailing_slash = '/' if served_locally else ''
+    base_url = \
+        site_url + '/' + parent.removeprefix('build').removeprefix('/') + maybe_trailing_slash
+
     check_call([
         html_minifier, path,
         '--output', path,
@@ -32,7 +37,7 @@ def compress(parent: str, file: str):
         '--decode-entities',
         '--minify-css', '{"level":"2"}',
         '--minify-js', 'true',
-        '--minify-urls', site_url + '/' + parent.removeprefix('build').removeprefix('/'),
+        '--minify-urls', base_url,
         '--remove-attribute-quotes',
         '--remove-comments',
         '--remove-empty-attributes',
