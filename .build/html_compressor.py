@@ -32,7 +32,7 @@ def compress(parent: str, file: str):
         '--decode-entities',
         '--minify-css', '{"level":"2"}',
         '--minify-js', 'true',
-        '--minify-urls', site_url + '/' + parent.removeprefix('build').removeprefix('/') + '/',
+        '--minify-urls', site_url + '/' + parent.removeprefix('build').removeprefix('/'),
         '--remove-attribute-quotes',
         '--remove-comments',
         '--remove-empty-attributes',
