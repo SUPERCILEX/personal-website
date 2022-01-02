@@ -4,7 +4,7 @@ subtitle: Technical and performance overview
 
 categories: [Projects, Performance, Files, FTZZ]
 redirect_from:
-  - /blog/ftzz/
+  - /blog/ftzz-overview/
 ---
 
 [File Tree Fuzzer](https://github.com/SUPERCILEX/ftzz) (FTZZ) is a CLI tool written in Rust that
