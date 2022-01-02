@@ -85,12 +85,19 @@ def compress(parent: str, file: str):
         if not os.path.exists(output_file):
             print(f'Generating {output_file}')
 
-            check_call([
+            args = [
                 svgo,
                 input_path,
                 '--multipass',
                 '--output', output_file,
-            ], stdout=PIPE, timeout=90)
+            ]
+            if input_path == 'assets/projects/ftzz/scheduling-order.svg':
+                args.extend([
+                    '--config',
+                    '.build/assets-projects-ftzz-scheduling-order.svgo.config.js',
+                ])
+
+            check_call(args, stdout=PIPE, timeout=90)
             resized_output = os.path.join(site_dir, output_file)
             os.makedirs(os.path.dirname(resized_output), exist_ok=True)
             shutil.copyfile(output_file, resized_output)
