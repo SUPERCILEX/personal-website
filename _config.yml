@@ -76,9 +76,9 @@ projects:
     forks: true
     projects:
       - personal-website
-      - app-version-history
       - issue-mcve
       - poi-android
+      - cli-errors
 
 # External repositories
 jekyll_get_json:
