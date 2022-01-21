@@ -10,7 +10,7 @@
     "cleanUrls": true,
     "headers": [
       {
-        "source": "**/*.@(png|jpg|jpeg|webp|avif|gif|svg|ico)",
+        "source": "**/*.@(png|jpg|jpeg|webp|avif|gif|svg|ico|key)",
         "headers": [
           {
             "key": "Cache-Control",
