@@ -79,6 +79,7 @@ projects:
       - issue-mcve
       - poi-android
       - cli-errors
+      - bevy-vs-pixi
 
 # External repositories
 jekyll_get_json:
