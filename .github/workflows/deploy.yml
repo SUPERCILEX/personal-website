@@ -45,7 +45,6 @@ jobs:
         if: github.ref != 'refs/heads/master'
         run: .build/deploy_preview_site.sh
         env:
-          BUILD_ID: ${{ github.run_id }}
           JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PAGES_REPO_NWO: ${{ github.repository }}
