@@ -81,15 +81,15 @@ copy and favorite another entry:
 
 There's a lot going on, so let's break it down.
 
-First, you'll notice the implicit creation of IDs for our items. Since the log is append-only and we
-always read it in its entirety on start, we can infer globally unique IDs based the position of
+First, you'll notice the implicit creation of IDs for the two items. Since the log is append-only
+and always read in its entirety on start, globally unique IDs can be inferred based the position of
 added entries.
 
 Furthermore, because the log is append-only, deleting entries doesn't actually delete anything
-(that's where [compaction](#compaction) comes in). Instead, we simply mark the entry as having been
-deleted — in the exact same way as we mark an entry as being favorited. When parsing the log,
-deleted items are appended to the in-memory linked list and later deleted when we reach the delete
-operation.
+(that's where [compaction](#compaction) comes in). Instead, entries are simply marked as having been
+deleted — in the exact same way an entry is marked as being favorited. When parsing the log, deleted
+items are appended to the in-memory linked list and later deleted when the delete operation is
+reached.
 
 The IDs are monotonically increasing and stored in Little Endian because I expect most people to be
 using x86, thus saving some bit manipulation. I could have gotten a little fancier by using varints
@@ -163,14 +163,15 @@ following hash function:
 ## Search
 
 Search uses regex queries and returns paginated results sorted by recency to try and perform the
-minimal number of matches. While ok, this is clearly suboptimal as we should be using a proper
-index. That said, I found performance to be adequate and decided to let it be.
+minimal number of matches. While ok, this is clearly suboptimal as a proper index should be used
+instead. That said, I found performance to be adequate and decided to let it be.
 
 ## Developer experience musings
 
 GCH is written in JavaScript because it is the only language supported by Gnome extensions. As a
 performance-minded individual, I've found the Gnome extension developer experience to be deeply
-dissatisfactory: the language choice makes it impossible to do certain things. Of note:
+dissatisfactory: the language choice makes it impossible to do certain things. Of note
+(non-exhaustive):
 
 - The linked list could have been optimized to store nodes as cache-line-sized blocks.
 - A proper map implementation could have been used instead of my poorly optimized version, but the
@@ -182,9 +183,9 @@ dissatisfactory: the language choice makes it impossible to do certain things. O
   a language that supports single-threaded executors.
 - Powerful programming patterns like
   [RAII](https://doc.rust-lang.org/rust-by-example/scope/raii.html) don't exist.
-- I have more complaints, but I'll spare you.
 
-In brief, I'm excited to see what Pop!_OS does with their
+In brief, while I'm pleased with what I have been able to do given present limitations, I'm very
+excited to see what APIs Pop!_OS will offer in their
 [COSMIC DE](https://www.omgubuntu.co.uk/2021/11/system76-is-building-its-own-desktop-environment).
 
 ---
