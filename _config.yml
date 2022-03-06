@@ -124,3 +124,6 @@ responsive_image:
 
 redirect_from:
   json: false
+
+feed:
+  posts_limit: 3
