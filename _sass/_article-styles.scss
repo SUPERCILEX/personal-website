@@ -29,17 +29,17 @@
   }
 
   .caption {
-    font-size: 16px;
+    font-size: 1rem;
     margin: -1.5em 0 0;
 
-    code { font-size: 14px; }
+    code { font-size: 0.875rem; }
   }
 
   .gist-caption {
-    font-size: 16px;
+    font-size: 1rem;
     margin: -0.5em 0 0;
 
-    code { font-size: 14px; }
+    code { font-size: 0.875rem; }
   }
 
   .slim-title {
@@ -59,37 +59,37 @@
   }
 
   h2 {
-    font-size: 30px;
+    font-size: 1.875rem;
 
-    code { font-size: 26px; }
+    code { font-size: 1.625rem; }
   }
 
   h3 {
-    font-size: 24px;
+    font-size: 1.5rem;
 
-    code { font-size: 20px; }
+    code { font-size: 1.25rem; }
   }
 
   h4 {
-    font-size: 20px;
+    font-size: 1.25rem;
 
-    code { font-size: 18px; }
+    code { font-size: 1.125rem; }
   }
 
   h5 {
-    font-size: 18px;
+    font-size: 1.125rem;
 
-    code { font-size: 16px; }
+    code { font-size: 1rem; }
   }
 
   h6 {
-    font-size: 16px;
+    font-size: 1rem;
 
-    code { font-size: 14px; }
+    code { font-size: 0.875rem; }
   }
 
   p {
-    font-size: 21px;
+    font-size: 1.313rem;
     margin: 0.95em 0 1.2em;
   }
 
@@ -103,12 +103,12 @@
   }
 
   strong {
-    font-size: 20px;
+    font-size: 1.25rem;
   }
 
   code {
     font-family: "Fira Code", monospace;
-    font-size: 16px;
+    font-size: 1rem;
     background-color: var(--code-background-color);
     border-radius: 3px;
     padding: 2px 4px;
@@ -138,13 +138,13 @@
   }
 
   ul, ol {
-    font-size: 21px;
+    font-size: 1.313rem;
     padding-left: 32px;
     margin-bottom: 16px;
   }
 
   li ul, li ol {
-    font-size: 21px;
+    font-size: 1.313rem;
     padding-left: 16px;
     margin-bottom: 0;
   }
