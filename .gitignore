@@ -3,6 +3,7 @@
 .sass-cache
 .jekyll-cache
 build
+/vendor
 **/.ruby-version
 __pycache__/
 node_modules
