@@ -4,8 +4,20 @@
   --loading-pulse-color: #b0b0b0;
 }
 
+// From https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400&display=swap
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  // If you change the url, remember to also update _includes/header.html
+  src: url(https://fonts.gstatic.com/s/atkinsonhyperlegible/v10/9Bt23C1KxNDXMspQ1lPyU89-1h6ONRlW45G04pIo.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Noto Color Emoji;
+  font-family: Atkinson Hyperlegible, sans-serif;
+  font-size: 1em;
 }
 
 hr {
@@ -27,11 +39,6 @@ footer {
   small:last-child {
     text-align: end;
   }
-}
-
-// If a user adds a custom font, this component will stop it from bleeding into GitHub components:
-.github-component {
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Noto Color Emoji !important;
 }
 
 .selectively-underline:hover {

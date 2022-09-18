@@ -3,9 +3,6 @@
   --blockquote-color: #6a737d;
   --blockquote-boarder-color: #959da5;
   --code-background-color: rgba(0, 0, 0, 0.05);
-
-  --heading-font-family: system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Noto Color Emoji";
-  --body-font-family: Georgia,Cambria,"Times New Roman",Times,"Noto Color Emoji",serif;
 }
 
 // From https://fonts.googleapis.com/css2?family=Fira+Code:wght@475&display=swap
@@ -20,7 +17,6 @@
 }
 
 .article {
-  font-family: var(--body-font-family);
   overflow-wrap: break-word;
 
   .highlight {
@@ -44,18 +40,12 @@
 
   .slim-title {
     h2, h3, h4, h5, h6 {
-      font-family: var(--heading-font-family);
       margin: 0;
     }
   }
 
   h2, h3, h4, h5, h6 {
-    font-family: var(--heading-font-family);
     margin: 1.5em 0 -0.5em;
-  }
-
-  th {
-    font-family: var(--heading-font-family);
   }
 
   h2 {
