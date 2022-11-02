@@ -644,7 +644,7 @@ Since this is Firebase**UI**, we let you easily map your `FirestoreArray` to a `
 the `FirestoreRecyclerAdapter` and its `FirestoreRecyclerOptions`.
 
 There are a few interesting recycler options, notably the ability to pass in an Android Architecture
-Components `LifecyleOwner` with which we'll automatically manage the `FirestoreArray`'s lifecycle
+Components `LifecycleOwner` with which we'll automatically manage the `FirestoreArray`'s lifecycle
 for you.
 
 Ok, that was a lot of words. Here's what it would look like all put together with Architecture

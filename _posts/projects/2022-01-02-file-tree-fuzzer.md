@@ -63,7 +63,7 @@ illustrates this {depth,breadth}-first scheduling combination:
 While the file creation scheduling algorithm has the biggest impact on performance, there are many
 other small tweaks that become significant when applied together:
 
-- On linux, using the `mknod` syscall to create emtpy files chops the syscall count in half
+- On linux, using the `mknod` syscall to create empty files chops the syscall count in half
   (compared to `open`/`close`).
 - When creating millions of files, using a name cache becomes important to eliminate the cost of
   converting integers to strings for use in file paths. (FTZZ names files and directories using
