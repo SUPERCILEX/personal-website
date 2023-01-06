@@ -11,7 +11,6 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.0
           bundler-cache: true
       - name: Install Python
         uses: actions/setup-python@v4
@@ -64,7 +63,6 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.0
           bundler-cache: true
       - name: Download site
         uses: actions/download-artifact@v3
