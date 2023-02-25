@@ -27,7 +27,7 @@ If you want less or more boldness, decrease or increase this number.
 */
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@450&display=swap");
 
-pre, code, .blob-code, .blob-code-marker {
+pre, code, .blob-code, .blob-code-content, .blob-code-marker {
   font-family: 'Fira Code', monospace !important;
 }
 ```
