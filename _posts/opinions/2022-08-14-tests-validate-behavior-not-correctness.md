@@ -21,7 +21,7 @@ of software evolves. Thus, tests assert the behavior of a program, not its corre
 By limiting ourselves to testing correctness, we miss changes in behavior.
 
 Suppose you discover a bug in some piece of software. If the software was perfectly tested, then
-this bug would be present in some test you could point to it and say, "I think the result should be
+this bug would be present in some test you could point to and say, "I think the result should be
 Y, but the program is currently outputting X as seen in this test." Of course, when there's a bug
 it's most likely because you didn't know you weren't testing for that behavior. Thus, being a good
 TDD citizen, you add a test for your expected behavior, confirm that it fails locally, then fix the
