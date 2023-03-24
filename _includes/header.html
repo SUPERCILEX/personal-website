@@ -44,6 +44,9 @@
         }
       </style>
     </noscript>
+    {% if page.mathjax %}
+      {% include mathjax.html %}
+    {% endif %}
 
     {{ include.inject }}
     <css-inline-location-marker></css-inline-location-marker>

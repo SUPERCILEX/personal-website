@@ -5,6 +5,7 @@ subtitle: Technical and performance overview
 categories: [Projects, Performance, Files, FTZZ]
 redirect_from:
   - /blog/ftzz-overview/
+mathjax: true
 ---
 
 [File Tree Fuzzer](https://github.com/SUPERCILEX/ftzz) (FTZZ) is a CLI tool written in Rust that
@@ -17,25 +18,51 @@ the same exact set of files.
 ## Technical overview
 
 In a file system like ext4, independent directories can be operated on in parallel without
-triggering locking inside the kernel. Thus, FTZZ's goal is to schedule one file generating task per
-directory. In its simplest form, the algorithm determines the number of files and directories to
-generate according to some distribution, schedules a task to generate those files and dirs, and
-repeats up to some max depth.
+triggering locking inside the kernel (for the most part). Thus, FTZZ's goal is to schedule one file
+generating task per directory. In its simplest form, the algorithm determines the number of files
+and directories to generate according to some distribution, schedules a task to generate those files
+and dirs, and repeats up to some max depth.
 
 ### Determining the file distribution
 
-Given a target number of files, the file to directory ratio (i.e. the number of files per directory)
-, and the maximum tree depth, we can compute the number of directories per directory needed to
-evenly spread the files across a tree of the given depth.
+Given a target number of files, the file to directory ratio (i.e. the number of files per
+directory), and the maximum tree depth, we can compute the number of directories per directory
+needed to evenly spread the files across a tree of the given depth.
 
-First, we find the total number of directories needed: `num_dirs = num_files / file_to_dir_ratio`.
+First, we find the total number of directories needed:
+$\text{num_dirs} = \frac{\text{num_files}}{\text{file_to_dir_ratio}}$.
 
 Next, we solve the following tree equation to find the number of dirs per dir (i.e. the fan-out rate
-of the tree): `num_dirs = dirs_per_dir^max_depth`. Rearranged, we get:
-`dirs_per_dir = num_dirs^(1 / max_depth)`.
+of the tree): $\text{num_dirs} = \text{dirs_per_dir}^\text{max_depth}$. Rearranged, we get:
+$\text{dirs_per_dir} = \text{num_dirs}^\frac{1}{\text{max_depth}}$.
 
-Finally, some distribution (currently Log Normal) is used to add jitter to `file_to_dir_ratio`
-and `dirs_per_dir` such that each generated directory (likely) becomes unique.
+Finally, a normal distribution is used to add jitter to $\text{file_to_dir_ratio}$ and
+$\text{dirs_per_dir}$ such that each generated directory is unique.
+
+#### Error correction
+
+Generating close to the target number of files is surprisingly difficult when the number of
+directories is randomized. This is because parent directories have cascading effects on the total
+number of files generated.
+
+Suppose we want to generate 1000 files with 8 files per directory and max depth 3. Our formula tells
+us that we need $(\frac{1000}{8})^\frac{1}{3} = 5$ directories per directory. Notice that this is an
+over-approximation: $8 \* \sum_{d=0}^3 5^d = 1248$ since the formula from the previous section only
+accounts for the number of directories in the last level of the tree. The correct equation involves
+solving for the base of a geometric series which (I believe) does not have a closed-form solution.
+
+Setting aside the over-approximation for a moment, let's say we generate a tree in which the normal
+distribution decides the root should have 7 directories and everything else gets the mean of 5
+except for one other directory which only has 3 subdirectories. In such a case, we will generate
+$8 + (8 \* 7) + (8 \* 7\*5) + (8 * 7\*5\*5 - 2\*8) = 1728$ files. What about the other way around
+(3 root dirs, one 7 dir leaf): $8 + (8 \* 3) + (8 \* 3\*5) + (8 * 3\*5\*5 + 2\*8) = 768$. As you can
+see, small changes in the number of root directories has disproportionately large effects on the
+total number of files generated.
+
+To solve these two issues, we treat the $\text{dirs_per_dir}$ value as a guess and dynamically
+update the mean of $\text{file_to_dir_ratio}$ to keep us on target. That is, we solve for
+$\text{file_to_dir_ratio}$ at each level of the tree given the $\text{num_files}$ that have been
+generated so far.
 
 ### Scheduling algorithm
 
