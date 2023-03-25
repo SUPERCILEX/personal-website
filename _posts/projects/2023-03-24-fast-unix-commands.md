@@ -8,10 +8,10 @@ redirect_from:
 ---
 
 [Fast Unix Commands](https://github.com/SUPERCILEX/fuc) (FUC) is a project that aims to create the
-world's fastest Unix commands. Currently, this means `rm` and `cp` are replaced by `rmz` and `cpz`
-(the 'z' stands for "zippy"). When better performance cannot be achieved, the next highest priority
-is efficiency. In practice, `rmz` appears to be the fastest file deleter available while `cpz` wins
-in most cases, only losing in flat directory hierarchies.
+world's fastest Unix commands. Currently, this means `rm` and `cp` replacements named `rmz` and
+`cpz` (the 'z' stands for "zippy"). When better performance cannot be achieved, the next highest
+priority is efficiency. In practice, `rmz` appears to be the fastest file deleter available
+while `cpz` wins in most cases, only losing in flat directory hierarchies.
 
 ## Myth busting
 
