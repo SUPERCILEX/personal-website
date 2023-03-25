@@ -70,16 +70,11 @@ sass:
 
 projects:
   sort_by: pushed
-  limit: 9
   exclude:
     archived: true
     forks: true
     projects:
       - personal-website
-      - issue-mcve
-      - poi-android
-      - cli-errors
-      - bevy-vs-pixi
 
 # External repositories
 jekyll_get_json:
