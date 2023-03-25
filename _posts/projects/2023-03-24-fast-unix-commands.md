@@ -1,6 +1,6 @@
 ---
 title: Fast Unix Commands
-subtitle: The world's fastest `rm` command and one of the fastest `cp` commands
+subtitle: The world's fastest rm command and one of the fastest cp commands
 
 categories: [Projects, Performance, Files, FUC]
 redirect_from:
@@ -8,21 +8,21 @@ redirect_from:
 ---
 
 [Fast Unix Commands](https://github.com/SUPERCILEX/fuc) (FUC) is a project that aims to create the
-world's fastest Unix commands. Currently, this means `rm` and `cp` replacements `rmz` and `cpz` (the
-'z' stands for "zippy"). When better performance cannot be achieved, the nest highest priority is
-efficiency. In practice, `rmz` appears to be the fastest file deleter available while `cpz` wins in
-most cases, only losing in flat directory hierarchies.
+world's fastest Unix commands. Currently, this means `rm` and `cp` are replaced by `rmz` and `cpz`
+(the 'z' stands for "zippy"). When better performance cannot be achieved, the next highest priority
+is efficiency. In practice, `rmz` appears to be the fastest file deleter available while `cpz` wins
+in most cases, only losing in flat directory hierarchies.
 
 ## Myth busting
 
-Many a Stack Overflow answer will tell you to use this or that as a faster alternative to `rm`
+Many Stack Overflow answers will tell you to use this or that as a faster alternative to `rm`
 or `cp`. Let's look at the [data](https://github.com/SUPERCILEX/fuc/tree/master/comparisons)!
 
 ### Rsync
 
-Using `rsync` for copying is always slower that I can tell. This should not come as a surprise given
-that it performs data integrity checks. Interestingly enough, `rsync` deletes very large directories
-faster than `rm`, but is slower in all other cases.
+Using `rsync` for copying is always slower than `cp` as far as I can tell. This should not come as a
+surprise given that it performs data integrity checks. Interestingly enough, `rsync` deletes very
+large directories faster than `rm`, but is slower in all other cases.
 
 ### Find
 
@@ -41,9 +41,9 @@ operations in separate directories don't (for the most part) interfere with each
 parallel execution. Thus, the goal is to schedule one task per directory and execute each task in
 parallel.
 
-Doing this for copies is relatively easy: iterate through every directory, spawning a new task when
-a directory is encountered and copying files inplace. File removal is far more interesting because
-you cannot remove a directory until all of its children (including subdirectories) have been fully
+Doing this for copies is relatively easy: iterate through every directory, spawn a new task when a
+directory is encountered and copy files in place. File removal is far more interesting because you
+cannot remove a directory until all of its children (including subdirectories) have been fully
 removed. As a consequence, file removal tasks must wait until their children have completed before
 finally removing the current directory. Unfortunately, this approach is slow: memory and time must
 be spent keeping track of child tasks, and children must somehow notify their parents of completion.
@@ -54,7 +54,7 @@ straightforward to implement and comes at almost no additional cost. While trave
 each spawned child directory task includes a parent (smart) pointer, implicitly creating a dynamic
 tree structure that models the directory hierarchy. These parent pointers are reference counted and
 trigger the directory deletion when fully freed. Additionally, each task decrements its reference
-count upon completion. That it! Now, regardless of whether a parent finishes after all of its
+count upon completion. That's it! Now, regardless of whether a parent finishes after all of its
 children or vice versa, the last "user" of a directory will delete its directory chain.
 
 Pseudocode might make this clearer:
