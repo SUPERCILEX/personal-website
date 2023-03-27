@@ -82,7 +82,7 @@ def delete_dir(node @ Node { dir, parent, ref_count }, task_queue):
 
 Enjoy blazing fast copies and deletions! 🚀
 
-## Appendix—file contention benchmark {#contention}
+## Appendix—directory contention benchmark {#contention}
 
 <p></p>
 
