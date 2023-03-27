@@ -88,8 +88,9 @@ Enjoy blazing fast copies and deletions! 🚀
 
 ```rust
 /*
-zip=every thread creates its own directory
-chain=every thread creates a sub-set of the directory, one directory at a time
+This benchmark creates and then deletes ~16K files in N directories with two possible methods:
+zip=every thread creates/deletes its own directory
+chain=every thread creates/deletes a sub-set of the directory, one directory at a time
 
 $ cargo b --release
 $ cp target/release/test test
