@@ -38,7 +38,10 @@ copy it is often faster than `cp`.
 Both tools are built using the same scheduling algorithm, following similar principles
 to [FTZZ's scheduler](/blog/ftzz-overview#scheduling-algorithm). The key insight is that file
 operations in separate directories don't (for the most part) interfere with each other, enabling
-parallel execution. Thus, the goal is to schedule one task per directory and execute each task in
+parallel execution. The intuition here is that directories are a shared resource for their direct
+children and must therefore serialize concurrent directory-modifying operations, causing
+[contention](#contention). In brief, file creation or deletion cannot occur at the same time within
+one directory. Thus, the goal is to schedule one task per directory and execute each task in
 parallel.
 
 Doing this for copies is relatively easy: iterate through every directory, spawn a new task when a
@@ -78,3 +81,117 @@ def delete_dir(node @ Node { dir, parent, ref_count }, task_queue):
 ---
 
 Enjoy blazing fast copies and deletions! 🚀
+
+## Appendix—file contention benchmark {#contention}
+
+<p></p>
+
+```rust
+/*
+zip=every thread creates its own directory
+chain=every thread creates a sub-set of the directory, one directory at a time
+
+$ cargo b --release
+$ cp target/release/test test
+$ hyperfine --warmup 3 -N "./test /var/tmp 8 zip" "./test /var/tmp 8 chain"
+Benchmark 1: ./test /var/tmp 8 zip
+  Time (mean ± σ):     528.5 ms ±  11.5 ms    [User: 131.0 ms, System: 3460.0 ms]
+  Range (min … max):   518.6 ms … 553.2 ms    10 runs
+ 
+Benchmark 2: ./test /var/tmp 8 chain
+  Time (mean ± σ):      1.488 s ±  0.140 s    [User: 0.143 s, System: 7.991 s]
+  Range (min … max):    1.297 s …  1.659 s    10 runs
+ 
+Summary
+  './test /var/tmp 8 zip' ran
+    2.82 ± 0.27 times faster than './test /var/tmp 8 chain'
+*/
+
+use std::{
+    env,
+    fs::{create_dir, remove_dir, remove_file, File},
+    path::PathBuf,
+    thread,
+};
+
+fn main() {
+    let root = PathBuf::from(env::args().nth(1).unwrap());
+    let n: usize = env::args().nth(2).unwrap().parse().unwrap();
+    let method = env::args().nth(3).unwrap();
+
+    let dirs = (0..n)
+        .map(|i| {
+            let dir = root.join(format!("test{i}"));
+            create_dir(&dir).unwrap();
+            dir
+        })
+        .collect::<Vec<_>>();
+
+    thread::scope(|s| {
+        const FILES: usize = 1 << 14;
+
+        assert_eq!(FILES % n, 0);
+        let batch_size = FILES / n;
+
+        (0..n)
+            .map(|id| {
+                let dirs = dirs.clone();
+                let method = method.clone();
+                s.spawn(move || {
+                    match &*method {
+                        "zip" => {
+                            for i in 0..FILES {
+                                File::create(dirs[id].join(format!("f{i}"))).unwrap();
+                            }
+                        }
+                        "chain" => {
+                            for dir in dirs {
+                                let start = batch_size * id;
+                                for i in start..(start + batch_size) {
+                                    File::create(dir.join(format!("f{i}"))).unwrap();
+                                }
+                            }
+                        }
+                        _ => {
+                            unreachable!()
+                        }
+                    }
+                    id
+                })
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .map(|task| {
+                let id = task.join().unwrap();
+                let dirs = dirs.clone();
+                let method = method.clone();
+                s.spawn(move || match &*method {
+                    "zip" => {
+                        for i in 0..FILES {
+                            remove_file(dirs[id].join(format!("f{i}"))).unwrap();
+                        }
+                    }
+                    "chain" => {
+                        for dir in dirs {
+                            let start = batch_size * id;
+                            for i in start..(start + batch_size) {
+                                remove_file(dir.join(format!("f{i}"))).unwrap();
+                            }
+                        }
+                    }
+                    _ => {
+                        unreachable!()
+                    }
+                })
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .map(|task| task.join().unwrap())
+            .for_each(drop);
+    });
+
+    for dir in dirs {
+        remove_dir(dir).unwrap();
+    }
+}
+```
