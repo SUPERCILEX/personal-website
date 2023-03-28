@@ -98,11 +98,11 @@ $ hyperfine --warmup 3 -N "./test /var/tmp 8 zip" "./test /var/tmp 8 chain"
 Benchmark 1: ./test /var/tmp 8 zip
   Time (mean ± σ):     528.5 ms ±  11.5 ms    [User: 131.0 ms, System: 3460.0 ms]
   Range (min … max):   518.6 ms … 553.2 ms    10 runs
- 
+
 Benchmark 2: ./test /var/tmp 8 chain
   Time (mean ± σ):      1.488 s ±  0.140 s    [User: 0.143 s, System: 7.991 s]
   Range (min … max):    1.297 s …  1.659 s    10 runs
- 
+
 Summary
   './test /var/tmp 8 zip' ran
     2.82 ± 0.27 times faster than './test /var/tmp 8 chain'
@@ -111,14 +111,18 @@ Summary
 use std::{
     env,
     fs::{create_dir, remove_dir, remove_file, File},
+    io,
     path::PathBuf,
     thread,
 };
 
+const FILES: usize = 1 << 14;
+
 fn main() {
-    let root = PathBuf::from(env::args().nth(1).unwrap());
-    let n: usize = env::args().nth(2).unwrap().parse().unwrap();
-    let method = env::args().nth(3).unwrap();
+    let arg = |n| env::args().nth(n).unwrap();
+    let root = PathBuf::from(arg(1));
+    let n: usize = arg(2).parse().unwrap();
+    let method = arg(3);
 
     let dirs = (0..n)
         .map(|i| {
@@ -128,68 +132,46 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    thread::scope(|s| {
-        const FILES: usize = 1 << 14;
-
+    let run = {
         assert_eq!(FILES % n, 0);
         let batch_size = FILES / n;
 
+        let dirs = dirs.clone();
+        move |op: fn(PathBuf) -> io::Result<()>, id: usize| match &*method {
+            "zip" => {
+                for i in 0..FILES {
+                    op(dirs[id].join(format!("f{i}"))).unwrap();
+                }
+            }
+            "chain" => {
+                for dir in dirs {
+                    let start = batch_size * id;
+                    for i in start..(start + batch_size) {
+                        op(dir.join(format!("f{i}"))).unwrap();
+                    }
+                }
+            }
+            _ => {
+                unreachable!()
+            }
+        }
+    };
+    let bench = |op| {
         (0..n)
             .map(|id| {
-                let dirs = dirs.clone();
-                let method = method.clone();
-                s.spawn(move || {
-                    match &*method {
-                        "zip" => {
-                            for i in 0..FILES {
-                                File::create(dirs[id].join(format!("f{i}"))).unwrap();
-                            }
-                        }
-                        "chain" => {
-                            for dir in dirs {
-                                let start = batch_size * id;
-                                for i in start..(start + batch_size) {
-                                    File::create(dir.join(format!("f{i}"))).unwrap();
-                                }
-                            }
-                        }
-                        _ => {
-                            unreachable!()
-                        }
-                    }
-                    id
-                })
-            })
-            .collect::<Vec<_>>()
-            .into_iter()
-            .map(|task| {
-                let id = task.join().unwrap();
-                let dirs = dirs.clone();
-                let method = method.clone();
-                s.spawn(move || match &*method {
-                    "zip" => {
-                        for i in 0..FILES {
-                            remove_file(dirs[id].join(format!("f{i}"))).unwrap();
-                        }
-                    }
-                    "chain" => {
-                        for dir in dirs {
-                            let start = batch_size * id;
-                            for i in start..(start + batch_size) {
-                                remove_file(dir.join(format!("f{i}"))).unwrap();
-                            }
-                        }
-                    }
-                    _ => {
-                        unreachable!()
-                    }
+                thread::spawn({
+                    let run = run.clone();
+                    move || run(op, id)
                 })
             })
             .collect::<Vec<_>>()
             .into_iter()
             .map(|task| task.join().unwrap())
             .for_each(drop);
-    });
+    };
+
+    bench(|arg| File::create(arg).map(drop));
+    bench(remove_file);
 
     for dir in dirs {
         remove_dir(dir).unwrap();
