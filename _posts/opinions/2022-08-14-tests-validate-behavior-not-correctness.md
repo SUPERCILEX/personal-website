@@ -7,14 +7,14 @@ redirect_from:
   - /blog/behavior-not-correctness/
 ---
 
-Is it better to have tests that confirm incorrect behavior, or none at all? I'm here to argue the
-former: tests are valuable even when they assert what a human considers to be an incorrect result.
-Extending this idea further, a test asserting incorrect behavior should be added in a separate
-commit *before* fixing the behavior in another commit.
+Is it better to have tests that confirm incorrect behavior, or none at all? I'm here to argue that
+tests are valuable even when they assert what a human considers to be an incorrect result. Pushing
+this idea even further, a test asserting incorrect behavior should be added in a separate commit
+*before* fixing the behavior in another commit.
 
 ## Why behavior instead of correctness?
 
-Tests compare expected output with actual output — there's no fundamental contract that says the
+Tests compare expected output with actual output—there's no fundamental contract that says the
 expected output is intrinsically correct. For that matter, "correct" may change over time as a piece
 of software evolves. Thus, tests assert the behavior of a program, not its correctness.
 
@@ -22,10 +22,10 @@ By limiting ourselves to testing correctness, we miss changes in behavior.
 
 Suppose you discover a bug in some piece of software. If the software was perfectly tested, then
 this bug would be present in some test you could point to and say, "I think the result should be
-Y, but the program is currently outputting X as seen in this test." Of course, when there's a bug
-it's most likely because you didn't know you weren't testing for that behavior. Thus, being a good
-TDD citizen, you add a test for your expected behavior, confirm that it fails locally, then fix the
-bug to see the test go green before putting up the change for review.
+Y, but the program is currently outputting X as seen in this test." Of course, when there's a bug,
+it's most likely because you didn't know you were missing a test for that behavior. Thus, being a
+good TDD citizen, you add a test for the expected behavior, confirm that it fails locally, then fix
+the bug to see the test go green before putting up the change for review.
 
 The reviewer now needs to trust that your test actually works. This means additional cognitive
 overhead trying to understand how the test is set up that detracts from checking the results of the
@@ -57,5 +57,6 @@ and improving your testing infrastructure.
 
 ---
 
-To recap, adding tests separately from updating them documents the current behavior of your program
-and makes the transitions explicit which helps you and your reviewer understand those transitions.
+To recap, adding tests separately from updating them documents the current behavior of a program and
+makes behavioral transitions explicit which helps you and your reviewer better understand the
+codebase as it evolves.
