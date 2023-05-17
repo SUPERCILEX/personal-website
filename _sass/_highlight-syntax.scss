@@ -67,17 +67,17 @@
 @media (prefers-color-scheme: dark) {
   .highlight pre { background-color: #272822; }
   .highlight .hll { background-color: #272822; }
-  .highlight .c { color: #75715e } /* Comment */
+  .highlight .c { color: #b4aa77 } /* Comment */
   .highlight .err { color: #960050; background-color: #1e0010 } /* Error */
   .highlight .k { color: #66d9ef } /* Keyword */
   .highlight .l { color: #ae81ff } /* Literal */
   .highlight .n { color: #f8f8f2 } /* Name */
   .highlight .o { color: #f92672 } /* Operator */
   .highlight .p { color: #f8f8f2 } /* Punctuation */
-  .highlight .cm { color: #75715e } /* Comment.Multiline */
-  .highlight .cp { color: #75715e } /* Comment.Preproc */
-  .highlight .c1 { color: #75715e } /* Comment.Single */
-  .highlight .cs { color: #75715e } /* Comment.Special */
+  .highlight .cm { color: #b4aa77 } /* Comment.Multiline */
+  .highlight .cp { color: #b4aa77 } /* Comment.Preproc */
+  .highlight .c1 { color: #b4aa77 } /* Comment.Single */
+  .highlight .cs { color: #b4aa77 } /* Comment.Special */
   .highlight .ge { font-style: italic } /* Generic.Emph */
   .highlight .gs { font-weight: bold } /* Generic.Strong */
   .highlight .kc { color: #66d9ef } /* Keyword.Constant */
@@ -127,7 +127,7 @@
   .highlight .il { color: #ae81ff } /* Literal.Number.Integer.Long */
 
   .highlight .gh { } /* Generic Heading & Diff Header */
-  .highlight .gu { color: #75715e; } /* Generic.Subheading & Diff Unified/Comment? */
+  .highlight .gu { color: #b4aa77; } /* Generic.Subheading & Diff Unified/Comment? */
   .highlight .gd { color: #f92672; } /* Generic.Deleted & Diff Deleted */
   .highlight .gi { color: #a6e22e; } /* Generic.Inserted & Diff Inserted */
 }
