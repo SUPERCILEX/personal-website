@@ -36,6 +36,18 @@
       {
         "source": "/sitemap",
         "destination": "/sitemap.xml"
+      },
+      {
+        "source": "/wp-login.php",
+        "destination": "https://speed.hetzner.de/10GB.bin"
+      },
+      {
+        "source": "/.env",
+        "destination": "https://speed.hetzner.de/10GB.bin"
+      },
+      {
+        "source": "/administrator/index.php",
+        "destination": "https://speed.hetzner.de/10GB.bin"
       }
     ]
   }
