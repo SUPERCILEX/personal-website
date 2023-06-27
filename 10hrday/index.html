@@ -4,8 +4,8 @@ title: The 10-hour day
 description: Where a day contains 10 hours, an hour contains 10 minutes, and a minute contains 100 seconds
 ---
 
-<div
-    style="display: grid; grid-template-rows: min-content min-content min-content min-content 1fr; height: 100vh; align-items: center;">
+<div class="text-defaults"
+     style="display: grid; grid-template-rows: min-content min-content min-content min-content 1fr; height: 90vh; align-items: center;">
   <h2 style="text-align: center;">
     The 10-hour day
   </h2>
@@ -64,6 +64,7 @@ description: Where a day contains 10 hours, an hour contains 10 minutes, and a m
 
   let tenHrStartMillis;
   let tenHrRatio;
+  let isConfigured;
   const update = () => {
     const getMillis = (elem) => {
       return hms(elem.value.split(':').map(Number));
@@ -72,6 +73,7 @@ description: Where a day contains 10 hours, an hour contains 10 minutes, and a m
     tenHrStartMillis = getMillis(dayStart);
     tenHrRatio = 10000 / Math.abs(getMillis(dayEnd) - tenHrStartMillis);
 
+    isConfigured = dayStart.value && dayEnd.value && isFinite(tenHrRatio);
     localStorage.setItem('db', JSON.stringify({start: dayStart.value, end: dayEnd.value}));
   };
   const tick = () => {
@@ -79,10 +81,10 @@ description: Where a day contains 10 hours, an hour contains 10 minutes, and a m
     const elapsedMillis = hms([now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()]);
     const [hours, minutes, seconds] = smh(Math.round(tenHrRatio * (elapsedMillis - tenHrStartMillis)));
 
-    if (isFinite(tenHrRatio)) {
+    if (isConfigured) {
       currentTime.innerText = hours + ':' + Math.abs(minutes) + ':' + Math.abs(seconds);
     } else {
-      currentTime.innerText = 'Unknown (set start and end time)';
+      currentTime.innerText = 'Set start and end time';
     }
   };
 
