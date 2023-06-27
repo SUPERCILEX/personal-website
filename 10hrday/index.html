@@ -43,7 +43,7 @@ description: Where a day contains 10 hours, an hour contains 10 minutes, and a m
     </form>
   </div>
 
-  <h1 id="time" style="text-align: center;"></h1>
+  <h1 id="time" style="text-align: center; font-family: 'Fira Code', monospace"></h1>
 </div>
 
 <script>
@@ -79,10 +79,11 @@ description: Where a day contains 10 hours, an hour contains 10 minutes, and a m
   const tick = () => {
     const now = new Date();
     const elapsedMillis = hms([now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()]);
-    const [hours, minutes, seconds] = smh(Math.round(tenHrRatio * (elapsedMillis - tenHrStartMillis)));
+    const time = elapsedMillis - tenHrStartMillis;
+    const [hours, minutes, seconds] = smh(Math.round(tenHrRatio * Math.abs(time)));
 
     if (isConfigured) {
-      currentTime.innerText = hours + ':' + Math.abs(minutes) + ':' + Math.abs(seconds);
+      currentTime.innerText = Math.sign(time) * hours + ':' + minutes + ':' + seconds.toString().padStart(2, '0');
     } else {
       currentTime.innerText = 'Set start and end time';
     }
