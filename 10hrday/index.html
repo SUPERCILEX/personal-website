@@ -1,0 +1,101 @@
+---
+layout: other
+title: The 10-hour day
+description: Where a day contains 10 hours, an hour contains 10 minutes, and a minute contains 100 seconds
+---
+
+<h2 style="text-align: center;">
+  The 10-hour day
+</h2>
+<h3 style="text-align: center;">
+  Where a day contains 10 hours, an hour contains 10 minutes, and a minute contains 100 seconds
+</h3>
+
+<br>
+
+<div style="display: flex; justify-content: center;">
+  <form>
+    <div style="display: flex; justify-content: center;">
+      <div style="text-align: center;">
+        <div>
+          <label for="day-start">Day start</label>
+        </div>
+        <div>
+          <input style="width: 8em" type="time" id="day-start"/>
+        </div>
+      </div>
+
+      <div style="width: 1em;"></div>
+
+      <div style="text-align: center;">
+        <div>
+          <label for="day-end">Day end</label>
+        </div>
+        <div>
+          <input style="width: 8em" type="time" id="day-end"/>
+        </div>
+      </div>
+    </div>
+
+    <p>The current time in your 10-hour day is:</p>
+  </form>
+</div>
+
+<div style="position: fixed; z-index: -9999; top: 0; left: 0; width: 100%; height: 100vh;">
+  <div style="display: flex; justify-content: center; align-items: center; height: 100%">
+    <h1 id="time" style="text-align: center;"></h1>
+  </div>
+</div>
+
+<script>
+  const dayStart = document.getElementById('day-start');
+  const dayEnd = document.getElementById('day-end');
+  const currentTime = document.getElementById('time');
+
+  const hms = ([hours = 0, minutes = 0, seconds = 0, millis = 0]) => {
+    return (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + millis;
+  };
+  const smh = (seconds_) => {
+    const hours = Math.floor(seconds_ / 1000);
+    const minutes = Math.floor((seconds_ % 1000) / 100);
+    const seconds = seconds_ % 100;
+
+    return [hours, minutes, seconds];
+  };
+
+  let tenHrStartMillis;
+  let tenHrRatio;
+  const update = () => {
+    const getMillis = (elem) => {
+      return hms(elem.value.split(':').map(Number));
+    };
+
+    tenHrStartMillis = getMillis(dayStart);
+    tenHrRatio = 10000 / Math.abs(getMillis(dayEnd) - tenHrStartMillis);
+
+    localStorage.setItem('db', JSON.stringify({start: dayStart.value, end: dayEnd.value}));
+  };
+  const tick = () => {
+    const now = new Date();
+    const elapsedMillis = hms([now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()]);
+    const [hours, minutes, seconds] = smh(Math.round(tenHrRatio * (elapsedMillis - tenHrStartMillis)));
+
+    if (isFinite(tenHrRatio)) {
+      currentTime.innerText = hours + ':' + Math.abs(minutes) + ':' + Math.abs(seconds);
+    } else {
+      currentTime.innerText = 'Unknown (set start and end time)';
+    }
+  };
+
+  (() => {
+    const {start = '', end = ''} = JSON.parse(localStorage.getItem('db')) || {};
+    dayStart.value = start;
+    dayEnd.value = end;
+  })();
+  update();
+  tick();
+
+  dayStart.addEventListener('input', update);
+  dayEnd.addEventListener('input', update);
+  setInterval(tick, 100);
+</script>
