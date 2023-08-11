@@ -20,10 +20,10 @@ storage.
 GCH is a rewrite of
 [Clipboard Indicator](https://github.com/Tudmotu/gnome-shell-extension-clipboard-indicator) and had
 the original goal of upstreaming any changes. This meant GCH needed feature parity with Clipboard
-Indicator. Of those existing features, the following have performance implications that influenced
-the rewrite's design decisions:
+Indicator:
 
-- Any history changes (including newly copied entries) are immediately written to disk.
+- Any history changes (including newly copied entries) are immediately written to disk to prevent
+  data loss if your computer unexpectedly shuts down.
 - Previously copied items are resurfaced instead of creating duplicates (implying the need to search
   through the history to know if what has just been copied is a new or existing entry).
 - Entries anywhere in the list can be modified or deleted.
@@ -32,14 +32,14 @@ the rewrite's design decisions:
 
 Given those features' performance implications, several data structure choices naturally emerged:
 
-- An append-only persistent storage structure (i.e. a log)
-- A linked list to store in-memory entries
-- A map and reverse lookup index that stores entries keyed by transient, globally unique IDs
+- An append-only persistent storage structure (i.e. a log) is used to enable a single disk write
+  operation (amortized) on copy or modification of the history.
+- A linked list to store in-memory entries is used to make deleting and moving arbitrary entries
+  fast.
+- A reverse lookup index from clipboard contents to entries makes to finding out if the copied
+  entry is new or existing O(1), in which case the existing item would be moved up.
 
-On copy, the reverse lookup index minimizes the work done to find duplicates while the log minimizes
-the work done to store new entries. The log also minimizes the work done when modifying arbitrary
-entries. Similarly, the linked list minimizes the in-memory work done to add/remove/move those
-entries. Search is still an open problem, but I discuss that [later](#search).
+Search is still an open problem, but I discuss that [later](#search).
 
 ## The compacting log
 
