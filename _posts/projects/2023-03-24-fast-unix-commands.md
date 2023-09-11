@@ -33,6 +33,20 @@ large directories faster than `rm`, but is slower in all other cases.
 Shockingly, collecting a directory into a tarball and then extracting it into a new directory to
 copy it is often faster than `cp`.
 
+## Ecosystem contributions
+
+This project lead to some notable Rust ecosystem contributions:
+
+- Discovering that `MaybeUninit` arrays accidentally
+  [memset their contents](https://github.com/rust-lang/rust/issues/96274).
+- Improving the stdlib to [avoid allocations](https://github.com/rust-lang/rust/pull/93668)
+  (in [nix](https://github.com/nix-rust/nix/pull/1655) and
+  [rustix](https://github.com/bytecodealliance/rustix/pull/448) too).
+- Adding APIs for [raw directory iteration](https://github.com/bytecodealliance/rustix/pull/457) in
+  rustix.
+- Writing a tool that [generates reproducible file trees](/blog/ftzz-overview) for benchmarking
+  purposes.
+
 ## Technical overview
 
 Both tools are built using the same scheduling algorithm, following similar principles
