@@ -4,7 +4,7 @@ subtitle: The world's fastest rm command and one of the fastest cp commands
 
 categories: [Projects, Performance, Files, FUC]
 redirect_from:
-  - /blog/fuc-overview/
+  - /blog/fuc/
 ---
 
 [Fast Unix Commands](https://github.com/SUPERCILEX/fuc) (FUC) is a project that aims to create the

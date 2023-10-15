@@ -1,0 +1,33 @@
+{% include header.html %}
+{% include article-styling.html %}
+
+{% capture post_body %}
+  <h1 class="f00-light lh-condensed mb-5 text-defaults" style="font-weight: 600 !important;">{{ page.title }}</h1>
+  <ul style="list-style: none;">
+    <style>
+      li {
+        margin-bottom: 15px;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.938rem
+      }
+    </style>
+
+    {% capture tags %}
+      {% for tag in site.categories | concat: site.tags %}
+        {{ 1000000 | minus: tag[1].size }}__CONCAT_MARKER__{{ tag[0] }}__SPLIT_MARKER__
+      {% endfor %}
+    {% endcapture %}
+    {% assign sorted_tags = tags | strip | split: '__SPLIT_MARKER__' | sort %}
+    {% for hack in sorted_tags %}
+      {% assign tag = hack | split: '__CONCAT_MARKER__' | last | strip %}
+      <li>
+        <a href="{{ tag | slugify }}">
+          {{ tag }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endcapture %}
+{% include article-container.html content=post_body parent_path=include.parent_path parent=include.parent %}
+
+{% include footer.html %}

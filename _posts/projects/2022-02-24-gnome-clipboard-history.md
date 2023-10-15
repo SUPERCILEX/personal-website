@@ -4,7 +4,7 @@ subtitle: Technical and performance overview
 
 categories: [Projects, Performance, Gnome, GCH]
 redirect_from:
-  - /blog/gch-overview/
+  - /blog/gch/
 ---
 
 [Gnome Clipboard History](https://github.com/SUPERCILEX/gnome-clipboard-history) (GCH) is a Gnome

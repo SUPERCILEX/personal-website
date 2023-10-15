@@ -4,7 +4,7 @@ subtitle: Technical and performance overview
 
 categories: [Projects, Performance, Files, FTZZ]
 redirect_from:
-  - /blog/ftzz-overview/
+  - /blog/ftzz/
 mathjax: true
 ---
 
