@@ -5,22 +5,13 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from subprocess import check_call, PIPE
 from typing import List
 
-from shared import site_dir, downgrade_image, strip_compression_suffix, compressed_file_suffix
+from shared import site_dir, strip_compression_suffix, compressed_file_suffix
 
 assets_dir = 'assets'
 output_assets_dir = 'assets/resized'
 supported_files = ['.png', '.jpg', '.jpeg', '.svg']
-output_formats = {'jpg': 'mozjpeg', 'webp': 'webp', 'avif': 'avif'}
-squoosh = '.build/node_modules/.bin/squoosh-cli'
+output_formats = ['jpg', 'webp', 'avif']
 svgo = '.build/node_modules/.bin/svgo'
-
-# These images break the compressor
-# TODO remove when upstream fixes it
-broken_outputs = [
-    'assets/resized/future/final-stop-resolution-min.avif',
-    'assets/resized/future/final-stop-resolution-min.webp',
-    'assets/resized/future/final-stop-resolution-min.jpg',
-]
 
 
 def main():
@@ -30,10 +21,6 @@ def main():
     for root, _, files in os.walk(assets_dir):
         for file in files:
             tasks.append(pool.submit(compress, root, file))
-    for root, _, files in os.walk(site_dir):
-        for file in files:
-            if file.endswith('.html'):
-                tasks.append(pool.submit(fix_broken_images, os.path.join(root, file)))
 
     for task in tasks:
         task.result()
@@ -106,40 +93,24 @@ def compress(parent: str, file: str):
 
         return
 
-    for (file_type, command) in output_formats.items():
+    for file_type in output_formats:
         output_dir = parent if resized else \
             os.path.join(output_assets_dir, parent.removeprefix(assets_dir).removeprefix('/'))
         output_file = os.path.join(output_dir, f'{file_name}{compressed_file_suffix}.{file_type}')
 
-        if not os.path.exists(output_file) and output_file not in broken_outputs:
+        if not os.path.exists(output_file):
             print(f'Generating {output_file}')
 
             check_call([
-                squoosh,
+                'convert',
                 input_path,
-                '--output-dir', output_dir,
-                '--suffix', compressed_file_suffix,
-                f'--{command}', 'true',
+                f"{file_type}:{output_file}",
             ], stdout=PIPE, timeout=90)
             resized_output = os.path.join(site_dir, output_file)
             os.makedirs(os.path.dirname(resized_output), exist_ok=True)
             shutil.copyfile(output_file, resized_output)
 
             print(f'Done processing {output_file}')
-
-
-def fix_broken_images(path: str):
-    with open(path, 'r+') as f:
-        html = f.read()
-
-        for broken_output in broken_outputs:
-            if broken_output in html:
-                next_of_kin = downgrade_image(broken_output)
-                if next_of_kin:
-                    html = html.replace(broken_output, next_of_kin)
-
-        f.seek(0)
-        f.write(html)
 
 
 if __name__ == '__main__':
