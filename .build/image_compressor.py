@@ -103,9 +103,10 @@ def compress(parent: str, file: str):
 
             check_call([
                 'convert',
+                '-quality', '75',
                 input_path,
                 f"{file_type}:{output_file}",
-            ], stdout=PIPE, timeout=90)
+            ], stdout=PIPE, timeout=300)
             resized_output = os.path.join(site_dir, output_file)
             os.makedirs(os.path.dirname(resized_output), exist_ok=True)
             shutil.copyfile(output_file, resized_output)
