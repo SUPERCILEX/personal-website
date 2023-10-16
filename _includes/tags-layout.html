@@ -21,7 +21,7 @@
     {% for hack in sorted_tags %}
       {% assign tag = hack | split: '__CONCAT_MARKER__' | last | strip %}
       <li>
-        <a href="{{ tag | slugify }}">
+        <a href="{{ tag | slugify | prepend: page.url }}">
           {{ tag }}
         </a>
       </li>
