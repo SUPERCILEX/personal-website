@@ -98,6 +98,8 @@ jekyll-archives:
     year: posts-year
     month: posts-month
     day: posts-day
+    tag: posts-tag
+    category: posts-tag
   permalinks:
     year: '/blog/:year/'
     month: '/blog/:year/:month/'
