@@ -103,7 +103,7 @@ def compress(parent: str, file: str):
 
             check_call([
                 'convert',
-                '-quality', '75',
+                '-quality', '40',
                 input_path,
                 f"{file_type}:{output_file}",
             ], stdout=PIPE, timeout=300)
