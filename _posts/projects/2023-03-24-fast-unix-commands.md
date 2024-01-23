@@ -5,6 +5,7 @@ subtitle: The world's fastest rm command and one of the fastest cp commands
 categories: [Projects, Performance, Files, FUC]
 redirect_from:
   - /blog/fuc/
+  - /blog/fuc-overview/
 ---
 
 [Fast Unix Commands](https://github.com/SUPERCILEX/fuc) (FUC) is a project that aims to create the
@@ -44,16 +45,15 @@ This project lead to some notable Rust ecosystem contributions:
   [rustix](https://github.com/bytecodealliance/rustix/pull/448) too).
 - Adding APIs for [raw directory iteration](https://github.com/bytecodealliance/rustix/pull/457) in
   rustix.
-- Writing a tool that [generates reproducible file trees](/blog/ftzz-overview) for benchmarking
-  purposes.
+- Writing a tool that [generates reproducible file trees](/blog/ftzz) for benchmarking purposes.
 
 ## Technical overview
 
 Both tools are built using the same scheduling algorithm, following similar principles
-to [FTZZ's scheduler](/blog/ftzz-overview#scheduling-algorithm). The key insight is that file
-operations in separate directories don't (for the most part) interfere with each other, enabling
-parallel execution. The intuition here is that directories are a shared resource for their direct
-children and must therefore serialize concurrent directory-modifying operations, causing
+to [FTZZ's scheduler](/blog/ftzz#scheduling-algorithm). The key insight is that file operations in
+separate directories don't (for the most part) interfere with each other, enabling parallel
+execution. The intuition here is that directories are a shared resource for their direct children
+and must therefore serialize concurrent directory-modifying operations, causing
 [contention](#contention). In brief, file creation or deletion cannot occur at the same time within
 one directory. Thus, the goal is to schedule one task per directory and execute each task in
 parallel.
