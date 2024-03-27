@@ -1,0 +1,541 @@
+{
+  "hosting": {
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "trailingSlash": false,
+    "cleanUrls": true,
+    "headers": [
+      {
+        "source": "**/*.@(png|jpg|jpeg|webp|avif|gif|svg|ico|key)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(pdf)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=432000"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/feed",
+        "destination": "/feed.xml"
+      },
+      {
+        "source": "/sitemap",
+        "destination": "/sitemap.xml"
+      },
+      {
+        "source": "/wp-login.php",
+        "destination": "https://speed.hetzner.de/10GB.bin"
+      },
+      {
+        "source": "/.env",
+        "destination": "https://speed.hetzner.de/10GB.bin"
+      },
+      {
+        "source": "/administrator/index.php",
+        "destination": "https://speed.hetzner.de/10GB.bin"
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/2017/12/12/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "destination": "/blog/firebase/android/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "type": 302
+      },
+      {
+        "source": "/2018/08/19/android-development-for-the-minimalist",
+        "destination": "/blog/tips/android/android-development-for-the-minimalist",
+        "type": 302
+      },
+      {
+        "source": "/2018/09/05/diy-gradle-build-optimization",
+        "destination": "/blog/gradle/performance/diy-gradle-build-optimization",
+        "type": 302
+      },
+      {
+        "source": "/2018/10/09/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "destination": "/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "type": 302
+      },
+      {
+        "source": "/2018/10/30/advanced-kotlin-coroutines-tips-and-tricks",
+        "destination": "/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks",
+        "type": 302
+      },
+      {
+        "source": "/2018/11/09/saving-firebase-ui-recycler-view-state",
+        "destination": "/blog/firebase/android/saving-firebase-ui-recycler-view-state",
+        "type": 302
+      },
+      {
+        "source": "/2018/11/18/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "destination": "/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "type": 302
+      },
+      {
+        "source": "/2020/05/17/customize-github-code-font",
+        "destination": "/blog/tips/github/customize-github-code-font",
+        "type": 302
+      },
+      {
+        "source": "/2020/06/17/get-your-own-personal-code-search",
+        "destination": "/blog/tips/search/github/get-your-own-personal-code-search",
+        "type": 302
+      },
+      {
+        "source": "/2020/09/12/server-side-analytics-with-firebase-hosting",
+        "destination": "/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting",
+        "type": 302
+      },
+      {
+        "source": "/2021/02/18/automate-deleting-old-google-emails-and-calendar-events",
+        "destination": "/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events",
+        "type": 302
+      },
+      {
+        "source": "/2021/11/26/the-fastest-way-to-copy-a-file",
+        "destination": "/blog/performance/files/kernel/the-fastest-way-to-copy-a-file",
+        "type": 302
+      },
+      {
+        "source": "/2022/01/02/file-tree-fuzzer",
+        "destination": "/blog/projects/performance/files/ftzz/file-tree-fuzzer",
+        "type": 302
+      },
+      {
+        "source": "/2022/02/24/gnome-clipboard-history",
+        "destination": "/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history",
+        "type": 302
+      },
+      {
+        "source": "/2022/08/14/tests-validate-behavior-not-correctness",
+        "destination": "/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness",
+        "type": 302
+      },
+      {
+        "source": "/2023/03/23/forkfs",
+        "destination": "/blog/projects/performance/files/forkfs/forkfs",
+        "type": 302
+      },
+      {
+        "source": "/2023/03/24/fast-unix-commands",
+        "destination": "/blog/projects/performance/files/fuc/fast-unix-commands",
+        "type": 302
+      },
+      {
+        "source": "/404.html",
+        "destination": "/",
+        "type": 302
+      },
+      {
+        "source": "/blog/1",
+        "destination": "/blog/firebase/android/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "type": 302
+      },
+      {
+        "source": "/blog/10",
+        "destination": "/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting",
+        "type": 302
+      },
+      {
+        "source": "/blog/11",
+        "destination": "/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events",
+        "type": 302
+      },
+      {
+        "source": "/blog/12",
+        "destination": "/blog/performance/files/kernel/the-fastest-way-to-copy-a-file",
+        "type": 302
+      },
+      {
+        "source": "/blog/13",
+        "destination": "/blog/projects/performance/files/ftzz/file-tree-fuzzer",
+        "type": 302
+      },
+      {
+        "source": "/blog/14",
+        "destination": "/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history",
+        "type": 302
+      },
+      {
+        "source": "/blog/15",
+        "destination": "/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness",
+        "type": 302
+      },
+      {
+        "source": "/blog/16",
+        "destination": "/blog/projects/performance/files/forkfs/forkfs",
+        "type": 302
+      },
+      {
+        "source": "/blog/17",
+        "destination": "/blog/projects/performance/files/fuc/fast-unix-commands",
+        "type": 302
+      },
+      {
+        "source": "/blog/2",
+        "destination": "/blog/tips/android/android-development-for-the-minimalist",
+        "type": 302
+      },
+      {
+        "source": "/blog/2017/12/12/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "destination": "/blog/firebase/android/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "type": 302
+      },
+      {
+        "source": "/blog/2018/08/19/android-development-for-the-minimalist",
+        "destination": "/blog/tips/android/android-development-for-the-minimalist",
+        "type": 302
+      },
+      {
+        "source": "/blog/2018/09/05/diy-gradle-build-optimization",
+        "destination": "/blog/gradle/performance/diy-gradle-build-optimization",
+        "type": 302
+      },
+      {
+        "source": "/blog/2018/10/09/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "destination": "/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "type": 302
+      },
+      {
+        "source": "/blog/2018/10/30/advanced-kotlin-coroutines-tips-and-tricks",
+        "destination": "/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks",
+        "type": 302
+      },
+      {
+        "source": "/blog/2018/11/09/saving-firebase-ui-recycler-view-state",
+        "destination": "/blog/firebase/android/saving-firebase-ui-recycler-view-state",
+        "type": 302
+      },
+      {
+        "source": "/blog/2018/11/18/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "destination": "/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "type": 302
+      },
+      {
+        "source": "/blog/2020/05/17/customize-github-code-font",
+        "destination": "/blog/tips/github/customize-github-code-font",
+        "type": 302
+      },
+      {
+        "source": "/blog/2020/06/17/get-your-own-personal-code-search",
+        "destination": "/blog/tips/search/github/get-your-own-personal-code-search",
+        "type": 302
+      },
+      {
+        "source": "/blog/2020/09/12/server-side-analytics-with-firebase-hosting",
+        "destination": "/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting",
+        "type": 302
+      },
+      {
+        "source": "/blog/2021/02/18/automate-deleting-old-google-emails-and-calendar-events",
+        "destination": "/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events",
+        "type": 302
+      },
+      {
+        "source": "/blog/2021/11/26/the-fastest-way-to-copy-a-file",
+        "destination": "/blog/performance/files/kernel/the-fastest-way-to-copy-a-file",
+        "type": 302
+      },
+      {
+        "source": "/blog/2022/01/02/file-tree-fuzzer",
+        "destination": "/blog/projects/performance/files/ftzz/file-tree-fuzzer",
+        "type": 302
+      },
+      {
+        "source": "/blog/2022/02/24/gnome-clipboard-history",
+        "destination": "/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history",
+        "type": 302
+      },
+      {
+        "source": "/blog/2022/08/14/tests-validate-behavior-not-correctness",
+        "destination": "/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness",
+        "type": 302
+      },
+      {
+        "source": "/blog/2023/03/23/forkfs",
+        "destination": "/blog/projects/performance/files/forkfs/forkfs",
+        "type": 302
+      },
+      {
+        "source": "/blog/2023/03/24/fast-unix-commands",
+        "destination": "/blog/projects/performance/files/fuc/fast-unix-commands",
+        "type": 302
+      },
+      {
+        "source": "/blog/3",
+        "destination": "/blog/gradle/performance/diy-gradle-build-optimization",
+        "type": 302
+      },
+      {
+        "source": "/blog/4",
+        "destination": "/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "type": 302
+      },
+      {
+        "source": "/blog/5",
+        "destination": "/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks",
+        "type": 302
+      },
+      {
+        "source": "/blog/6",
+        "destination": "/blog/firebase/android/saving-firebase-ui-recycler-view-state",
+        "type": 302
+      },
+      {
+        "source": "/blog/7",
+        "destination": "/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "type": 302
+      },
+      {
+        "source": "/blog/8",
+        "destination": "/blog/tips/github/customize-github-code-font",
+        "type": 302
+      },
+      {
+        "source": "/blog/9",
+        "destination": "/blog/tips/search/github/get-your-own-personal-code-search",
+        "type": 302
+      },
+      {
+        "source": "/blog/advanced-coroutines",
+        "destination": "/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks",
+        "type": 302
+      },
+      {
+        "source": "/blog/anddev-minimalism",
+        "destination": "/blog/tips/android/android-development-for-the-minimalist",
+        "type": 302
+      },
+      {
+        "source": "/blog/auto-delete-google",
+        "destination": "/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events",
+        "type": 302
+      },
+      {
+        "source": "/blog/behavior-not-correctness",
+        "destination": "/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness",
+        "type": 302
+      },
+      {
+        "source": "/blog/fastest-cp",
+        "destination": "/blog/performance/files/kernel/the-fastest-way-to-copy-a-file",
+        "type": 302
+      },
+      {
+        "source": "/blog/firebase-quota-hack",
+        "destination": "/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "type": 302
+      },
+      {
+        "source": "/blog/firebase/2018/11/18/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "destination": "/blog/firebase/save-money-with-this-one-firestore-free-quota-trick-for-cron-jobs",
+        "type": 302
+      },
+      {
+        "source": "/blog/firebase/android/2017/12/12/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "destination": "/blog/firebase/android/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "type": 302
+      },
+      {
+        "source": "/blog/firebase/android/2018/11/09/saving-firebase-ui-recycler-view-state",
+        "destination": "/blog/firebase/android/saving-firebase-ui-recycler-view-state",
+        "type": 302
+      },
+      {
+        "source": "/blog/firebase/bigquery/analytics/tips/2020/09/12/server-side-analytics-with-firebase-hosting",
+        "destination": "/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting",
+        "type": 302
+      },
+      {
+        "source": "/blog/forkfs",
+        "destination": "/blog/projects/performance/files/forkfs/forkfs",
+        "type": 302
+      },
+      {
+        "source": "/blog/forkfs-overview",
+        "destination": "/blog/projects/performance/files/forkfs/forkfs",
+        "type": 302
+      },
+      {
+        "source": "/blog/ftzz",
+        "destination": "/blog/projects/performance/files/ftzz/file-tree-fuzzer",
+        "type": 302
+      },
+      {
+        "source": "/blog/ftzz-overview",
+        "destination": "/blog/projects/performance/files/ftzz/file-tree-fuzzer",
+        "type": 302
+      },
+      {
+        "source": "/blog/fuc",
+        "destination": "/blog/projects/performance/files/fuc/fast-unix-commands",
+        "type": 302
+      },
+      {
+        "source": "/blog/fuc-overview",
+        "destination": "/blog/projects/performance/files/fuc/fast-unix-commands",
+        "type": 302
+      },
+      {
+        "source": "/blog/fui-rv-state",
+        "destination": "/blog/firebase/android/saving-firebase-ui-recycler-view-state",
+        "type": 302
+      },
+      {
+        "source": "/blog/gch",
+        "destination": "/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history",
+        "type": 302
+      },
+      {
+        "source": "/blog/gch-overview",
+        "destination": "/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history",
+        "type": 302
+      },
+      {
+        "source": "/blog/github-code-font",
+        "destination": "/blog/tips/github/customize-github-code-font",
+        "type": 302
+      },
+      {
+        "source": "/blog/gpp-v2",
+        "destination": "/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "type": 302
+      },
+      {
+        "source": "/blog/gradle-perf",
+        "destination": "/blog/gradle/performance/diy-gradle-build-optimization",
+        "type": 302
+      },
+      {
+        "source": "/blog/gradle/automation/android/2018/10/09/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "destination": "/blog/gradle/automation/android/version-and-automate-your-play-store-listings-with-gradle-play-publisher-v-2-0",
+        "type": 302
+      },
+      {
+        "source": "/blog/gradle/performance/2018/09/05/diy-gradle-build-optimization",
+        "destination": "/blog/gradle/performance/diy-gradle-build-optimization",
+        "type": 302
+      },
+      {
+        "source": "/blog/hosting-analytics",
+        "destination": "/blog/firebase/bigquery/analytics/tips/server-side-analytics-with-firebase-hosting",
+        "type": 302
+      },
+      {
+        "source": "/blog/kotlin/android/2018/10/30/advanced-kotlin-coroutines-tips-and-tricks",
+        "destination": "/blog/kotlin/android/advanced-kotlin-coroutines-tips-and-tricks",
+        "type": 302
+      },
+      {
+        "source": "/blog/opinions/testing/tdd/2022/08/14/tests-validate-behavior-not-correctness",
+        "destination": "/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness",
+        "type": 302
+      },
+      {
+        "source": "/blog/performance/files/kernel/2021/11/26/the-fastest-way-to-copy-a-file",
+        "destination": "/blog/performance/files/kernel/the-fastest-way-to-copy-a-file",
+        "type": 302
+      },
+      {
+        "source": "/blog/personal-codesearch",
+        "destination": "/blog/tips/search/github/get-your-own-personal-code-search",
+        "type": 302
+      },
+      {
+        "source": "/blog/projects/performance/clipboard/gnome/gch/2022/02/24/gnome-clipboard-history",
+        "destination": "/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history",
+        "type": 302
+      },
+      {
+        "source": "/blog/projects/performance/files/forkfs/2023/03/23/forkfs",
+        "destination": "/blog/projects/performance/files/forkfs/forkfs",
+        "type": 302
+      },
+      {
+        "source": "/blog/projects/performance/files/ftzz/2022/01/02/file-tree-fuzzer",
+        "destination": "/blog/projects/performance/files/ftzz/file-tree-fuzzer",
+        "type": 302
+      },
+      {
+        "source": "/blog/projects/performance/files/fuc/2023/03/24/fast-unix-commands",
+        "destination": "/blog/projects/performance/files/fuc/fast-unix-commands",
+        "type": 302
+      },
+      {
+        "source": "/blog/projects/performance/gnome/gch/gnome-clipboard-history.html",
+        "destination": "/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history",
+        "type": 302
+      },
+      {
+        "source": "/blog/rtdb-to-firestore",
+        "destination": "/blog/firebase/android/survival-guide-how-to-migrate-from-the-firebase-realtime-database-to-cloud-firestore",
+        "type": 302
+      },
+      {
+        "source": "/blog/tips/android/2018/08/19/android-development-for-the-minimalist",
+        "destination": "/blog/tips/android/android-development-for-the-minimalist",
+        "type": 302
+      },
+      {
+        "source": "/blog/tips/github/2020/05/17/customize-github-code-font",
+        "destination": "/blog/tips/github/customize-github-code-font",
+        "type": 302
+      },
+      {
+        "source": "/blog/tips/privacy/automation/2021/02/18/automate-deleting-old-google-emails-and-calendar-events",
+        "destination": "/blog/tips/privacy/automation/automate-deleting-old-google-emails-and-calendar-events",
+        "type": 302
+      },
+      {
+        "source": "/blog/tips/search/github/2020/06/17/get-your-own-personal-code-search",
+        "destination": "/blog/tips/search/github/get-your-own-personal-code-search",
+        "type": 302
+      },
+      {
+        "source": "/donate",
+        "destination": "/sponsor",
+        "type": 302
+      },
+      {
+        "source": "/gpg",
+        "destination": "/supercilex.key",
+        "type": 302
+      },
+      {
+        "source": "/resume",
+        "destination": "/resume/AlexSaveau.pdf",
+        "type": 302
+      },
+      {
+        "source": "/sponsor",
+        "destination": "https://github.com/sponsors/SUPERCILEX",
+        "type": 302
+      },
+      {
+        "source": "/support",
+        "destination": "/sponsor",
+        "type": 302
+      },
+      {
+        "source": "/wealthfront",
+        "destination": "https://www.wealthfront.com/c/affiliates/invited/AFFB-0QSH-4D1S-PE56",
+        "type": 302
+      }
+    ]
+  }
+}

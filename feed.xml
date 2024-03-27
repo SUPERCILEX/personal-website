@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://alexsaveau.dev/feed.xml" rel="self" type="application/atom+xml" /><link href="https://alexsaveau.dev/" rel="alternate" type="text/html" /><updated>2024-03-27T00:34:24+00:00</updated><id>https://alexsaveau.dev/feed.xml</id><title type="html">Alex Saveau</title><subtitle>https://alexsaveau.dev</subtitle><author><name>Alex Saveau</name></author><entry><title type="html">Fast Unix Commands</title><link href="https://alexsaveau.dev/blog/projects/performance/files/fuc/fast-unix-commands" rel="alternate" type="text/html" title="Fast Unix Commands" /><published>2023-03-24T00:00:00+00:00</published><updated>2024-01-23T00:53:55+00:00</updated><id>https://alexsaveau.dev/blog/projects/performance/files/fuc/fast-unix-commands</id><content type="html" xml:base="https://alexsaveau.dev/blog/projects/performance/files/fuc/fast-unix-commands"><![CDATA[<p><a href="https://github.com/SUPERCILEX/fuc">Fast Unix Commands</a> (FUC) is a project that aims to create the
+world’s fastest Unix commands. Currently, this means <code class="language-plaintext highlighter-rouge">rm</code> and <code class="language-plaintext highlighter-rouge">cp</code> replacements named <code class="language-plaintext highlighter-rouge">rmz</code> and
+<code class="language-plaintext highlighter-rouge">cpz</code> (the ‘z’ stands for “zippy”). When better performance cannot be achieved, the next highest
+priority is efficiency. In practice, <code class="language-plaintext highlighter-rouge">rmz</code> appears to be the fastest file deleter available
+while <code class="language-plaintext highlighter-rouge">cpz</code> wins in most cases, only losing in flat directory hierarchies.</p>
+
+<h2 id="myth-busting">Myth busting</h2>
+
+<p>Many Stack Overflow answers will tell you to use this or that as a faster alternative to <code class="language-plaintext highlighter-rouge">rm</code>
+or <code class="language-plaintext highlighter-rouge">cp</code>. Let’s look at the <a href="https://github.com/SUPERCILEX/fuc/tree/master/comparisons">data</a>!</p>
+
+<h3 id="rsync">Rsync</h3>
+
+<p>Using <code class="language-plaintext highlighter-rouge">rsync</code> for copying is always slower than <code class="language-plaintext highlighter-rouge">cp</code> as far as I can tell. This should not come as a
+surprise given that it performs data integrity checks. Interestingly enough, <code class="language-plaintext highlighter-rouge">rsync</code> deletes very
+large directories faster than <code class="language-plaintext highlighter-rouge">rm</code>, but is slower in all other cases.</p>
+
+<h3 id="find">Find</h3>
+
+<p><code class="language-plaintext highlighter-rouge">find</code> and <code class="language-plaintext highlighter-rouge">rm</code> are approximately equivalent in terms of performance.</p>
+
+<h3 id="tar">Tar</h3>
+
+<p>Shockingly, collecting a directory into a tarball and then extracting it into a new directory to
+copy it is often faster than <code class="language-plaintext highlighter-rouge">cp</code>.</p>
+
+<h2 id="ecosystem-contributions">Ecosystem contributions</h2>
+
+<p>This project lead to some notable Rust ecosystem contributions:</p>
+
+<ul>
+  <li>Discovering that <code class="language-plaintext highlighter-rouge">MaybeUninit</code> arrays accidentally
+<a href="https://github.com/rust-lang/rust/issues/96274">memset their contents</a>.</li>
+  <li>Improving the stdlib to <a href="https://github.com/rust-lang/rust/pull/93668">avoid allocations</a>
+(in <a href="https://github.com/nix-rust/nix/pull/1655">nix</a> and
+<a href="https://github.com/bytecodealliance/rustix/pull/448">rustix</a> too).</li>
+  <li>Adding APIs for <a href="https://github.com/bytecodealliance/rustix/pull/457">raw directory iteration</a> in
+rustix.</li>
+  <li>Writing a tool that <a href="/blog/ftzz">generates reproducible file trees</a> for benchmarking purposes.</li>
+</ul>
+
+<h2 id="technical-overview">Technical overview</h2>
+
+<p>Both tools are built using the same scheduling algorithm, following similar principles
+to <a href="/blog/ftzz#scheduling-algorithm">FTZZ’s scheduler</a>. The key insight is that file operations in
+separate directories don’t (for the most part) interfere with each other, enabling parallel
+execution. The intuition here is that directories are a shared resource for their direct children
+and must therefore serialize concurrent directory-modifying operations, causing
+<a href="#contention">contention</a>. In brief, file creation or deletion cannot occur at the same time within
+one directory. Thus, the goal is to schedule one task per directory and execute each task in
+parallel.</p>
+
+<p>Doing this for copies is relatively easy: iterate through every directory, spawn a new task when a
+directory is encountered and copy files in place. File removal is far more interesting because you
+cannot remove a directory until all of its children (including subdirectories) have been fully
+removed. As a consequence, file removal tasks must wait until their children have completed before
+finally removing the current directory. Unfortunately, this approach is slow: memory and time must
+be spent keeping track of child tasks, and children must somehow notify their parents of completion.</p>
+
+<p>Flipping the problem on its head reveals a beautiful solution: what if children were in charge of
+deleting their parents? With a little bit of atomic reference counting, this solution is
+straightforward to implement and comes at almost no additional cost. While traversing directories,
+each spawned child directory task includes a parent (smart) pointer, implicitly creating a dynamic
+tree structure that models the directory hierarchy. These parent pointers are reference counted and
+trigger the directory deletion when fully freed. Additionally, each task decrements its reference
+count upon completion. That’s it! Now, regardless of whether a parent finishes after all of its
+children or vice versa, the last “user” of a directory will delete its directory chain.</p>
+
+<p>Pseudocode might make this clearer:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">delete_dir</span><span class="p">(</span><span class="n">node</span> <span class="o">@</span> <span class="n">Node</span> <span class="p">{</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">ref_count</span> <span class="p">},</span> <span class="n">task_queue</span><span class="p">):</span>
+    <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">file</span> <span class="ow">is</span> <span class="nb">dir</span><span class="p">:</span>
+            <span class="n">ref_count</span><span class="o">++</span>
+            <span class="n">task_queue</span><span class="p">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">new</span> <span class="n">Node</span> <span class="p">{</span> <span class="nb">dir</span><span class="p">:</span> <span class="nb">file</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">node</span><span class="p">,</span> <span class="n">ref_count</span><span class="p">:</span> <span class="mi">1</span> <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">file</span><span class="p">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="n">ref_count</span><span class="o">--</span>
+    <span class="k">while</span> <span class="n">node</span><span class="p">.</span><span class="n">ref_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">node</span><span class="p">.</span><span class="nb">dir</span><span class="p">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="p">.</span><span class="n">parent</span>
+        <span class="n">node</span><span class="p">.</span><span class="n">ref_count</span><span class="o">--</span>
+</code></pre></div></div>
+
+<hr />
+
+<p>Enjoy blazing fast copies and deletions! 🚀</p>
+
+<h2 id="contention">Appendix—directory contention benchmark</h2>
+
+<p></p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+This benchmark creates and then deletes ~16K files in N directories with two possible methods:
+zip=every thread creates/deletes its own directory
+chain=every thread creates/deletes a sub-set of the directory, one directory at a time
+
+$ cargo b --release
+$ cp target/release/test test
+$ hyperfine --warmup 3 -N "./test /var/tmp 8 zip" "./test /var/tmp 8 chain"
+Benchmark 1: ./test /var/tmp 8 zip
+  Time (mean ± σ):     528.5 ms ±  11.5 ms    [User: 131.0 ms, System: 3460.0 ms]
+  Range (min … max):   518.6 ms … 553.2 ms    10 runs
+
+Benchmark 2: ./test /var/tmp 8 chain
+  Time (mean ± σ):      1.488 s ±  0.140 s    [User: 0.143 s, System: 7.991 s]
+  Range (min … max):    1.297 s …  1.659 s    10 runs
+
+Summary
+  './test /var/tmp 8 zip' ran
+    2.82 ± 0.27 times faster than './test /var/tmp 8 chain'
+*/</span>
+
+<span class="k">use</span> <span class="nn">std</span><span class="p">::{</span>
+    <span class="n">env</span><span class="p">,</span>
+    <span class="nn">fs</span><span class="p">::{</span><span class="n">create_dir</span><span class="p">,</span> <span class="n">remove_dir</span><span class="p">,</span> <span class="n">remove_file</span><span class="p">,</span> <span class="n">File</span><span class="p">},</span>
+    <span class="n">io</span><span class="p">,</span>
+    <span class="nn">path</span><span class="p">::</span><span class="n">PathBuf</span><span class="p">,</span>
+    <span class="n">thread</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">const</span> <span class="n">FILES</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">14</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arg</span> <span class="o">=</span> <span class="p">|</span><span class="n">n</span><span class="p">|</span> <span class="nn">env</span><span class="p">::</span><span class="nf">args</span><span class="p">()</span><span class="nf">.nth</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">root</span> <span class="o">=</span> <span class="nn">PathBuf</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="nf">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="k">let</span> <span class="n">n</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="nf">arg</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="nf">.parse</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">method</span> <span class="o">=</span> <span class="nf">arg</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">dirs</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">n</span><span class="p">)</span>
+        <span class="nf">.map</span><span class="p">(|</span><span class="n">i</span><span class="p">|</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">dir</span> <span class="o">=</span> <span class="n">root</span><span class="nf">.join</span><span class="p">(</span><span class="nd">format!</span><span class="p">(</span><span class="s">"test{i}"</span><span class="p">));</span>
+            <span class="nf">create_dir</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dir</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="n">dir</span>
+        <span class="p">})</span>
+        <span class="py">.collect</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">_</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="n">run</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">FILES</span> <span class="o">%</span> <span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">batch_size</span> <span class="o">=</span> <span class="n">FILES</span> <span class="o">/</span> <span class="n">n</span><span class="p">;</span>
+
+        <span class="k">let</span> <span class="n">dirs</span> <span class="o">=</span> <span class="n">dirs</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="k">move</span> <span class="p">|</span><span class="n">op</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">PathBuf</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">io</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">|</span> <span class="k">match</span> <span class="o">&amp;*</span><span class="n">method</span> <span class="p">{</span>
+            <span class="s">"zip"</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="n">FILES</span> <span class="p">{</span>
+                    <span class="nf">op</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="nf">.join</span><span class="p">(</span><span class="nd">format!</span><span class="p">(</span><span class="s">"f{i}"</span><span class="p">)))</span><span class="nf">.unwrap</span><span class="p">();</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="s">"chain"</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">for</span> <span class="n">dir</span> <span class="k">in</span> <span class="n">dirs</span> <span class="p">{</span>
+                    <span class="k">let</span> <span class="n">start</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">id</span><span class="p">;</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">start</span><span class="o">..</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="nf">op</span><span class="p">(</span><span class="n">dir</span><span class="nf">.join</span><span class="p">(</span><span class="nd">format!</span><span class="p">(</span><span class="s">"f{i}"</span><span class="p">)))</span><span class="nf">.unwrap</span><span class="p">();</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="n">_</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">unreachable!</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+    <span class="k">let</span> <span class="n">bench</span> <span class="o">=</span> <span class="p">|</span><span class="n">op</span><span class="p">|</span> <span class="p">{</span>
+        <span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">n</span><span class="p">)</span>
+            <span class="nf">.map</span><span class="p">(|</span><span class="n">id</span><span class="p">|</span> <span class="p">{</span>
+                <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">({</span>
+                    <span class="k">let</span> <span class="n">run</span> <span class="o">=</span> <span class="n">run</span><span class="nf">.clone</span><span class="p">();</span>
+                    <span class="k">move</span> <span class="p">||</span> <span class="nf">run</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span>
+                <span class="p">})</span>
+            <span class="p">})</span>
+            <span class="py">.collect</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">_</span><span class="o">&gt;&gt;</span><span class="p">()</span>
+            <span class="nf">.into_iter</span><span class="p">()</span>
+            <span class="nf">.map</span><span class="p">(|</span><span class="n">task</span><span class="p">|</span> <span class="n">task</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">())</span>
+            <span class="nf">.for_each</span><span class="p">(</span><span class="nb">drop</span><span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="nf">bench</span><span class="p">(|</span><span class="n">arg</span><span class="p">|</span> <span class="nn">File</span><span class="p">::</span><span class="nf">create</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="nf">.map</span><span class="p">(</span><span class="nb">drop</span><span class="p">));</span>
+    <span class="nf">bench</span><span class="p">(</span><span class="n">remove_file</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="n">dir</span> <span class="k">in</span> <span class="n">dirs</span> <span class="p">{</span>
+        <span class="nf">remove_dir</span><span class="p">(</span><span class="n">dir</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>]]></content><author><name>Alex Saveau</name></author><category term="Projects" /><category term="Performance" /><category term="Files" /><category term="FUC" /><summary type="html"><![CDATA[Fast Unix Commands (FUC) is a project that aims to create the world’s fastest Unix commands. Currently, this means rm and cp replacements named rmz and cpz (the ‘z’ stands for “zippy”). When better performance cannot be achieved, the next highest priority is efficiency. In practice, rmz appears to be the fastest file deleter available while cpz wins in most cases, only losing in flat directory hierarchies.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">ForkFS: make changes to your file system without consequence</title><link href="https://alexsaveau.dev/blog/projects/performance/files/forkfs/forkfs" rel="alternate" type="text/html" title="ForkFS: make changes to your file system without consequence" /><published>2023-03-23T00:00:00+00:00</published><updated>2024-01-23T00:53:55+00:00</updated><id>https://alexsaveau.dev/blog/projects/performance/files/forkfs/forkfs</id><content type="html" xml:base="https://alexsaveau.dev/blog/projects/performance/files/forkfs/forkfs"><![CDATA[<p><a href="https://github.com/SUPERCILEX/forkfs">ForkFS</a> is a CLI app that redirects a process’s file
+operations to a sandbox.</p>
+
+<blockquote>
+  <p>Sandboxing usually has security connotations, so I want to be clear that ForkFS makes no security
+claims. A process can easily escape via some form of inter-process communication.</p>
+</blockquote>
+
+<h2 id="when-is-this-useful">When is this useful?</h2>
+
+<p>If you use one machine for long enough, your file system will end up full of leftover files from
+long forgotten programs. <a href="https://dev.yorhel.nl/ncdu">Ncdu</a> (sorted by modified time) is extremely
+helpful for finding these files, but what if you could avoid creating them in the first place?
+That’s the primary motivator for ForkFS: if you know you’ll be transiently fiddling around with a
+program, you can run it under ForkFS and throw away all of its files in one go. The sandbox even
+works with apt!</p>
+
+<p>ForkFS can also be used to test commands that may be destructive: run the command in the sandbox and
+then verify its results. Admittedly, this use case is probably best served by a snapshotting file
+system.</p>
+
+<p>In general, you can open up a shell with ForkFS to easily sandbox any command.</p>
+
+<h2 id="technical-overview">Technical overview</h2>
+
+<p>Originally, this project used a
+<a href="https://www.alfonsobeato.net/c/modifying-system-call-arguments-with-ptrace/">ptrace approach</a>:
+intercept every syscall and rewrite its arguments such that file paths are sandboxed. The fact that
+this is even possible is a little mind-blowing, but I quickly realized this approach wouldn’t scale:
+there are too many syscalls to handle and doing so performantly would be difficult.</p>
+
+<p>Instead, ForkFS is implemented as a simple wrapper over
+<a href="https://docs.kernel.org/filesystems/overlayfs.html">OverlayFS</a>. I discovered that this was possible
+from <a href="https://firejail.wordpress.com/">Firejail</a>’s
+<a href="https://github.com/netblue30/firejail/commit/fb9f2a5fb3ac1ebbb14302ecdf3c840b70b090da">defunct</a>
+<a href="https://github.com/netblue30/firejail/blob/master/src/firejail/fs_overlayfs.c">implementation</a>.
+In brief, ForkFS:</p>
+
+<ol>
+  <li>Mounts OverlayFS (and a few other FSs) into an internal directory such that the entire file
+system is overlaid.</li>
+  <li>Changes its root directory to the mounted one.</li>
+  <li>Executes the requested program.</li>
+</ol>
+
+<h3 id="root-privileges">Root privileges</h3>
+
+<p>Mounting new FSs requires admin privileges which is unfortunate. Initially, ForkFS was expected to
+be run with <code class="language-plaintext highlighter-rouge">sudo</code>, but this provides a subpar experience because your environment is changed.
+<code class="language-plaintext highlighter-rouge">sudo -E</code> helps by keeping environment variables, but the home directory envvar is still modified.</p>
+
+<p>Instead, ForkFS works just like sudo. To become another user (e.g. root), a file must be owned by
+that user and have its <code class="language-plaintext highlighter-rouge">s</code> permission bit set, meaning the file will take on the owner’s identity
+rather than the caller’s. Modern Linux applies this same idea to capabilities, meaning an executable
+can be granted access to do a limited set of privileged things. ForkFS supports both modes of
+operation.</p>
+
+<hr />
+
+<p>Happy experimenting!</p>]]></content><author><name>Alex Saveau</name></author><category term="Projects" /><category term="Performance" /><category term="Files" /><category term="ForkFS" /><summary type="html"><![CDATA[ForkFS is a CLI app that redirects a process’s file operations to a sandbox.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Tests validate behavior, not correctness</title><link href="https://alexsaveau.dev/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness" rel="alternate" type="text/html" title="Tests validate behavior, not correctness" /><published>2022-08-14T00:00:00+00:00</published><updated>2023-04-13T05:57:20+00:00</updated><id>https://alexsaveau.dev/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness</id><content type="html" xml:base="https://alexsaveau.dev/blog/opinions/testing/tdd/tests-validate-behavior-not-correctness"><![CDATA[<p>Is it better to have tests that confirm incorrect behavior, or none at all? I’m here to argue that
+tests are valuable even when they assert what a human considers to be an incorrect result. Pushing
+this idea even further, a test asserting incorrect behavior should be added in a separate commit
+<em>before</em> fixing the behavior in another commit.</p>
+
+<h2 id="why-behavior-instead-of-correctness">Why behavior instead of correctness?</h2>
+
+<p>Tests compare expected output with actual output—there’s no fundamental contract that says the
+expected output is intrinsically correct. For that matter, “correct” may change over time as a piece
+of software evolves. Thus, tests assert the behavior of a program, not its correctness.</p>
+
+<p>By limiting ourselves to testing correctness, we miss changes in behavior.</p>
+
+<p>Suppose you discover a bug in some piece of software. If the software was perfectly tested, then
+this bug would be present in some test you could point to and say, “I think the result should be
+Y, but the program is currently outputting X as seen in this test.” Of course, when there’s a bug,
+it’s most likely because you didn’t know you were missing a test for that behavior. Thus, being a
+good TDD citizen, you add a test for the expected behavior, confirm that it fails locally, then fix
+the bug to see the test go green before putting up the change for review.</p>
+
+<p>The reviewer now needs to trust that your test actually works. This means additional cognitive
+overhead trying to understand how the test is set up that detracts from checking the results of the
+test. If instead, a test is added that asserts the present behavior followed by a commit that
+updates said behavior, the reviewer can easily confirm their understanding of the program pre-fix
+and then see <em>just the parts of the test that changed</em> due to the fix.</p>
+
+<p>By adding tests that assert the present behavior of the program, every transition from one behavior
+to another is documented rather than being implicit in the addition of a test with a bug fix.</p>
+
+<h2 id="why-separate-changes">Why separate changes?</h2>
+
+<p>Suppose you are working on a large change in behavior (i.e. the functionality is not completely new)
+that requires several commits to implement. Adding tests as you go runs afoul of the same issues
+described above. A better approach is to add all the tests upfront, thereby separating behavior
+changes from test additions.</p>
+
+<p>The multi-commit approach shows your reviewer what is changing and what is not. For example, some
+tests may be added for behavior that won’t be changing. By separating the addition of tests from
+their behavioral changes, you make it extremely easy for your reviewer to see which tests changed
+(i.e. the behavioral transitions) in step N of the implementation.</p>
+
+<p>Another benefit is the additional scrutiny given to your tests. When a PR is completely dedicated to
+adding tests, you (and your reviewer) will be more inclined to find ways of minimizing boilerplate
+and improving your testing infrastructure.</p>
+
+<blockquote>
+  <p>Note: I haven’t seen a way of following these practices when functionality is completely new and
+tests cannot be written because the code that should be tested doesn’t exist yet.</p>
+</blockquote>
+
+<hr />
+
+<p>To recap, adding tests separately from updating them documents the current behavior of a program and
+makes behavioral transitions explicit which helps you and your reviewer better understand the
+codebase as it evolves.</p>]]></content><author><name>Alex Saveau</name></author><category term="Opinions" /><category term="Testing" /><category term="TDD" /><summary type="html"><![CDATA[Is it better to have tests that confirm incorrect behavior, or none at all? I’m here to argue that tests are valuable even when they assert what a human considers to be an incorrect result. Pushing this idea even further, a test asserting incorrect behavior should be added in a separate commit before fixing the behavior in another commit.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
