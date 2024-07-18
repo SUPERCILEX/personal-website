@@ -27,7 +27,7 @@
       <br>
     {% endif %}
 
-    {{ content }}
+    {% include anchor_headings.html html=content anchorBody="#" anchorAttrs="class=header-link" %}
   </div>
 {% endcapture %}
 {% include article-container.html content=post_body parent_path='/blog' parent='Blog' %}

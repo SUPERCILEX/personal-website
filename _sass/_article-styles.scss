@@ -140,6 +140,14 @@
   }
 }
 
+.header-link {
+    visibility: hidden;
+}
+
+h2:hover .header-link, h3:hover .header-link, h4:hover .header-link, h5:hover .header-link, h6:hover .header-link {
+    visibility: visible;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --progress-color: whitesmoke;
