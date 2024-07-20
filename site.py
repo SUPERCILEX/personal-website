@@ -41,8 +41,10 @@ def cli():
               help='Serve on a live staging instance.')
 @click.option('--expires', default='1d',
               help='Staging channel expiration. Only used when --live is set.')
+@click.option('--profile', is_flag=True, default=False,
+              help='Profile Jekyll build performance.')
 @cli.command()
-def serve(prod, drafts, fast, live, expires):
+def serve(prod, drafts, fast, live, expires, profile):
     """
     Deploy the site.
     """
@@ -56,6 +58,8 @@ def serve(prod, drafts, fast, live, expires):
     args = '--future --drafts' if drafts else ''
     if fast:
         args += ' --limit-posts 3 --config "_config.yml,_config_dev.yml"'
+    if profile:
+        args += ' --profile'
 
     if live:
         os.system(f'{env} bundle exec jekyll build {args}')
