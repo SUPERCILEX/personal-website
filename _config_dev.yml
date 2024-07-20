@@ -1,7 +1,6 @@
 plugins:
   # GitHub Pages plugins
   - jekyll-octicons
-  - jekyll-github-metadata
   - jekyll-coffeescript
   - jekyll-commonmark-ghpages
   - jekyll-gist
