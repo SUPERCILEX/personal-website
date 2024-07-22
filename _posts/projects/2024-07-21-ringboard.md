@@ -1,14 +1,16 @@
 ---
-title: "[WIP] Ringboard: the infinitely scalable clipboard manager for Linux"
+title: "Ringboard: the infinitely scalable clipboard manager for Linux"
 subtitle: Technical overview of a high-performance multi-arena ring allocator database
+
+image: /assets/projects/ringboard/demo.png
+image_alt: A screenshot demo-ing the various clients.
+image_caption: "Ringboard TUI on the left, Ringboard CLI and GUI on the right (top and bottom respectively)."
 
 categories: [Projects, Performance, Clipboard, Ringboard]
 redirect_from:
   - /blog/ringboard/
   - /blog/ringboard-overview/
 ---
-
-TODO include screenshot of TUI, GUI, and CLI.
 
 [Ringboard](https://github.com/SUPERCILEX/clipboard-history) is a simple yet powerful clipboard
 manager, designed for Linux to be desktop environment (DE) agnostic. It is implemented using a
@@ -17,7 +19,7 @@ client-server architecture (with a
 command line interface (CLI) for lower level operations, a terminal user interface (TUI) for a
 convenient yet unobtrusive interface, and various graphical user interfaces (GUIs). Currently, the
 clients include a stand-alone GUI implemented using [egui](https://github.com/emilk/egui) and a TUI
-(TODO confirm) implemented using [ratatui](https://github.com/ratatui-org/ratatui) with plans for a
+implemented using [ratatui](https://github.com/ratatui-org/ratatui) with plans for a
 [COSMIC](https://github.com/pop-os/cosmic-epoch) applet
 ([issue](https://github.com/SUPERCILEX/clipboard-history/issues/11)) and
 [Gnome extension](https://extensions.gnome.org/about/)
@@ -35,7 +37,7 @@ Ringboard supports copying arbitrary data—that includes images, PowerPoint sli
 you might conceive of. In fact, Ringboard is a byte-oriented database masquerading as a clipboard
 manager. The core technology is founded upon the following axioms:
 
-- Data is append-only (with relaxations).
+- Data is (mostly) append-only.
 - The primary operation is insert.
 - Old entries may be deleted transparently.
 - There is an arbitrary upper bound on the number of entries.
