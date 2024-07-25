@@ -1,10 +1,10 @@
 ---
-title: "Ringboard: the infinitely scalable clipboard manager for Linux"
+title: 'Ringboard: the infinitely scalable clipboard manager for Linux'
 subtitle: Technical overview of a high-performance multi-arena ring allocator database
 
 image: /assets/projects/ringboard/demo.png
 image_alt: A screenshot demo-ing the various clients.
-image_caption: "Ringboard TUI on the left, Ringboard CLI and GUI on the right (top and bottom respectively)."
+image_caption: Ringboard TUI on the left, Ringboard CLI and GUI on the right (top and bottom respectively).
 
 categories: [Projects, Performance, Clipboard, Ringboard]
 redirect_from:
@@ -28,7 +28,7 @@ efficient as possible, use a minimal constant amount of memory, scale to massive
 composable with the rest of the ecosystem. In brief, it hopes to become The One Clipboard manager
 for Linux.
 
-* TOC 
+* TOC
 {:toc}
 
 ## Introduction
@@ -66,8 +66,8 @@ database: data can be deleted transparently, thus making the data set size bound
 Ringboard has ancestral roots in my [Gnome Clipboard History](https://alexsaveau.dev/blog/gch) (GCH)
 extension which was implemented as an append-only log. GCH's log is unfortunately not
 [self-synchronizing](https://en.wikipedia.org/wiki/Self-synchronizing_code) as there are back
-pointers with arbitrary locations, meaning you have to read the entirety of the log and apply
-operations in order to accurately reconstruct the database.
+pointers with arbitrary locations, meaning you have to read the entire log and apply operations in
+order to accurately reconstruct the database.
 
 Since I was finally able to use Rust for this next generation clipboard manager, I wanted to find a
 way to use the [mmap syscall](https://man7.org/linux/man-pages/man2/mmap.2.html) such that I could
@@ -105,8 +105,8 @@ A Ringboard metadata store consists of 4-byte entries arranged in a fixed length
 (resizing is discussed [later](#ring-resizing)). If the user doesn't have the maximum number of
 entries yet, adding a new entry appends to the metadata file. Once the maximum has been reached, we
 cycle around and begin overwriting previous entries. Deletions and moves are handled by
-uninitializing the old entry (skipping over such entries while reading), and (un)favoriting is
-handled by moving the entry between rings.
+uninitializing the old entry (skipping over such tombstone entries while reading), and
+(un)favoriting is handled by moving the entry between rings.
 
 Every ring includes a header with a 3 byte file signature (chosen by
 [a fair dice roll](https://xkcd.com/221/) of course), the ring's version (for future compatibility),
@@ -135,10 +135,19 @@ little and it is no longer useful. I hope you'll agree that 4 bytes is fairly sp
   non-zero, but are otherwise unused currently.
 - Unallocated entries contain all zeros.
 
-Note that this encoding imposes a hard limit on the maximum number of representable entries: 2^20's
-worth. While a million entries should be more than enough, the all ones pattern in the upper 20 bits
-is reserved as an escape hatch to mean "this is an 8 byte entry," thereby theoretically allowing
-more than ~1M entries even though such a feature hasn't been implemented.
+In diagram form:
+
+```
+             [     20 bits     |    12 bits   ]
+   Bucketed: [ Index in bucket | Entry length ]
+Direct file: [     Non zero    |   All zero   ]
+Unallocated: [            All zero            ]
+```
+
+Note that this encoding imposes a hard limit on the maximum number of representable entries:
+2<sup>20</sup>'s worth. While a million entries should be more than enough, the all ones pattern in
+the upper 20 bits is reserved as an escape hatch to mean "this is an 8 byte entry," thereby
+theoretically allowing more than ~1M entries even though such a feature hasn't been implemented.
 
 ### The data store
 
@@ -146,7 +155,7 @@ At the end of the day, the data store is a glorified memory allocator and thus s
 apply.
 
 Storing entries contiguously is best for space efficiency, but leaves holes when entries are
-deleted. This could be fixed with generations, but now you must wait a very long time to truly
+deleted. Holes could be avoided with generations, but now you must wait a very long time to truly
 delete an entry or face expensive compaction wherein all following entries must be moved.
 
 Storing one entry per file is convenient but extremely inefficient for small entries due to the
@@ -158,14 +167,14 @@ wrong, but close enough), about 25% of each bucket will be wasted space. The ben
 from deleted entries can be filled in O(1) time. Was this the right choice? Probably? I still wonder
 if generations would have been better.
 
-To avoid wasting too much space for large entries, they are allocated as one file per entry.
-
 Specifically, there are 11 size classes in powers of two from 4 to 4096. Entries larger than that
 are stored in a file named by the composite ID of the entry (its ring ID and position in the ring).
-Any entry with a non-plaintext mime type is stored in a file regardless of its size due to there
-being no metadata storage for bucket allocations. File mime types are stored in extended file
+Any entry with a non-plaintext mime type is also stored in a file regardless of its size due to
+there being no metadata storage for bucket allocations. File mime types are stored in extended file
 attributes (which should be
 [stored in the inode itself when small](https://kernel.org/doc/html/latest/filesystems/ext4/dynamic.html#extended-attributes)).
+
+To avoid wasting too much space for large entries, they are allocated as one file per entry.
 
 Ring entries point to either a bucket allocation (implicitly choosing a size class via the entry
 size) or a direct file allocation. Moving an entry either does nothing in the case of bucket
@@ -174,36 +183,40 @@ in the arena as being free or deletes the direct allocation file.
 
 ## The server
 
-The server's job is to handle writes to the database and is implemented as a single-threaded event
-loop using [io_uring](https://man7.org/linux/man-pages/man7/io_uring.7.html). More precisely, the
-server is the *only* process ever allowed to modify the database. Therefore, the server sits around
-waiting for commands from clients. A client could be a Wayland or X11 clipboard listener for example
-which will inform us when the user has copied something. Clients can also be GUIs that wish to
-modify the database or get notified of changes.
+The server's only job is to handle writes to the database. In fact, the server is the *only* process
+ever allowed to modify the database. Therefore, the server sits around waiting for commands from
+clients. A client could be a Wayland or X11 clipboard listener for example which will inform us when
+the user has copied something. Clients can also be GUIs that wish to modify the database or get
+notified of changes.
+
+The server is implemented as a single-threaded event loop using
+[io_uring](https://man7.org/linux/man-pages/man7/io_uring.7.html).
 
 ### Protocol
 
 Importantly for performance, the server never sends data to clients. Instead, clients use a library
 for interfacing with the database in a read-only manner, thereby avoiding any bottlenecks in the
-server. Currently, clients don't react to changes in the database, but there are plans to keep
-clients up-to-date by having the server broadcast the details of a change whenever it occurs. For
-rare commands that change a large portion of the database (like garbage collection), clients would
-be told to reload the entire database. In practice, the primary flow would consist of a user copying
-something, the server getting notified via a client, and finally a broadcast of the event being sent
-to listening clients. Notice that if a client does not subscribe to updates or make modifications,
-it need not even connect to the server.
+server. Currently, clients don't react to changes in the database, but
+[there are plans](https://github.com/SUPERCILEX/clipboard-history/issues/12) to keep clients
+up-to-date by having the server broadcast change details as they occur. For rare commands that
+change a large portion of the database (like garbage collection), clients would be told to reload
+the entire database. In practice, the primary flow would consist of a user copying something, the
+server getting notified via a client, and finally broadcasting the event to subscribed clients.
+Notice that if a client does not subscribe to updates or make modifications, it need not even
+connect to the server.
 
 The command protocol consists simply of the in-memory representation of the command structs. To
 maintain forward compatibility, the client and server exchange protocol versions with each other and
-reject the connection if they do not match. Perhaps in the future there may be a case for supporting
+reject the connection if they do not match. This avoids issues when a client is running a newer
+binary than the server or vice versa. Perhaps in the future there may be a case for supporting
 backward compatibility, but for the moment the client and server must be built with strictly the
 same protocol.
 
 ### Recovering from unexpected shutdowns
 
 To avoid wasting disk writes, the server keeps the list of free arena slots in-memory and
-(de)serializes them only on startup/shutdown. This means that if you lose power while Ringboard is
-running, we'll have no idea which bucket slots are free.
+(de)serializes them only on startup/shutdown. The free slots only being up-to-date in memory means
+that if you lose power while Ringboard is running, we'll have no idea which slots are free.
 
 A lock file is therefore used to detect unclean shutdowns: it is created when the server is started
 and explicitly deleted when the server is shut down through the happy path. Thus, any unexpected
@@ -218,8 +231,8 @@ potential corruption is localized. This is discussed [later](#local-corruption).
 
 ### Rings, rings everywhere
 
-Io_uring—barring a few hiccups early on—has been a pleasure to work with. It has made writing an
-efficient single-threaded server a breeze. Consider signal handling for example: using
+Io_uring—barring a few hiccups early on—has been a pleasure to work with. It made writing an
+efficient single-threaded server a breeze. To illustrate, consider signal handling: using
 [`signalfd`](https://man7.org/linux/man-pages/man2/signalfd.2.html), we can post a read request to
 io_uring and handle graceful shutdown alongside the rest of the event loop. No need for blocking
 code, threads, or pipes to handle signals! The server's simplicity is driven by the ability to write
@@ -239,11 +252,12 @@ process. This is important because it allows us to mmap more memory than exists 
 fact, the ring mmaps enough space to hold the maximum number entries, even though the ring on disk
 may be completely empty.
 
-This property enables us to avoid remapping the ring whenever it grows—we use standard `write`
-syscalls to write past the end of the ring and those changes are then reflected in the mapped
-memory. In detail, if user space touches a page that does not have any backing bytes in the file,
-the program will segfault. However, if a non-zero number of bytes map to the page, then the entirety
-of the page becomes valid and the slices which contain no backing data are filled with zeros.
+The coherence between virtual memory and files enables us to avoid remapping the ring whenever it
+grows—we use standard `write` syscalls to write past the end of the ring and those changes are then
+reflected in the mapped memory. More precisely , if user space touches a page that does not have any
+backing bytes in the file, the program will segfault. However, if a non-zero number of bytes map to
+the page, then the entirety of the page becomes valid and the slices which contain no backing data
+are filled with zeros.
 
 But why not write to the mapped memory directly? Setting aside the performance loss of extra page
 faults, Linux offers no guarantees on when newly written data is made visible to the file system.
@@ -253,18 +267,13 @@ database reliability.
 ## Clients
 
 Ringboard was originally intended to be a single application, but I quickly realized that it would
-be useful to support many different readers and writers at once. To make reads fast, clients need
-only interact with the server when they wish to modify data. Clients connect to the server via a
-socket if necessary or use a client SDK to read data from the database. This approach allows some
-clients to avoid ever connecting to the server as they only need to read data while others only
-write data. Supporting multiple clients also means it is easy to allow saving clipboard entries from
-X11 or Wayland or a CLI etc. Similarly, any number of interfaces to the database can be built for
-different use cases from GUIs to JSON exports.
-
-The client-server protocol is as dumb as it gets: it is simply the in-memory representation of
-request and response structs. To avoid corruption, the client and server exchange protocol versions
-with each other and close the connection if they are found to not match. This avoids issues when a
-client is running a newer binary than the server or vice versa.
+be useful to support many different readers and writers at once. To make reading the database fast,
+clients need only interact with the server when they wish to modify data. Clients connect to the
+server via a socket if necessary or use a client SDK to read data from the database. This approach
+allows some clients to avoid ever connecting to the server as they only need to read data.
+Supporting multiple clients also means it is easy to allow saving clipboard entries from X11 or
+Wayland or a CLI etc. Similarly, any number of interfaces to the database can be built for different
+use cases from GUIs to JSON exports.
 
 ### Receiving copied items via Wayland or X11
 
@@ -290,25 +299,23 @@ good. 😎
 The problem for a clipboard manager is that applications holding clipboard data are free to perform
 on-the-fly conversions. For example, Firefox offers a PNG, JPEG, AVIF, HTML, and other formats after
 copying an image. Supposing the clipboard _could_ correctly save all the formats available, it would
-end up with many undesirable duplicate copies of the same entry. Unfortunately, this cannot even be
-done correctly as the owner of the clipboard data is free to do anything they like, such as
-returning different data each time you ask for it or performing lossy conversions (for example,
-copying an SVG in Chrome or Firefox doesn't let you ask for the SVG and instead only offers a PNG
-conversion). Asking for copied items in every available format to try and capture the underlying
-data therefore isn't practical or possible.
+end up with many undesirable duplicate copies of the same entry. Unfortunately, retrieving all
+formats cannot even be done correctly as the owner of the clipboard data is free to do anything they
+like, such as returning different data each time you ask for it or performing lossy conversions (for
+example, copying an SVG in Chrome or Firefox doesn't let you ask for the SVG and instead only offers
+a PNG conversion). Asking for copied items in every available format to try and capture the
+underlying data therefore isn't practical or possible.
 
 In fact, the system clipboard faces these same issues. When an application which owns the clipboard
 is closed, there is suddenly no way to ask it for the clipboard data. Thus, the compositor must
 store some version of the clipboard contents in memory so what you've copied doesn't disappear after
 you close the application it was copied from. This process is lossy. It's why pasting something from
-a closed application can behave differently than usual.
+a closed application can behave differently than when it is open.
 
 > Here are some further examples I used to convince myself I was on the right path:
 >
-> - When copying something from a web page, it is quite rare to want the HTML version of the text. I
->   think the last time I actually wanted formatting from a website to be preserved was for some
->   school project years ago. So saving the HTML along with the plaintext would just be a waste.
-> - The same logic applies to copied code: the vast majority of the time you're working and not
+> - When copying something from a web page, it is quite rare to want the HTML version of the text.
+> - The same logic applies to copied code: the vast majority of the time, you're working and not
 >   trying to paste a pretty version in a slide deck. No point in remembering the pretty version
 >   forever.
 > - When copying files in a file manager, you sometimes want the path and sometimes want to copy the
@@ -317,10 +324,10 @@ a closed application can behave differently than usual.
 > - The same applies to images: we can store a JXL for example and offer to convert it to a PNG.
 >
 > Finally, it's worth remembering that Ringboard is a byte oriented database. If it turns out we
-> need to store multiple mime types in very specific cases, we could store an entry with a special
-> mime type (say `x-special/ringboard-multi`) containing a serialized object that describes each
-> representation of the entry. The various clients will need code to handle this special mime type,
-> not unlike how GUIs have special code to handle `image/*` mime types.
+> need to store multiple mime types for some specific use case, we could store an entry with a
+> special mime type (say `x-special/ringboard-multi`) containing a serialized object that describes
+> each representation of the entry. The various clients will need code to handle this special mime
+> type, not unlike how they have special code to handle `image/*` mime types.
 
 So what can we do? We guess, unfortunately. That means trying to pick the "best" format available to
 save (which as a reminder isn't possible because the right format is dependent on the paste
@@ -342,8 +349,8 @@ Thanks to our arenas, it is easy to parallelize search in an optimal way for the
 arena is linearly searched on its own thread which means we are performing a (mostly) linear scan of
 the data. The rings are not involved at all. As a consequence, we will search through deleted
 entries and don't know how long each entry is. If a result is found in a deleted entry, we simply
-ignore it. As for knowing the length of each entry, the server places a NUL byte at the end of each
-entry for search to stop at. Note that search therefore does not work properly on entries which
+ignore it later. As for knowing the length of each entry, the server places a NUL byte at the end of
+each entry for search to stop at. Note that search therefore does not work properly on entries which
 contain NUL bytes as data.
 
 On another thread, the directory of direct allocation files is scanned and each file is searched
@@ -364,11 +371,10 @@ bucket slots which hurt search performance and waste space. There is also garbag
 tombstone entries in the ring, but their numbers are bounded and they are guaranteed to be reused,
 so we do not worry about them.
 
-We have several policies to choose from for determining when to remove dead bucket slots:
+To determine when to remove dead bucket slots, we have several policies to choose from:
 
 - Do nothing. Under a continuous random process of adding and removing entries, all garbage will
-  eventually be reused. Unfortunately, that also means that we will eventually end up with infinite
-  garbage.
+  eventually be reused. Unfortunately, this process also leads to eventually infinite garbage.
 - Always remove the garbage immediately. This wastes a lot of work and disk I/O when new entries
   could have reused an arena slot that was freed not too long ago.
 - Remove garbage on a schedule, for example when the server starts up and every N days thereafter.
@@ -379,14 +385,15 @@ We have several policies to choose from for determining when to remove dead buck
 
 I chose the last option because it guarantees an upper bound on the maximum amount of garbage and
 keeps a small amount of useful garbage around. Specifically, when a GC occurs we only remove enough
-garbage to put ourselves under the maximum amount threshold (plus a little bit to avoid excessive
-collections), avoiding a big sawtooth pattern that would occur if all garbage was removed when the
+garbage to put ourselves under the maximum amount threshold (plus a little more to avoid excessive
+collections), inhibiting a big sawtooth pattern that would occur if all garbage was removed when the
 threshold is exceeded. This makes the removal process more complicated because we must now choose
-*which* garbage to remove. Since we expect bucket allocation sizes to follow a vaguely normal
-distribution (copying lots of words/phrases is more common than whole paragraphs for example), freed
-bucket slots will therefore also be normally distributed. Thus, we can expect the number of free
-slots per size class to be approximately uniform as the alloc and free distributions pair off. This
-means we should uniformly remove garbage from each size class, one layer at a time.
+*which* garbage to remove. Since we expect bucket allocation sizes to follow some distribution
+(copying lots of words/phrases is more common than whole paragraphs for example), freed bucket slots
+will therefore also match that distribution (though a distribution change will take time to
+propagate). Thus, we can expect the number of free slots per size class to be approximately uniform
+as the alloc and free distributions pair off. This means we should uniformly remove garbage from
+each size class, one layer at a time.
 
 To minimize disk I/O when removing garbage, we fill unallocated/garbage bucket slots with allocated
 entries from the end of the arena. Once we only have (newly) unallocated slots at the end of an
@@ -402,8 +409,7 @@ entry if so.
 
 Currently, the maximum number of entries is hardcoded, but
 [there are plans](https://github.com/SUPERCILEX/clipboard-history/issues/9) to support changing this
-default after the database has been created. This feature is important to limit clipboard history
-size—some people may not want years worth of history.
+default after the database has been created.
 
 ## Flaws
 
@@ -411,25 +417,25 @@ size—some people may not want years worth of history.
 
 Io_uring [doesn't support](https://github.com/axboe/liburing/issues/831) the
 [`copy_file_range`](https://man7.org/linux/man-pages/man2/copy_file_range.2.html) syscall which
-means we can't copy client data asynchronous using io_uring. Even if it did, as a practical matter,
-manually writing a coroutine to make all syscalls on the database write path async would be
-intractable. Thus, database modifications block the entire server, meaning one client can DoS the
-entire server. This is easy to reproduce by writing some code that asks the server to write an entry
-whose contents is stdin—the server will freeze.
+means we can't copy client data asynchronously using io_uring. Even if `copy_file_range` was
+supported, as a practical matter, manually writing a coroutine to make all syscalls on the database
+write path async would be intractable. Thus, database modifications block the entire server, meaning
+one client can DoS the server. This is easy to reproduce by writing some code that asks the server
+to write an entry whose contents is `stdin`—the server will be frozen until `stdin` is closed.
 
 I don't believe this is a problem since we assume that clients are cooperative (see
 [below](#error-handling-and-malicious-actors)) and therefore assume they will provide the server
 with a non-blocking file. However, if some unforeseen circumstances change the equation, then there
 is a relatively straightforward solution: move the allocator to a background thread and communicate
 with it using SPSC channels. The background thread would write into a pipe whenever it has sent a
-message so that io_uring can wake up and process allocator responses. The complicated part would be
-keeping track of pending requests and applying backpressure, hence why this approach wasn't chosen
-for the first implementation.
+message so that io_uring can wake up and process allocator responses. However, keeping track of
+pending requests and applying backpressure would be complicated, hence why this approach wasn't
+chosen.
 
 ### Database reliability
 
-Both of these issues should be extremely rare if not impossible to hit under normal circumstances.
-Still, they suck and are sad to think about. Ah well, there had to be tradeoffs somewhere!
+Both of these issues should be extremely rare (if not impossible) to hit under normal circumstances.
+Nevertheless, their possibility sucks and is sad to think about.
 
 #### Local corruption
 
@@ -445,8 +451,8 @@ This could be easily fixed with an `fsync`, but there are more complicated cases
 solved without journaling: if a non-bucket entry is deleted, its file and ring entry must be
 deallocated, but there is no order in which these operations can be performed without corruption of
 some form given a crash between the two operations. If the metadata is removed first and we crash,
-we'll forget that we need to delete the data file, while if the data is deleted first, then the
-metadata will end up pointing to the void.
+we'll forget that we need to delete the data file; if the data is deleted first, then the metadata
+will end up pointing to the void.
 
 Thus, I decided that local ring corruption was acceptable given the enhanced efficiency of not using
 a journal.
@@ -458,9 +464,9 @@ while it is being modified, leading to inherent race conditions.
 
 In memory, clients do not have any control over writes the server executes, meaning a client could
 be using a buffer the server deallocates. For intended use cases (like garbage collection), this can
-be solved by notifying clients to reload the database, but there could be awkward cases where a
-client is looking at an old search result that gets overwritten by a new entry for example. While
-clients should watch for such changes, there is a possibility for nonsensical memory reads.
+be solved by notifying clients to reload the database, but there could be awkward situations where,
+for example, a client is looking at an old search result that gets overwritten by a new entry. While
+clients should watch for such changes, the possibility for nonsensical memory reads remains.
 
 This case could be solved by having clients ask the server to lock ring ranges or by having the
 server ask clients for permission to modify ring entries (two-phase commit), but I decided that the
@@ -475,22 +481,22 @@ resources amongst each other. This unfortunately means that the server doesn't t
 simply shut down with an error message (to be clear, the server should never _crash_, but it is
 allowed to die).
 
-I went with minimal error recovery for two reasons. First, clients do want to be good citizens—a
-user is installing clients on their own machine, so there is no reason to want to shoot yourself in
-the foot. Second, error recovery is _hard_. You are writing code that will almost never be executed
-and probably requires a convoluted set of conditions to be met before firing. For a clipboard
-manager, I would rather have maintainable code that almost never fails but may need to reboot if
-things are broken than code which must gracefully recover from every I/O error.
+I went with minimal error recovery for two reasons. First, clients *want* to be good citizens. A
+user is installing clients on their own machine—why install a client that will shoot them in the
+foot? Second, error recovery is _hard_. You are writing code that will almost never be executed and
+probably requires a convoluted set of conditions to be met before firing. For a clipboard manager, I
+would rather have maintainable code that almost never fails but may need to reboot if things are
+broken than code which must gracefully recover from every I/O error.
 
 ### Complexity
 
 At the end of the day, Ringboard is a very complicated project with a lot of moving pieces and a
-simple sounding goal: remember stuff you've copied. Thus, the question must be asked: is this all
-worth it? I believe the answer is yes. Simple projects get the job done, but sooner or later, they
-end up wanting more functionality and better performance. Without the discipline to accept their
-limitations, these projects are inevitably rewritten as they grow organically. I prefer the
-philosophy of writing things once and getting them right the first time. If "right" still comes with
-compromises as is almost always the case, then those compromises must be accepted and core
+simple sounding goal: remember stuff you've copied. Thus, the question must be asked: is this
+complexity worth it? I believe the answer is yes. Simple projects get the job done, but sooner or
+later, they end up wanting more functionality and better performance. Without the discipline to
+accept their limitations, these projects are inevitably rewritten as they grow organically. I prefer
+the philosophy of writing things once and getting them right the first time. If "right" still comes
+with compromises as is almost always the case, then those compromises must be accepted and core
 functionality changes rejected in order to maintain the original vision. Core changes are what v2
 projects are for—in other words, Ringboard is Gnome Clipboard History's v2.
 
@@ -543,19 +549,20 @@ could help, but I haven't thought deeply about it.
 
 ### Error handling still sucks, especially in GUIs
 
-I'm tired of writing `map_err` every two seconds to provide context on why the error occurred. And
+I'm tired of writing `map_err` every two seconds to provide context on why an error occurred. And
 no, being lazy and just returning the `io::Error` as is so you get a `File not found` error with no
-file path with which to debug is not acceptable. In GUIs, the story gets even more annoying: not
-only does any external action need to handle errors, but you then need a dedicated place in the GUI
-to display those errors so the app doesn't just silently do nothing. Testing it is a nightmare
-because the errors never happen in practice so you have to temporarily comment out the working code
-to return fake errors. Sometimes I wonder if `.expect`ing everything might be the way to go.
+file path to tell you where the error came from is not acceptable. In GUIs, the story gets even more
+annoying: not only does any external action need to handle errors, but you then need a dedicated
+place in the GUI to display those errors so the app doesn't just silently do nothing. Testing it is
+a nightmare because the errors never happen in practice so you have to temporarily comment out the
+working code to return fake errors. Sometimes I wonder if `.expect`ing everything might be the way
+to go.
 
 ### Writing GUIs that spark joy is a pain, especially in Rust
 
 Until our Lord and Savior Raph Levien blesses us all with
 [glorious Rust GUI](https://linebender.org/), simpletons like me live in existential agony
-desperately trying to smooth out a stuttering, buggy mess of a GUI that looks like it came from a
+desperately trying to smooth out a stuttering, buggy mess of a GUI that looks like it came from an
 engineer's nightmarish disdain for any form over function. I hate GUIs. So much.
 
 `egui` in particular just isn't ready for real-world UIs: achieving desired behavior is buggy and
@@ -565,7 +572,7 @@ all UI is cursed.
 ## Conclusion
 
 Hopefully this overview of Ringboard provides adequate insights into its inner workings and the
-reasoning behind its design choices. My hope is for the design to support communities around each
-client implementation such that I need not be involved in their development.
+reasoning behind its design choices. In a perfect world, Ringboard's design is flexible enough to
+support self-sustaining communities around each client implementation.
 
 Happy copying!
