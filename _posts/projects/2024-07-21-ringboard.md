@@ -341,8 +341,8 @@ of choice. :)
 As mentioned above, the clipboard operates on a pull model: when someone wishes to paste, the
 current program asks whichever program owns the clipboard for its contents. This means that the
 clipboard owner must live at least long enough for the compositor to make a copy of the clipboard
-contents, and must live indefinitely if the program wishes to provide a full pasting experience
-providing multiple mime types.
+contents, and must live indefinitely if the program wishes to provide a full pasting experience with
+multiple mime types.
 
 Thus, another server was needed to own the clipboard for a Ringboard entry, thereby reconciling the
 contradictory short-lived nature of a client and long-lived nature of a pasting program. Since the
@@ -355,13 +355,13 @@ connection-less Unix socket.
 
 ### GUI startup latency and long-lived client windows
 
-Initializing a GUI can be quite slow: on the order of a few hundred milliseconds. Since this brief
-pause in someone's train of thought while trying to paste a previous clipboard entry would be
-extremely annoying, some clients (namely GUIs) make their windows invisible when closed rather than
-completely quitting. To reopen the window, a special file can be deleted which wakes the GUI via
-[inotify](https://man7.org/linux/man-pages/man7/inotify.7.html). If, instead, a new instance of the
-GUI is opened, this special file is used to first check for a previously running instance of the GUI
-and kill it if it exists.
+Initializing a GUI can be quite slow (especially in X11): on the order of a few hundred
+milliseconds. Since this brief pause in someone's train of thought while trying to paste a previous
+clipboard entry would be extremely annoying, GUI clients make their windows invisible when closed
+rather than completely quitting. To reopen the window, a special file can be deleted which wakes the
+GUI via [inotify](https://man7.org/linux/man-pages/man7/inotify.7.html). If, instead, a new instance
+of the GUI is opened, this special file is used to first check for a previously running instance of
+the GUI and kill it if it exists.
 
 ## Advanced features
 
