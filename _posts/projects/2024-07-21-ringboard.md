@@ -181,6 +181,27 @@ size) or a direct file allocation. Moving an entry either does nothing in the ca
 allocations or renames the direct file for direct allocations. Deleting an entry simply marks a slot
 in the arena as being free or deletes the direct allocation file.
 
+### Directory structure
+
+<p></p>
+
+```
+~/.local/share/clipboard-history/
+├── buckets
+│   ├── (0, 4]
+│   ├── (4, 8]
+│   ├── ...
+│   ├── (1024, 2048]
+│   └── (2048, 4096)
+├── direct
+│   ├── ...
+│   └── 0004294985353
+├── main.ring
+├── favorites.ring
+├── free-lists
+└── server.lock
+```
+
 ## The server
 
 The server's only job is to handle writes to the database. In fact, the server is the *only* process
