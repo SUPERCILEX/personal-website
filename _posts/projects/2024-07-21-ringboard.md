@@ -13,20 +13,19 @@ redirect_from:
 ---
 
 [Ringboard](https://github.com/SUPERCILEX/clipboard-history) is a simple yet powerful clipboard
-manager, designed for Linux to be desktop environment (DE) agnostic. It is implemented using a
-client-server architecture (with a
-[Unix Domain Socket](https://man7.org/linux/man-pages/man7/unix.7.html)) which enables using a
-command line interface (CLI) for lower level operations, a terminal user interface (TUI) for a
+manager, designed for Linux to be desktop environment (DE) agnostic. Ringboard strives to be as
+efficient as possible, use a minimal constant amount of memory, scale to massive clipboards, and be
+composable with the rest of the ecosystem. It is implemented using a client-server architecture
+(with a [Unix Domain Socket](https://man7.org/linux/man-pages/man7/unix.7.html)) which enables using
+a command line interface (CLI) for lower level operations, a terminal user interface (TUI) for a
 convenient yet unobtrusive interface, and various graphical user interfaces (GUIs). Currently, the
 clients include a stand-alone GUI implemented using [egui](https://github.com/emilk/egui) and a TUI
 implemented using [ratatui](https://github.com/ratatui-org/ratatui) with plans for a
 [COSMIC](https://github.com/pop-os/cosmic-epoch) applet
 ([issue](https://github.com/SUPERCILEX/clipboard-history/issues/11)) and
 [Gnome extension](https://extensions.gnome.org/about/)
-([issue](https://github.com/SUPERCILEX/clipboard-history/issues/16)). Ringboard strives to be as
-efficient as possible, use a minimal constant amount of memory, scale to massive clipboards, and be
-composable with the rest of the ecosystem. In brief, it hopes to become The One Clipboard manager
-for Linux.
+([issue](https://github.com/SUPERCILEX/clipboard-history/issues/16)). Ringboard aims to be the best
+clipboard manager for Linux.
 
 * TOC
 {:toc}
@@ -59,15 +58,15 @@ To be fair, none of this is particularly impressive from the perspective of a da
 However, in the world of clipboard managers where data is usually stored as a single JSON/XML file
 or not at all, this design is comparatively advanced. As noted earlier, there is a key domain
 specific property Ringboard takes advantage of that makes it more efficient than any general purpose
-database: data can be deleted transparently, thus making the data set size bounded.
+database: data can be deleted transparently.
 
 ## Background
 
 Ringboard has ancestral roots in my [Gnome Clipboard History](https://alexsaveau.dev/blog/gch) (GCH)
 extension which was implemented as an append-only log. GCH's log is unfortunately not
 [self-synchronizing](https://en.wikipedia.org/wiki/Self-synchronizing_code) as there are back
-pointers with arbitrary locations, meaning you have to read the entire log and apply operations in
-order to accurately reconstruct the database.
+pointers with arbitrary locations, meaning you have to read the entire log and apply operations
+sequentially in order to accurately reconstruct the database.
 
 Since I was finally able to use Rust for this next generation clipboard manager, I wanted to find a
 way to use the [mmap syscall](https://man7.org/linux/man-pages/man2/mmap.2.html) such that I could
@@ -77,9 +76,8 @@ that the entire database is in memory while in reality only a few pages' worth o
 you can have your cake and eat it too!
 
 The key idea improving upon GCH was to split metadata and data so that each entry's metadata is a
-fixed size. This and other insights—including some light data analysis on my clipboard—leading to
-the final design described in this article are available
-[here](https://github.com/SUPERCILEX/clipboard-history/issues/3).
+fixed size. This and other insights leading to the final design described in this article are
+available [here](https://github.com/SUPERCILEX/clipboard-history/issues/3).
 
 ## System architecture
 
@@ -106,7 +104,7 @@ A Ringboard metadata store consists of 4-byte entries arranged in a fixed length
 entries yet, adding a new entry appends to the metadata file. Once the maximum has been reached, we
 cycle around and begin overwriting previous entries. Deletions and moves are handled by
 uninitializing the old entry (skipping over such tombstone entries while reading), and
-(un)favoriting is handled by moving the entry between rings.
+(un)favoriting is handled by moving the entry between metadata rings.
 
 Every ring includes a header with a 3 byte file signature (chosen by
 [a fair dice roll](https://xkcd.com/221/) of course), the ring's version (for future compatibility),
@@ -174,7 +172,8 @@ there being no metadata storage for bucket allocations. File mime types are stor
 attributes (which should be
 [stored in the inode itself when small](https://kernel.org/doc/html/latest/filesystems/ext4/dynamic.html#extended-attributes)).
 
-To avoid wasting too much space for large entries, they are allocated as one file per entry.
+Entries 4096 bytes or larger are allocated as one file per entry to avoid paying the 25% wasted
+space tax—they pay the O(1) inode plus directory entry cost instead.
 
 Ring entries point to either a bucket allocation (implicitly choosing a size class via the entry
 size) or a direct file allocation. Moving an entry either does nothing in the case of bucket
@@ -205,10 +204,10 @@ in the arena as being free or deletes the direct allocation file.
 ## The server
 
 The server's only job is to handle writes to the database. In fact, the server is the *only* process
-ever allowed to modify the database. Therefore, the server sits around waiting for commands from
-clients. A client could be a Wayland or X11 clipboard listener for example which will inform us when
-the user has copied something. Clients can also be GUIs that wish to modify the database or get
-notified of changes.
+ever allowed to modify the database. However, it does not decide what to write down and therefore
+sits around waiting for commands from clients. A client could be a Wayland or X11 clipboard listener
+for example which will inform us when the user has copied something. Clients can also be GUIs that
+wish to modify the database or get notified of changes.
 
 The server is implemented as a single-threaded event loop using
 [io_uring](https://man7.org/linux/man-pages/man7/io_uring.7.html).
@@ -259,11 +258,10 @@ io_uring and handle graceful shutdown alongside the rest of the event loop. No n
 code, threads, or pipes to handle signals! The server's simplicity is driven by the ability to write
 a clean event loop.
 
-Another nicety central to the server's low memory usage is io_uring's bounded nature. Queues and
-buffers have a fixed size, meaning io_uring code can rely on a known capacity for external inputs.
-If clients overload the server, io_uring simply fails the request. This leads to natural
-backpressure, where (for example) if clients don't reap replies fast enough, their send budget will
-be reduced.
+io_uring's bounded nature enables the server's low memory usage. Queues and buffers have a fixed
+size, meaning io_uring code can rely on a known capacity for external inputs. If clients overload
+the server, io_uring simply fails the request. This leads to natural backpressure, where (for
+example) if clients don't reap replies fast enough, their send budget will be reduced.
 
 ### A note on `mmap` semantics
 
