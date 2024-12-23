@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,6 +32,7 @@ jobs:
           SERVED_LOCALLY=true .build/build_site.sh
         env:
           PAGES_REPO_NWO: ${{ github.repository }}
+          JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
       - name: Validate HTML
         run: |
           bundle exec htmlproofer --assume-extension \
@@ -59,7 +60,7 @@ jobs:
 
   perf:
     needs: validate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
