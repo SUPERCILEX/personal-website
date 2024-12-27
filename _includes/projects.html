@@ -1,7 +1,7 @@
 {% assign num_pub_repos = site.github.public_repositories | size %}
 {% if num_pub_repos != 0 %}
 <h2 id="projects" class="text-defaults">Projects</h2>
-<p class="f4 mb-4 text-gray">GitHub repositories I've built.</p>
+<p></p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   {% if site.projects.sort_by == 'stars' %}
     {% assign sort_order = 'stargazers_count', 'last' %}
@@ -27,7 +27,8 @@
     {% endunless %}
   {% endfor %}
 </div>
-<p class="f4 mb-4 text-gray">GitHub repositories I've helped build.</p>
+
+<p class="f4 mb-4 text-gray">Third party projects</p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   {% for data in site.data %}
     {% for repository in data %}

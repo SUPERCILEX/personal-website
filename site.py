@@ -22,7 +22,7 @@ class AliasedGroup(click.Group):
         ctx.fail('Too many matches: %s' % ', '.join(sorted(matches)))
 
 
-@click.group(cls=AliasedGroup, context_settings={'help_option_names': ['-h', '--help']})
+@click.group(cls=AliasedGroup, context_settings={'help_option_names': ['-?', '-h', '--help']})
 def cli():
     """
     The site CLI provides common utilities in one unified place.
