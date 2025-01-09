@@ -11,6 +11,9 @@ redirect_from:
   - /blog/fastest-cp/
 ---
 
+> Update: the ideas from this post have been implemented in
+> [Fast Unix Commands](https://github.com/SUPERCILEX/fuc/tree/master/cpz).
+
 I'm on a mission to find the fastest way to copy and delete files on a modern machine. I thought a
 quick Google search would reveal the answer, but I only found this
 [Stack Overflow post](https://stackoverflow.com/questions/7463689/most-efficient-way-to-copy-a-file-in-linux)
