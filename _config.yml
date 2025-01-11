@@ -75,6 +75,13 @@ projects:
     forks: true
     projects:
       - personal-website
+      - ncdu
+      - cli-errors
+      - stack-buffer
+      - issue-mcve
+      - mason-check-in-kiosk
+      - mason-cli
+      - rick-troller
 
 # External repositories
 jekyll_get_json:

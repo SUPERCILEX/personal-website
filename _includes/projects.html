@@ -28,6 +28,20 @@
   {% endfor %}
 </div>
 
+{% if site.projects.exclude.archived %}
+<p class="f4 mb-4 text-gray">Archived projects</p>
+<div class="d-sm-flex flex-wrap gutter-condensed mb-4">
+  {% assign archived_repos = site.github.public_repositories | where:'fork', false | sort: sort_order | reverse %}
+  {% for repository in archived_repos | limit: site.projects.limit %}
+    {% unless site.projects.exclude.projects contains repository.name or filtered_repos contains repository %}
+      <div class="col-sm-6 col-md-12 col-lg-6 col-xl-4 mb-3">
+        {% include repo-card.html %}
+      </div>
+    {% endunless %}
+  {% endfor %}
+</div>
+{% endif %}
+
 <p class="f4 mb-4 text-gray">Third party projects</p>
 <div class="d-sm-flex flex-wrap gutter-condensed mb-4">
   {% for data in site.data %}
