@@ -265,11 +265,12 @@ example) if clients don't reap replies fast enough, their send budget will be re
 
 ### A note on `mmap` semantics
 
-Memory mapped file coherence is simply delightful on Linux. Barring wonky CPU architectures, file
-modifications through syscalls like `write` will be reflected in the file mapped memory of any
-process. This is important because it allows us to mmap more memory than exists in the file! In
-fact, the ring mmaps enough space to hold the maximum number entries, even though the ring on disk
-may be completely empty.
+Memory mapped file coherence is simply delightful on Linux. Barring
+[wonky CPU architectures](https://yarchive.net/comp/linux/mmap_portability.html), file modifications
+through syscalls like `write` will be reflected in the file mapped memory of any process. This is
+important because it allows us to mmap more memory than exists in the file! In fact, the ring mmaps
+enough space to hold the maximum number entries, even though the ring on disk may be completely
+empty.
 
 The coherence between virtual memory and files enables us to avoid remapping the ring whenever it
 grows—we use standard `write` syscalls to write past the end of the ring and those changes are then
