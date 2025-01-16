@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://alexsaveau.dev/feed.xml" rel="self" type="application/atom+xml" /><link href="https://alexsaveau.dev/" rel="alternate" type="text/html" /><updated>2025-01-16T04:23:44+00:00</updated><id>https://alexsaveau.dev/feed.xml</id><title type="html">Alex Saveau</title><subtitle>https://alexsaveau.dev</subtitle><author><name>Alex Saveau</name></author><entry><title type="html">Ringboard: the infinitely scalable clipboard manager for Linux</title><link href="https://alexsaveau.dev/blog/projects/performance/clipboard/ringboard/ringboard" rel="alternate" type="text/html" title="Ringboard: the infinitely scalable clipboard manager for Linux" /><published>2024-07-21T00:00:00+00:00</published><updated>2025-01-15T02:09:28+00:00</updated><id>https://alexsaveau.dev/blog/projects/performance/clipboard/ringboard/ringboard</id><content type="html" xml:base="https://alexsaveau.dev/blog/projects/performance/clipboard/ringboard/ringboard"><![CDATA[<p><a href="https://github.com/SUPERCILEX/clipboard-history">Ringboard</a> is a simple yet powerful clipboard
+manager, designed for Linux to be desktop environment (DE) agnostic. Ringboard strives to be as
+efficient as possible, use a minimal constant amount of memory, scale to massive clipboards, and be
+composable with the rest of the ecosystem. It is implemented using a client-server architecture
+(with a <a href="https://man7.org/linux/man-pages/man7/unix.7.html">Unix Domain Socket</a>) which enables using
+a command line interface (CLI) for lower level operations, a terminal user interface (TUI) for a
+convenient yet unobtrusive interface, and various graphical user interfaces (GUIs). Currently, the
+clients include a stand-alone GUI implemented using <a href="https://github.com/emilk/egui">egui</a> and a TUI
+implemented using <a href="https://github.com/ratatui-org/ratatui">ratatui</a> with plans for a
+<a href="https://github.com/pop-os/cosmic-epoch">COSMIC</a> applet
+(<a href="https://github.com/SUPERCILEX/clipboard-history/issues/11">issue</a>) and
+<a href="https://extensions.gnome.org/about/">Gnome extension</a>
+(<a href="https://github.com/SUPERCILEX/clipboard-history/issues/16">issue</a>). Ringboard aims to be the best
+clipboard manager for Linux.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#introduction" id="markdown-toc-introduction">Introduction</a></li>
+  <li><a href="#background" id="markdown-toc-background">Background</a></li>
+  <li><a href="#system-architecture" id="markdown-toc-system-architecture">System architecture</a>    <ul>
+      <li><a href="#the-ring" id="markdown-toc-the-ring">The ring</a>        <ul>
+          <li><a href="#ring-entries" id="markdown-toc-ring-entries">Ring entries</a></li>
+        </ul>
+      </li>
+      <li><a href="#the-data-store" id="markdown-toc-the-data-store">The data store</a></li>
+      <li><a href="#directory-structure" id="markdown-toc-directory-structure">Directory structure</a></li>
+    </ul>
+  </li>
+  <li><a href="#the-server" id="markdown-toc-the-server">The server</a>    <ul>
+      <li><a href="#protocol" id="markdown-toc-protocol">Protocol</a></li>
+      <li><a href="#recovering-from-unexpected-shutdowns" id="markdown-toc-recovering-from-unexpected-shutdowns">Recovering from unexpected shutdowns</a></li>
+      <li><a href="#rings-rings-everywhere" id="markdown-toc-rings-rings-everywhere">Rings, rings everywhere</a></li>
+      <li><a href="#a-note-on-mmap-semantics" id="markdown-toc-a-note-on-mmap-semantics">A note on <code class="language-plaintext highlighter-rouge">mmap</code> semantics</a></li>
+    </ul>
+  </li>
+  <li><a href="#clients" id="markdown-toc-clients">Clients</a>    <ul>
+      <li><a href="#receiving-copied-items-via-wayland-or-x11" id="markdown-toc-receiving-copied-items-via-wayland-or-x11">Receiving copied items via Wayland or X11</a>        <ul>
+          <li><a href="#an-aside-on-the-nature-of-clipboards-which-mime-type-to-use" id="markdown-toc-an-aside-on-the-nature-of-clipboards-which-mime-type-to-use">An aside on the nature of clipboards: which mime type to use?</a></li>
+        </ul>
+      </li>
+      <li><a href="#pasting-items" id="markdown-toc-pasting-items">Pasting items</a></li>
+      <li><a href="#gui-startup-latency-and-long-lived-client-windows" id="markdown-toc-gui-startup-latency-and-long-lived-client-windows">GUI startup latency and long-lived client windows</a></li>
+    </ul>
+  </li>
+  <li><a href="#advanced-features" id="markdown-toc-advanced-features">Advanced features</a>    <ul>
+      <li><a href="#search" id="markdown-toc-search">Search</a></li>
+      <li><a href="#garbage-collection" id="markdown-toc-garbage-collection">Garbage collection</a></li>
+      <li><a href="#ring-resizing" id="markdown-toc-ring-resizing">Ring resizing</a></li>
+    </ul>
+  </li>
+  <li><a href="#flaws" id="markdown-toc-flaws">Flaws</a>    <ul>
+      <li><a href="#blocking-reads" id="markdown-toc-blocking-reads">Blocking reads</a></li>
+      <li><a href="#database-reliability" id="markdown-toc-database-reliability">Database reliability</a>        <ul>
+          <li><a href="#local-corruption" id="markdown-toc-local-corruption">Local corruption</a></li>
+          <li><a href="#raciness" id="markdown-toc-raciness">Raciness</a></li>
+        </ul>
+      </li>
+      <li><a href="#error-handling-and-malicious-actors" id="markdown-toc-error-handling-and-malicious-actors">Error handling and malicious actors</a></li>
+      <li><a href="#complexity" id="markdown-toc-complexity">Complexity</a></li>
+    </ul>
+  </li>
+  <li><a href="#random-whining" id="markdown-toc-random-whining">Random whining</a>    <ul>
+      <li><a href="#writing-fast-and-maintainable-code-is-still-stinkin-impossible" id="markdown-toc-writing-fast-and-maintainable-code-is-still-stinkin-impossible">Writing fast <em>and</em> maintainable code is still stinkin’ impossible</a></li>
+      <li><a href="#error-handling-still-sucks-especially-in-guis" id="markdown-toc-error-handling-still-sucks-especially-in-guis">Error handling still sucks, especially in GUIs</a></li>
+      <li><a href="#writing-guis-that-spark-joy-is-a-pain-especially-in-rust" id="markdown-toc-writing-guis-that-spark-joy-is-a-pain-especially-in-rust">Writing GUIs that spark joy is a pain, especially in Rust</a></li>
+    </ul>
+  </li>
+  <li><a href="#conclusion" id="markdown-toc-conclusion">Conclusion</a></li>
+</ul>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Ringboard supports copying arbitrary data—that includes images, PowerPoint slides, or anything else
+you might conceive of. In fact, Ringboard is a byte-oriented database masquerading as a clipboard
+manager. The core technology is founded upon the following axioms:</p>
+
+<ul>
+  <li>Data is (mostly) append-only.</li>
+  <li>The primary operation is insert.</li>
+  <li>Old entries may be deleted transparently.</li>
+  <li>There is an arbitrary upper bound on the number of entries.</li>
+</ul>
+
+<p>These axioms lead to the theorem driving Ringboard’s technical decisions: the number of entries
+stored in Ringboard approaches the maximum entry count as a user uses the clipboard. An important
+corollary is that insertion also requires deletion with high probability. Therefore, Ringboard is
+implemented as a disk-backed ring allocator with the freedom to delete old data whenever the
+allocator runs out of space.</p>
+
+<p>As you will see, Ringboard scales “infinitely” in the sense that we never need to hold the entirety
+of the database in memory at once, so we are limited only by disk storage space. In practice,
+Ringboard holds almost none of the database in memory, using just a few hundred KiBs of memory. Only
+reading the necessary parts of the database makes both client and server startup times extremely
+fast—less than 50ms in my benchmarks. In brief, Ringboard can effortlessly handle millions of
+entries.</p>
+
+<p>To be fair, none of this is particularly impressive from the perspective of a database implementer.
+However, in the world of clipboard managers where data is usually stored as a single JSON/XML file
+or not at all, this design is comparatively advanced. As noted earlier, there is a key domain
+specific property Ringboard takes advantage of that makes it more efficient than any general purpose
+database: data can be deleted transparently.</p>
+
+<h2 id="background">Background</h2>
+
+<p>Ringboard has ancestral roots in my <a href="https://alexsaveau.dev/blog/gch">Gnome Clipboard History</a> (GCH)
+extension which was implemented as an append-only log. GCH’s log is unfortunately not
+<a href="https://en.wikipedia.org/wiki/Self-synchronizing_code">self-synchronizing</a> as there are back
+pointers with arbitrary locations, meaning you have to read the entire log and apply operations
+sequentially in order to accurately reconstruct the database.</p>
+
+<p>Since I was finally able to use Rust for this next generation clipboard manager, I wanted to find a
+way to use the <a href="https://man7.org/linux/man-pages/man2/mmap.2.html">mmap syscall</a> such that I could
+both have the entirety of the clipboard database available through memory accesses while also not
+requiring that data to be held in volatile memory. In other words, Ringboard lives with the illusion
+that the entire database is in memory while in reality only a few pages’ worth of it are—turns out
+you can have your cake and eat it too!</p>
+
+<p>The key idea improving upon GCH was to split metadata and data so that each entry’s metadata is a
+fixed size. This and other insights leading to the final design described in this article are
+available <a href="https://github.com/SUPERCILEX/clipboard-history/issues/3">here</a>.</p>
+
+<h2 id="system-architecture">System architecture</h2>
+
+<p>Ringboard supports two kinds of clipboard entries: normal and favorites. Favorited entries are
+always visible and should stick around even if we need to start deleting normal entries. Thus,
+Ringboard is really <code class="language-plaintext highlighter-rouge">N</code> ring allocators with a shared backing store. While the full generalization
+hasn’t been implemented, this architecture enables the possibility of tagging entries (each tag is
+its own ring). Currently, <code class="language-plaintext highlighter-rouge">N=2</code> is hardcoded to support the normal ring and the favorites ring.</p>
+
+<p>Each ring holds the metadata for its entries. The backing data store is shared between rings and
+consists of a file per entry for large entries or a slot from an arena allocation for small entries.
+A diagram will hopefully be easier to understand:</p>
+
+<div style="background-color: #121212; padding-left: 10px; padding-right: 10px">
+
+
+
+
+
+  
+
+
+
+
+  <a href="/assets/resized/projects/ringboard/system-architecture-min.svg"><img class="article-image" src="/assets/resized/projects/ringboard/system-architecture-min.svg" width="581" height="351" alt="Architecture block diagram" loading="lazy" /></a>
+
+
+
+
+</div>
+
+<p>Note that I use the terms arena and bucket to mean the same thing (probably incorrectly).</p>
+
+<h3 id="the-ring">The ring</h3>
+
+<p>A Ringboard metadata store consists of 4-byte entries arranged in a fixed length ring buffer
+(resizing is discussed <a href="#ring-resizing">later</a>). If the user doesn’t have the maximum number of
+entries yet, adding a new entry appends to the metadata file. Once the maximum has been reached, we
+cycle around and begin overwriting previous entries. Deletions and moves are handled by
+uninitializing the old entry (skipping over such tombstone entries while reading), and
+(un)favoriting is handled by moving the entry between metadata rings.</p>
+
+<p>Every ring includes a header with a 3 byte file signature (chosen by
+<a href="https://xkcd.com/221/">a fair dice roll</a> of course), the ring’s version (for future compatibility),
+and finally the write head (i.e. where the next entry should be written). The ring never shrinks and
+therefore does not need a tail pointer as the tail is implicitly encoded as the write head (while
+the head pointer is technically the write head minus one).</p>
+
+<h4 id="ring-entries">Ring entries</h4>
+
+<p>Ring entries are a fixed size because this gives us a critical ability: the UI can perform simple
+pointer arithmetic with the write head to retrieve the N most recent entries. For example,
+displaying the last 100 entries requires reading just 400 bytes from disk—that’s a single disk block
+(or two if you’re unlucky and straddle two blocks). Compared to <a href="#background">GCH</a> and all other
+clipboard implementations I’ve looked at, this is by far the most efficient implementation for
+showing the N most recent entries. Most other clipboards must read in the entire database on
+startup, limiting scalability.</p>
+
+<p>An important tradeoff to consider with fixed size entries is precisely the fact that they have a
+fixed size. Too much space for information and suddenly storing metadata becomes expensive, too
+little and it is no longer useful. I hope you’ll agree that 4 bytes is fairly space efficient:</p>
+
+<ul>
+  <li>For small entries, the lower 12 bits store the size (in bytes) of the entry while the upper 20
+bits store the location of the entry in its size bucket (see the next section for the data store
+implementation).</li>
+  <li>For large entries, the lower 12 bits are all zeros while the upper 20 bits simply need to be
+non-zero, but are otherwise unused currently.</li>
+  <li>Unallocated entries contain all zeros.</li>
+</ul>
+
+<p>In diagram form:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>             [     20 bits     |    12 bits   ]
+   Bucketed: [ Index in bucket | Entry length ]
+Direct file: [     Non zero    |   All zero   ]
+Unallocated: [            All zero            ]
+</code></pre></div></div>
+
+<p>Note that this encoding imposes a hard limit on the maximum number of representable entries:
+2<sup>20</sup>’s worth. While a million entries should be more than enough, the all ones pattern in
+the upper 20 bits is reserved as an escape hatch to mean “this is an 8 byte entry,” thereby
+theoretically allowing more than ~1M entries even though such a feature hasn’t been implemented.</p>
+
+<h3 id="the-data-store">The data store</h3>
+
+<p>At the end of the day, the data store is a glorified memory allocator and thus similar tradeoffs
+apply.</p>
+
+<p>Storing entries contiguously is best for space efficiency, but leaves holes when entries are
+deleted. Holes could be avoided with generations, but now you must wait a very long time to truly
+delete an entry or face expensive compaction wherein all following entries must be moved.</p>
+
+<p>Storing one entry per file is convenient but extremely inefficient for small entries due to the
+overhead of an inode.</p>
+
+<p>Thus, I settled on arena style allocation where entries are bucketed into size classes and allocated
+from their respective arenas. In expectation, assuming a uniform entry length distribution (this is
+wrong, but close enough), about 25% of each bucket will be wasted space. The benefit is that holes
+from deleted entries can be filled in O(1) time. Was this the right choice? Probably? I still wonder
+if generations would have been better.</p>
+
+<p>Specifically, there are 11 size classes in powers of two from 4 to 4096. Entries larger than that
+are stored in a file named by the composite ID of the entry (its ring ID and position in the ring).
+Any entry with a non-plaintext mime type is also stored in a file regardless of its size due to
+there being no metadata storage for bucket allocations. File mime types are stored in extended file
+attributes (which should be
+<a href="https://kernel.org/doc/html/latest/filesystems/ext4/dynamic.html#extended-attributes">stored in the inode itself when small</a>).</p>
+
+<p>Entries 4096 bytes or larger are allocated as one file per entry to avoid paying the 25% wasted
+space tax—they pay the O(1) inode plus directory entry cost instead.</p>
+
+<p>Ring entries point to either a bucket allocation (implicitly choosing a size class via the entry
+size) or a direct file allocation. Moving an entry either does nothing in the case of bucket
+allocations or renames the direct file for direct allocations. Deleting an entry simply marks a slot
+in the arena as being free or deletes the direct allocation file.</p>
+
+<h3 id="directory-structure">Directory structure</h3>
+
+<p></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.local/share/clipboard-history/
+├── buckets
+│   ├── (0, 4]
+│   ├── (4, 8]
+│   ├── ...
+│   ├── (1024, 2048]
+│   └── (2048, 4096)
+├── direct
+│   ├── ...
+│   └── 0004294985353
+├── main.ring
+├── favorites.ring
+├── free-lists
+└── server.lock
+</code></pre></div></div>
+
+<h2 id="the-server">The server</h2>
+
+<p>The server’s only job is to handle writes to the database. In fact, the server is the <em>only</em> process
+ever allowed to modify the database. However, it does not decide what to write down and therefore
+sits around waiting for commands from clients. A client could be a Wayland or X11 clipboard listener
+for example which will inform us when the user has copied something. Clients can also be GUIs that
+wish to modify the database or get notified of changes.</p>
+
+<p>The server is implemented as a single-threaded event loop using
+<a href="https://man7.org/linux/man-pages/man7/io_uring.7.html">io_uring</a>.</p>
+
+<h3 id="protocol">Protocol</h3>
+
+<p>Importantly for performance, the server never sends data to clients. Instead, clients use a library
+for interfacing with the database in a read-only manner, thereby avoiding any bottlenecks in the
+server. Currently, clients don’t react to changes in the database, but
+<a href="https://github.com/SUPERCILEX/clipboard-history/issues/12">there are plans</a> to keep clients
+up-to-date by having the server broadcast change details as they occur. For rare commands that
+change a large portion of the database (like garbage collection), clients would be told to reload
+the entire database. In practice, the primary flow would consist of a user copying something, the
+server getting notified via a client, and finally broadcasting the event to subscribed clients.
+Notice that if a client does not subscribe to updates or make modifications, it need not even
+connect to the server.</p>
+
+<p>The command protocol consists simply of the in-memory representation of the command structs. To
+maintain forward compatibility, the client and server exchange protocol versions with each other and
+reject the connection if they do not match. This avoids issues when a client is running a newer
+binary than the server or vice versa. Perhaps in the future there may be a case for supporting
+backward compatibility, but for the moment the client and server must be built with strictly the
+same protocol.</p>
+
+<h3 id="recovering-from-unexpected-shutdowns">Recovering from unexpected shutdowns</h3>
+
+<p>To avoid wasting disk writes, the server keeps the list of free arena slots in-memory and
+(de)serializes them only on startup/shutdown. The free slots only being up-to-date in memory means
+that if you lose power while Ringboard is running, we’ll have no idea which slots are free.</p>
+
+<p>A lock file is therefore used to detect unclean shutdowns: it is created when the server is started
+and explicitly deleted when the server is shut down through the happy path. Thus, any unexpected
+halt can be detected by the presence of the lock file. As a bonus, the lock file is also used to
+prevent multiple server instances from running concurrently.</p>
+
+<p>If an unclean shutdown is detected on startup, the server will stream through every ring, building
+an allocation bitset to compute free bucket slot indices.</p>
+
+<p>Note that there is no recovery from corruption due to failure while writing entries, but any
+potential corruption is localized. This is discussed <a href="#local-corruption">later</a>.</p>
+
+<h3 id="rings-rings-everywhere">Rings, rings everywhere</h3>
+
+<p>Io_uring—barring a few hiccups early on—has been a pleasure to work with. It made writing an
+efficient single-threaded server a breeze. To illustrate, consider signal handling: using
+<a href="https://man7.org/linux/man-pages/man2/signalfd.2.html"><code class="language-plaintext highlighter-rouge">signalfd</code></a>, we can post a read request to
+io_uring and handle graceful shutdown alongside the rest of the event loop. No need for blocking
+code, threads, or pipes to handle signals! The server’s simplicity is driven by the ability to write
+a clean event loop.</p>
+
+<p>io_uring’s bounded nature enables the server’s low memory usage. Queues and buffers have a fixed
+size, meaning io_uring code can rely on a known capacity for external inputs. If clients overload
+the server, io_uring simply fails the request. This leads to natural backpressure, where (for
+example) if clients don’t reap replies fast enough, their send budget will be reduced.</p>
+
+<h3 id="a-note-on-mmap-semantics">A note on <code class="language-plaintext highlighter-rouge">mmap</code> semantics</h3>
+
+<p>Memory mapped file coherence is simply delightful on Linux. Barring
+<a href="https://yarchive.net/comp/linux/mmap_portability.html">wonky CPU architectures</a>, file modifications
+through syscalls like <code class="language-plaintext highlighter-rouge">write</code> will be reflected in the file mapped memory of any process. This is
+important because it allows us to mmap more memory than exists in the file! In fact, the ring mmaps
+enough space to hold the maximum number entries, even though the ring on disk may be completely
+empty.</p>
+
+<p>The coherence between virtual memory and files enables us to avoid remapping the ring whenever it
+grows—we use standard <code class="language-plaintext highlighter-rouge">write</code> syscalls to write past the end of the ring and those changes are then
+reflected in the mapped memory. More precisely , if user space touches a page that does not have any
+backing bytes in the file, the program will segfault. However, if a non-zero number of bytes map to
+the page, then the entirety of the page becomes valid and the slices which contain no backing data
+are filled with zeros.</p>
+
+<p>But why not write to the mapped memory directly? Setting aside the performance loss of extra page
+faults, Linux offers no guarantees on when newly written data is made visible to the file system.
+Importantly, this means there are no ordering guarantees between writes which is unacceptable for
+database reliability.</p>
+
+<h2 id="clients">Clients</h2>
+
+<p>Ringboard was originally intended to be a single application, but I quickly realized that it would
+be useful to support many different readers and writers at once. To make reading the database fast,
+clients need only interact with the server when they wish to modify data. Clients connect to the
+server via a socket if necessary or use a client SDK to read data from the database. This approach
+allows some clients to avoid ever connecting to the server as they only need to read data.
+Supporting multiple clients also means it is easy to allow saving clipboard entries from X11 or
+Wayland or a CLI etc. Similarly, any number of interfaces to the database can be built for different
+use cases from GUIs to JSON exports.</p>
+
+<h3 id="receiving-copied-items-via-wayland-or-x11">Receiving copied items via Wayland or X11</h3>
+
+<p>Since Ringboard follows a client server architecture, the server knows nothing about the
+clipboard—it is simply a data store. This keeps the server focused, simple, and flexible. Clipboard
+monitoring is instead performed in a small binary whose only task is to listen for clipboard changes
+and send new entries to the server.</p>
+
+<h4 id="an-aside-on-the-nature-of-clipboards-which-mime-type-to-use">An aside on the nature of clipboards: which mime type to use?</h4>
+
+<p>When you copy something, what format is the data in? You might think there is a canonical format for
+copied data, but far from it. Consider something as simple as copying this very sentence. What did
+you just copy? Plain text or HTML? The answer is both, depending on the context. If you paste into a
+word processor, it will try to match the format of whatever you’ve copied and will therefore ask for
+HTML. But if you <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>, you’re asking the word processor
+to paste in plain text so that’s what it will ask for. Fun fact: this is why the code copied from
+your favorite editor comes with that sweet sweet theme styling you worked so hard on. Try it! Copy
+code from your editor, then check the available data formats with
+<code class="language-plaintext highlighter-rouge">xclip -o -target TARGETS -selection clipboard</code>. You should see <code class="language-plaintext highlighter-rouge">text/html</code> in there. Now ask for
+that HTML with <code class="language-plaintext highlighter-rouge">xclip -o -target text/html -selection clipboard</code> and open it in a browser. Lookin’
+good. 😎</p>
+
+<p>The problem for a clipboard manager is that applications holding clipboard data are free to perform
+on-the-fly conversions. For example, Firefox offers a PNG, JPEG, AVIF, HTML, and other formats after
+copying an image. Supposing the clipboard <em>could</em> correctly save all the formats available, it would
+end up with many undesirable duplicate copies of the same entry. Unfortunately, retrieving all
+formats cannot even be done correctly as the owner of the clipboard data is free to do anything they
+like, such as returning different data each time you ask for it or performing lossy conversions (for
+example, copying an SVG in Chrome or Firefox doesn’t let you ask for the SVG and instead only offers
+a PNG conversion). Asking for copied items in every available format to try and capture the
+underlying data therefore isn’t practical or possible.</p>
+
+<p>In fact, the system clipboard faces these same issues. When an application which owns the clipboard
+is closed, there is suddenly no way to ask it for the clipboard data. Thus, the compositor must
+store some version of the clipboard contents in memory so what you’ve copied doesn’t disappear after
+you close the application it was copied from. This process is lossy. It’s why pasting something from
+a closed application can behave differently than when it is open.</p>
+
+<blockquote>
+  <p>Here are some further examples I used to convince myself I was on the right path:</p>
+
+  <ul>
+    <li>When copying something from a web page, it is quite rare to want the HTML version of the text.</li>
+    <li>The same logic applies to copied code: the vast majority of the time, you’re working and not
+trying to paste a pretty version in a slide deck. No point in remembering the pretty version
+forever.</li>
+    <li>When copying files in a file manager, you sometimes want the path and sometimes want to copy the
+file. For cases like this, the file object can be stored as the canonical representation and
+offered as a path by a conversion in our code.</li>
+    <li>The same applies to images: we can store a JXL for example and offer to convert it to a PNG.</li>
+  </ul>
+
+  <p>Finally, it’s worth remembering that Ringboard is a byte oriented database. If it turns out we
+need to store multiple mime types for some specific use case, we could store an entry with a
+special mime type (say <code class="language-plaintext highlighter-rouge">x-special/ringboard-multi</code>) containing a serialized object that describes
+each representation of the entry. The various clients will need code to handle this special mime
+type, not unlike how they have special code to handle <code class="language-plaintext highlighter-rouge">image/*</code> mime types.</p>
+</blockquote>
+
+<p>So what can we do? We guess, unfortunately. That means trying to pick the “best” format available to
+save (which as a reminder isn’t possible because the right format is dependent on the paste
+context). We use heuristics: for example, if an image is available we’ll pick the first mime type
+starting with “image/”. For anything not in our heuristics, we default to picking plain text. As a
+consequence, we need your help to improve these heuristics so they can handle your wonky mime type
+of choice. :)</p>
+
+<h3 id="pasting-items">Pasting items</h3>
+
+<p>As mentioned above, the clipboard operates on a pull model: when someone wishes to paste, the
+current program asks whichever program owns the clipboard for its contents. This means that the
+clipboard owner must live at least long enough for the compositor to make a copy of the clipboard
+contents, and must live indefinitely if the program wishes to provide a full pasting experience with
+multiple mime types.</p>
+
+<p>Thus, another server was needed to own the clipboard for a Ringboard entry, thereby reconciling the
+contradictory short-lived nature of a client and long-lived nature of a pasting program. Since the
+clipboard watcher already talks to the clipboard and is a long-lived daemon, the paste server was
+added alongside it.</p>
+
+<p>The paste server is implemented with a simple
+<a href="https://man7.org/linux/man-pages/man7/epoll.7.html">epoll</a> multiplexing mechanism over a
+connection-less Unix socket.</p>
+
+<h3 id="gui-startup-latency-and-long-lived-client-windows">GUI startup latency and long-lived client windows</h3>
+
+<p>Initializing a GUI can be quite slow (especially in X11): on the order of a few hundred
+milliseconds. Since this brief pause in someone’s train of thought while trying to paste a previous
+clipboard entry would be extremely annoying, GUI clients make their windows invisible when closed
+rather than completely quitting. To reopen the window, a special file can be deleted which wakes the
+GUI via <a href="https://man7.org/linux/man-pages/man7/inotify.7.html">inotify</a>. If, instead, a new instance
+of the GUI is opened, this special file is used to first check for a previously running instance of
+the GUI and kill it if it exists.</p>
+
+<h2 id="advanced-features">Advanced features</h2>
+
+<h3 id="search">Search</h3>
+
+<p>Search is always tricky in settings like these. A full-blown index feels wasteful to maintain and
+store for such little data (even 100K entries at an average of 100 bytes is only 10MB), but scanning
+through the whole database is also ugly. Still, I went with the ugly approach for its minimal
+overhead in the server.</p>
+
+<p>Thanks to our arenas, it is easy to parallelize search in an optimal way for the hardware. Each
+arena is linearly searched on its own thread which means we are performing a (mostly) linear scan of
+the data. The rings are not involved at all. As a consequence, we will search through deleted
+entries and don’t know how long each entry is. If a result is found in a deleted entry, we simply
+ignore it later. As for knowing the length of each entry, the server places a NUL byte at the end of
+each entry for search to stop at. Note that search therefore does not work properly on entries which
+contain NUL bytes as data.</p>
+
+<p>On another thread, the directory of direct allocation files is scanned and each file is searched
+when its mime type suggests the file contains text. Currently, no additional parallelism is used,
+but large files could be searched on their own threads to avoid bottlenecking on direct allocation
+search.</p>
+
+<p>Finally, applications will likely want to know the entry which owns the search result. To do so,
+they build a reverse mapping of bucket slots to entry IDs by scanning through every ring.
+Thankfully, this mapping can be computed in parallel to the search and reused across searches, so is
+not too expensive. Furthermore, if applications do not need the entry ID for something (for example
+they only wish to copy the data somewhere), then there is no need to build this reverse mapping.</p>
+
+<h3 id="garbage-collection">Garbage collection</h3>
+
+<p>Since deleting bucket entries can leave holes anywhere in the relevant arena, we end up with garbage
+bucket slots which hurt search performance and waste space. There is also garbage in the form of
+tombstone entries in the ring, but their numbers are bounded and they are guaranteed to be reused,
+so we do not worry about them.</p>
+
+<p>To determine when to remove dead bucket slots, we have several policies to choose from:</p>
+
+<ul>
+  <li>Do nothing. Under a continuous random process of adding and removing entries, all garbage will
+eventually be reused. Unfortunately, this process also leads to eventually infinite garbage.</li>
+  <li>Always remove the garbage immediately. This wastes a lot of work and disk I/O when new entries
+could have reused an arena slot that was freed not too long ago.</li>
+  <li>Remove garbage on a schedule, for example when the server starts up and every N days thereafter.
+I’m not a fan of startup latency. Additionally, this policy allows garbage to grow unbounded
+between collections.</li>
+  <li>Remove garbage immediately when it’s created, but only if the total amount of garbage exceeds a
+threshold.</li>
+</ul>
+
+<p>I chose the last option because it guarantees an upper bound on the maximum amount of garbage and
+keeps a small amount of useful garbage around. Specifically, when a GC occurs we only remove enough
+garbage to put ourselves under the maximum amount threshold (plus a little more to avoid excessive
+collections), inhibiting a big sawtooth pattern that would occur if all garbage was removed when the
+threshold is exceeded. This makes the removal process more complicated because we must now choose
+<em>which</em> garbage to remove. Since we expect bucket allocation sizes to follow some distribution
+(copying lots of words/phrases is more common than whole paragraphs for example), freed bucket slots
+will therefore also match that distribution (though a distribution change will take time to
+propagate). Thus, we can expect the number of free slots per size class to be approximately uniform
+as the alloc and free distributions pair off. This means we should uniformly remove garbage from
+each size class, one layer at a time.</p>
+
+<p>To minimize disk I/O when removing garbage, we fill unallocated/garbage bucket slots with allocated
+entries from the end of the arena. Once we only have (newly) unallocated slots at the end of an
+arena, we truncate the arena file to drop those dead slots. To further encourage usage of free slots
+near the beginning of the arena, we sort the free lists so that earlier slots are filled first.</p>
+
+<p>A client pass is also available that first deduplicates the entire database before running garbage
+collection for extra space savings. This works by computing a hash of every single entry and when
+two hashes collide, checking to see if the contents of the two entries match, deleting the oldest
+entry if so.</p>
+
+<h3 id="ring-resizing">Ring resizing</h3>
+
+<p>Currently, the maximum number of entries is hardcoded, but
+<a href="https://github.com/SUPERCILEX/clipboard-history/issues/9">there are plans</a> to support changing this
+default after the database has been created.</p>
+
+<h2 id="flaws">Flaws</h2>
+
+<h3 id="blocking-reads">Blocking reads</h3>
+
+<p>Io_uring <a href="https://github.com/axboe/liburing/issues/831">doesn’t support</a> the
+<a href="https://man7.org/linux/man-pages/man2/copy_file_range.2.html"><code class="language-plaintext highlighter-rouge">copy_file_range</code></a> syscall which
+means we can’t copy client data asynchronously using io_uring. Even if <code class="language-plaintext highlighter-rouge">copy_file_range</code> was
+supported, as a practical matter, manually writing a coroutine to make all syscalls on the database
+write path async would be intractable. Thus, database modifications block the entire server, meaning
+one client can DoS the server. This is easy to reproduce by writing some code that asks the server
+to write an entry whose contents is <code class="language-plaintext highlighter-rouge">stdin</code>—the server will be frozen until <code class="language-plaintext highlighter-rouge">stdin</code> is closed.</p>
+
+<p>I don’t believe this is a problem since we assume that clients are cooperative (see
+<a href="#error-handling-and-malicious-actors">below</a>) and therefore assume they will provide the server
+with a non-blocking file. However, if some unforeseen circumstances change the equation, then there
+is a relatively straightforward solution: move the allocator to a background thread and communicate
+with it using SPSC channels. The background thread would write into a pipe whenever it has sent a
+message so that io_uring can wake up and process allocator responses. However, keeping track of
+pending requests and applying backpressure would be complicated, hence why this approach wasn’t
+chosen.</p>
+
+<h3 id="database-reliability">Database reliability</h3>
+
+<p>Both of these issues should be extremely rare (if not impossible) to hit under normal circumstances.
+Nevertheless, their possibility sucks and is sad to think about.</p>
+
+<h4 id="local-corruption">Local corruption</h4>
+
+<p>On disk, the one rule offering some saving grace is that the database as a whole may never be
+corrupted. This is an improvement over Gnome Clipboard History which could be destroyed by a single
+bad bit, but it still means that Ringboard is susceptible to local corruption. Metadata being a
+fixed size means a corrupted entry does not affect the others, but by separating metadata from data
+we introduce a race between changing the data and the metadata. For example, crashing before the
+data has been flushed to disk but after the metadata has flushed will lead to corruption when adding
+an entry.</p>
+
+<p>This could be easily fixed with an <code class="language-plaintext highlighter-rouge">fsync</code>, but there are more complicated cases that can’t be
+solved without journaling: if a non-bucket entry is deleted, its file and ring entry must be
+deallocated, but there is no order in which these operations can be performed without corruption of
+some form given a crash between the two operations. If the metadata is removed first and we crash,
+we’ll forget that we need to delete the data file; if the data is deleted first, then the metadata
+will end up pointing to the void.</p>
+
+<p>Thus, I decided that local ring corruption was acceptable given the enhanced efficiency of not using
+a journal.</p>
+
+<h4 id="raciness">Raciness</h4>
+
+<p>The project’s biggest shortcoming is caused by clients being able to independently read the database
+while it is being modified, leading to inherent race conditions.</p>
+
+<p>In memory, clients do not have any control over writes the server executes, meaning a client could
+be using a buffer the server deallocates. For intended use cases (like garbage collection), this can
+be solved by notifying clients to reload the database, but there could be awkward situations where,
+for example, a client is looking at an old search result that gets overwritten by a new entry. While
+clients should watch for such changes, the possibility for nonsensical memory reads remains.</p>
+
+<p>This case could be solved by having clients ask the server to lock ring ranges or by having the
+server ask clients for permission to modify ring entries (two-phase commit), but I decided that the
+complexity and overhead was unnecessary for a clipboard manager. As a reminder, clients can never
+modify data and therefore memory errors are transient which makes them slightly more acceptable.</p>
+
+<h3 id="error-handling-and-malicious-actors">Error handling and malicious actors</h3>
+
+<p>In general, the Ringboard server takes the view that clients are good citizens and try to share
+resources amongst each other. This unfortunately means that the server doesn’t try particularly hard
+(if at all in many cases) to recover from runtime errors. If something goes wrong, the server will
+simply shut down with an error message (to be clear, the server should never <em>crash</em>, but it is
+allowed to die).</p>
+
+<p>I went with minimal error recovery for two reasons. First, clients <em>want</em> to be good citizens. A
+user is installing clients on their own machine—why install a client that will shoot them in the
+foot? Second, error recovery is <em>hard</em>. You are writing code that will almost never be executed and
+probably requires a convoluted set of conditions to be met before firing. For a clipboard manager, I
+would rather have maintainable code that almost never fails but may need to reboot if things are
+broken than code which must gracefully recover from every I/O error.</p>
+
+<h3 id="complexity">Complexity</h3>
+
+<p>At the end of the day, Ringboard is a very complicated project with a lot of moving pieces and a
+simple sounding goal: remember stuff you’ve copied. Thus, the question must be asked: is this
+complexity worth it? I believe the answer is yes. Simple projects get the job done, but sooner or
+later, they end up wanting more functionality and better performance. Without the discipline to
+accept their limitations, these projects are inevitably rewritten as they grow organically. I prefer
+the philosophy of writing things once and getting them right the first time. If “right” still comes
+with compromises as is almost always the case, then those compromises must be accepted and core
+functionality changes rejected in order to maintain the original vision. Core changes are what v2
+projects are for—in other words, Ringboard is Gnome Clipboard History’s v2.</p>
+
+<h2 id="random-whining">Random whining</h2>
+
+<h3 id="writing-fast-and-maintainable-code-is-still-stinkin-impossible">Writing fast <em>and</em> maintainable code is still stinkin’ impossible</h3>
+
+<p>To get a sense for what I mean, consider an API for a case-insensitive plaintext search API. The
+maintainable version might look something like this:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Results</span> <span class="p">{</span>
+  <span class="nf">do_stuff</span><span class="p">(</span><span class="o">&amp;</span><span class="n">query</span><span class="nf">.to_ascii_lowercase</span><span class="p">()</span><span class="nf">.trim</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The problem is that <code class="language-plaintext highlighter-rouge">to_ascii_lowercase</code> allocates a <code class="language-plaintext highlighter-rouge">String</code> on the heap and all you need at the
+end of the day is an <code class="language-plaintext highlighter-rouge">&amp;str</code>. You look at your call sites and see that they all already have a
+<code class="language-plaintext highlighter-rouge">String</code>, so you decide to reuse it:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Results</span> <span class="p">{</span>
+  <span class="n">query</span><span class="nf">.make_lowercase_ascii</span><span class="p">();</span>
+  <span class="nf">do_stuff</span><span class="p">(</span><span class="n">query</span><span class="nf">.trim</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>But now you want to trim the <code class="language-plaintext highlighter-rouge">query</code> in some places but not others… well too bad because <code class="language-plaintext highlighter-rouge">.trim()</code>
+returns an <code class="language-plaintext highlighter-rouge">&amp;str</code> (as an in-place trim would have to move all the bytes over), so you’re back to
+needing an extra allocation, at the call site this time: <code class="language-plaintext highlighter-rouge">search(query.trim().to_string())</code>. The
+only way to remove the extra allocation is to bleed your requirements across function boundaries:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">query</span><span class="nf">.make_lowercase_ascii</span><span class="p">();</span>
+<span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="nf">.trim</span><span class="p">());</span>
+
+<span class="c1">// …</span>
+
+<span class="k">fn</span> <span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Results</span> <span class="p">{</span>
+  <span class="nd">debug_assert!</span><span class="p">(</span><span class="n">query</span><span class="nf">.is_ascii_lowercase</span><span class="p">());</span>
+  <span class="nf">do_stuff</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This pattern where a caller already has a costly object ready that can’t easily be used in the
+maintainable API shows up all the time in low-level code. I feel like this might be fundamentally
+unsolvable as the API needs to know call site implementation details to be fast. Perhaps
+<a href="https://github.com/rust-lang/rfcs/blob/master/text/1210-impl-specialization.md">specialization</a>
+could help, but I haven’t thought deeply about it.</p>
+
+<h3 id="error-handling-still-sucks-especially-in-guis">Error handling still sucks, especially in GUIs</h3>
+
+<p>I’m tired of writing <code class="language-plaintext highlighter-rouge">map_err</code> every two seconds to provide context on why an error occurred. And
+no, being lazy and just returning the <code class="language-plaintext highlighter-rouge">io::Error</code> as is so you get a <code class="language-plaintext highlighter-rouge">File not found</code> error with no
+file path to tell you where the error came from is not acceptable. In GUIs, the story gets even more
+annoying: not only does any external action need to handle errors, but you then need a dedicated
+place in the GUI to display those errors so the app doesn’t just silently do nothing. Testing it is
+a nightmare because the errors never happen in practice so you have to temporarily comment out the
+working code to return fake errors. Sometimes I wonder if <code class="language-plaintext highlighter-rouge">.expect</code>ing everything might be the way
+to go.</p>
+
+<h3 id="writing-guis-that-spark-joy-is-a-pain-especially-in-rust">Writing GUIs that spark joy is a pain, especially in Rust</h3>
+
+<p>Until our Lord and Savior Raph Levien blesses us all with
+<a href="https://linebender.org/">glorious Rust GUI</a>, simpletons like me live in existential agony
+desperately trying to smooth out a stuttering, buggy mess of a GUI that looks like it came from an
+engineer’s nightmarish disdain for any form over function. I hate GUIs. So much.</p>
+
+<p><code class="language-plaintext highlighter-rouge">egui</code> in particular just isn’t ready for real-world UIs: achieving desired behavior is buggy and
+finicky. Then again, I would say the same thing about Android development and HTML/CSS so perhaps
+all UI is cursed.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Hopefully this overview of Ringboard provides adequate insights into its inner workings and the
+reasoning behind its design choices. In a perfect world, Ringboard’s design is flexible enough to
+support self-sustaining communities around each client implementation.</p>
+
+<p>Happy copying!</p>]]></content><author><name>Alex Saveau</name></author><category term="Projects" /><category term="Performance" /><category term="Clipboard" /><category term="Ringboard" /><summary type="html"><![CDATA[Ringboard is a simple yet powerful clipboard manager, designed for Linux to be desktop environment (DE) agnostic. Ringboard strives to be as efficient as possible, use a minimal constant amount of memory, scale to massive clipboards, and be composable with the rest of the ecosystem. It is implemented using a client-server architecture (with a Unix Domain Socket) which enables using a command line interface (CLI) for lower level operations, a terminal user interface (TUI) for a convenient yet unobtrusive interface, and various graphical user interfaces (GUIs). Currently, the clients include a stand-alone GUI implemented using egui and a TUI implemented using ratatui with plans for a COSMIC applet (issue) and Gnome extension (issue). Ringboard aims to be the best clipboard manager for Linux.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/projects/ringboard/demo.png" /><media:content medium="image" url="https://alexsaveau.dev/assets/projects/ringboard/demo.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Fast Unix Commands</title><link href="https://alexsaveau.dev/blog/projects/performance/files/fuc/fast-unix-commands" rel="alternate" type="text/html" title="Fast Unix Commands" /><published>2023-03-24T00:00:00+00:00</published><updated>2024-01-23T00:53:55+00:00</updated><id>https://alexsaveau.dev/blog/projects/performance/files/fuc/fast-unix-commands</id><content type="html" xml:base="https://alexsaveau.dev/blog/projects/performance/files/fuc/fast-unix-commands"><![CDATA[<p><a href="https://github.com/SUPERCILEX/fuc">Fast Unix Commands</a> (FUC) is a project that aims to create the
+world’s fastest Unix commands. Currently, this means <code class="language-plaintext highlighter-rouge">rm</code> and <code class="language-plaintext highlighter-rouge">cp</code> replacements named <code class="language-plaintext highlighter-rouge">rmz</code> and
+<code class="language-plaintext highlighter-rouge">cpz</code> (the ‘z’ stands for “zippy”). When better performance cannot be achieved, the next highest
+priority is efficiency. In practice, <code class="language-plaintext highlighter-rouge">rmz</code> appears to be the fastest file deleter available
+while <code class="language-plaintext highlighter-rouge">cpz</code> wins in most cases, only losing in flat directory hierarchies.</p>
+
+<h2 id="myth-busting">Myth busting</h2>
+
+<p>Many Stack Overflow answers will tell you to use this or that as a faster alternative to <code class="language-plaintext highlighter-rouge">rm</code>
+or <code class="language-plaintext highlighter-rouge">cp</code>. Let’s look at the <a href="https://github.com/SUPERCILEX/fuc/tree/master/comparisons">data</a>!</p>
+
+<h3 id="rsync">Rsync</h3>
+
+<p>Using <code class="language-plaintext highlighter-rouge">rsync</code> for copying is always slower than <code class="language-plaintext highlighter-rouge">cp</code> as far as I can tell. This should not come as a
+surprise given that it performs data integrity checks. Interestingly enough, <code class="language-plaintext highlighter-rouge">rsync</code> deletes very
+large directories faster than <code class="language-plaintext highlighter-rouge">rm</code>, but is slower in all other cases.</p>
+
+<h3 id="find">Find</h3>
+
+<p><code class="language-plaintext highlighter-rouge">find</code> and <code class="language-plaintext highlighter-rouge">rm</code> are approximately equivalent in terms of performance.</p>
+
+<h3 id="tar">Tar</h3>
+
+<p>Shockingly, collecting a directory into a tarball and then extracting it into a new directory to
+copy it is often faster than <code class="language-plaintext highlighter-rouge">cp</code>.</p>
+
+<h2 id="ecosystem-contributions">Ecosystem contributions</h2>
+
+<p>This project lead to some notable Rust ecosystem contributions:</p>
+
+<ul>
+  <li>Discovering that <code class="language-plaintext highlighter-rouge">MaybeUninit</code> arrays accidentally
+<a href="https://github.com/rust-lang/rust/issues/96274">memset their contents</a>.</li>
+  <li>Improving the stdlib to <a href="https://github.com/rust-lang/rust/pull/93668">avoid allocations</a>
+(in <a href="https://github.com/nix-rust/nix/pull/1655">nix</a> and
+<a href="https://github.com/bytecodealliance/rustix/pull/448">rustix</a> too).</li>
+  <li>Adding APIs for <a href="https://github.com/bytecodealliance/rustix/pull/457">raw directory iteration</a> in
+rustix.</li>
+  <li>Writing a tool that <a href="/blog/ftzz">generates reproducible file trees</a> for benchmarking purposes.</li>
+</ul>
+
+<h2 id="technical-overview">Technical overview</h2>
+
+<p>Both tools are built using the same scheduling algorithm, following similar principles
+to <a href="/blog/ftzz#scheduling-algorithm">FTZZ’s scheduler</a>. The key insight is that file operations in
+separate directories don’t (for the most part) interfere with each other, enabling parallel
+execution. The intuition here is that directories are a shared resource for their direct children
+and must therefore serialize concurrent directory-modifying operations, causing
+<a href="#contention">contention</a>. In brief, file creation or deletion cannot occur at the same time within
+one directory. Thus, the goal is to schedule one task per directory and execute each task in
+parallel.</p>
+
+<p>Doing this for copies is relatively easy: iterate through every directory, spawn a new task when a
+directory is encountered and copy files in place. File removal is far more interesting because you
+cannot remove a directory until all of its children (including subdirectories) have been fully
+removed. As a consequence, file removal tasks must wait until their children have completed before
+finally removing the current directory. Unfortunately, this approach is slow: memory and time must
+be spent keeping track of child tasks, and children must somehow notify their parents of completion.</p>
+
+<p>Flipping the problem on its head reveals a beautiful solution: what if children were in charge of
+deleting their parents? With a little bit of atomic reference counting, this solution is
+straightforward to implement and comes at almost no additional cost. While traversing directories,
+each spawned child directory task includes a parent (smart) pointer, implicitly creating a dynamic
+tree structure that models the directory hierarchy. These parent pointers are reference counted and
+trigger the directory deletion when fully freed. Additionally, each task decrements its reference
+count upon completion. That’s it! Now, regardless of whether a parent finishes after all of its
+children or vice versa, the last “user” of a directory will delete its directory chain.</p>
+
+<p>Pseudocode might make this clearer:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">delete_dir</span><span class="p">(</span><span class="n">node</span> <span class="o">@</span> <span class="n">Node</span> <span class="p">{</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">ref_count</span> <span class="p">},</span> <span class="n">task_queue</span><span class="p">):</span>
+    <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">file</span> <span class="ow">is</span> <span class="nb">dir</span><span class="p">:</span>
+            <span class="n">ref_count</span><span class="o">++</span>
+            <span class="n">task_queue</span><span class="p">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">new</span> <span class="n">Node</span> <span class="p">{</span> <span class="nb">dir</span><span class="p">:</span> <span class="nb">file</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">node</span><span class="p">,</span> <span class="n">ref_count</span><span class="p">:</span> <span class="mi">1</span> <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">file</span><span class="p">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="n">ref_count</span><span class="o">--</span>
+    <span class="k">while</span> <span class="n">node</span><span class="p">.</span><span class="n">ref_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">node</span><span class="p">.</span><span class="nb">dir</span><span class="p">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="p">.</span><span class="n">parent</span>
+        <span class="n">node</span><span class="p">.</span><span class="n">ref_count</span><span class="o">--</span>
+</code></pre></div></div>
+
+<hr />
+
+<p>Enjoy blazing fast copies and deletions! 🚀</p>
+
+<h2 id="contention">Appendix—directory contention benchmark</h2>
+
+<p></p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+This benchmark creates and then deletes ~16K files in N directories with two possible methods:
+zip=every thread creates/deletes its own directory
+chain=every thread creates/deletes a sub-set of the directory, one directory at a time
+
+$ cargo b --release
+$ cp target/release/test test
+$ hyperfine --warmup 3 -N "./test /var/tmp 8 zip" "./test /var/tmp 8 chain"
+Benchmark 1: ./test /var/tmp 8 zip
+  Time (mean ± σ):     528.5 ms ±  11.5 ms    [User: 131.0 ms, System: 3460.0 ms]
+  Range (min … max):   518.6 ms … 553.2 ms    10 runs
+
+Benchmark 2: ./test /var/tmp 8 chain
+  Time (mean ± σ):      1.488 s ±  0.140 s    [User: 0.143 s, System: 7.991 s]
+  Range (min … max):    1.297 s …  1.659 s    10 runs
+
+Summary
+  './test /var/tmp 8 zip' ran
+    2.82 ± 0.27 times faster than './test /var/tmp 8 chain'
+*/</span>
+
+<span class="k">use</span> <span class="nn">std</span><span class="p">::{</span>
+    <span class="n">env</span><span class="p">,</span>
+    <span class="nn">fs</span><span class="p">::{</span><span class="n">create_dir</span><span class="p">,</span> <span class="n">remove_dir</span><span class="p">,</span> <span class="n">remove_file</span><span class="p">,</span> <span class="n">File</span><span class="p">},</span>
+    <span class="n">io</span><span class="p">,</span>
+    <span class="nn">path</span><span class="p">::</span><span class="n">PathBuf</span><span class="p">,</span>
+    <span class="n">thread</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">const</span> <span class="n">FILES</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">14</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arg</span> <span class="o">=</span> <span class="p">|</span><span class="n">n</span><span class="p">|</span> <span class="nn">env</span><span class="p">::</span><span class="nf">args</span><span class="p">()</span><span class="nf">.nth</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">root</span> <span class="o">=</span> <span class="nn">PathBuf</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="nf">arg</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="k">let</span> <span class="n">n</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="nf">arg</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="nf">.parse</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">method</span> <span class="o">=</span> <span class="nf">arg</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">dirs</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">n</span><span class="p">)</span>
+        <span class="nf">.map</span><span class="p">(|</span><span class="n">i</span><span class="p">|</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">dir</span> <span class="o">=</span> <span class="n">root</span><span class="nf">.join</span><span class="p">(</span><span class="nd">format!</span><span class="p">(</span><span class="s">"test{i}"</span><span class="p">));</span>
+            <span class="nf">create_dir</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dir</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="n">dir</span>
+        <span class="p">})</span>
+        <span class="py">.collect</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">_</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="n">run</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">FILES</span> <span class="o">%</span> <span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">batch_size</span> <span class="o">=</span> <span class="n">FILES</span> <span class="o">/</span> <span class="n">n</span><span class="p">;</span>
+
+        <span class="k">let</span> <span class="n">dirs</span> <span class="o">=</span> <span class="n">dirs</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="k">move</span> <span class="p">|</span><span class="n">op</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">PathBuf</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">io</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">|</span> <span class="k">match</span> <span class="o">&amp;*</span><span class="n">method</span> <span class="p">{</span>
+            <span class="s">"zip"</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="n">FILES</span> <span class="p">{</span>
+                    <span class="nf">op</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="nf">.join</span><span class="p">(</span><span class="nd">format!</span><span class="p">(</span><span class="s">"f{i}"</span><span class="p">)))</span><span class="nf">.unwrap</span><span class="p">();</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="s">"chain"</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">for</span> <span class="n">dir</span> <span class="k">in</span> <span class="n">dirs</span> <span class="p">{</span>
+                    <span class="k">let</span> <span class="n">start</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">id</span><span class="p">;</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">start</span><span class="o">..</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="nf">op</span><span class="p">(</span><span class="n">dir</span><span class="nf">.join</span><span class="p">(</span><span class="nd">format!</span><span class="p">(</span><span class="s">"f{i}"</span><span class="p">)))</span><span class="nf">.unwrap</span><span class="p">();</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="n">_</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">unreachable!</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+    <span class="k">let</span> <span class="n">bench</span> <span class="o">=</span> <span class="p">|</span><span class="n">op</span><span class="p">|</span> <span class="p">{</span>
+        <span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">n</span><span class="p">)</span>
+            <span class="nf">.map</span><span class="p">(|</span><span class="n">id</span><span class="p">|</span> <span class="p">{</span>
+                <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">({</span>
+                    <span class="k">let</span> <span class="n">run</span> <span class="o">=</span> <span class="n">run</span><span class="nf">.clone</span><span class="p">();</span>
+                    <span class="k">move</span> <span class="p">||</span> <span class="nf">run</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span>
+                <span class="p">})</span>
+            <span class="p">})</span>
+            <span class="py">.collect</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">_</span><span class="o">&gt;&gt;</span><span class="p">()</span>
+            <span class="nf">.into_iter</span><span class="p">()</span>
+            <span class="nf">.map</span><span class="p">(|</span><span class="n">task</span><span class="p">|</span> <span class="n">task</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">())</span>
+            <span class="nf">.for_each</span><span class="p">(</span><span class="nb">drop</span><span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="nf">bench</span><span class="p">(|</span><span class="n">arg</span><span class="p">|</span> <span class="nn">File</span><span class="p">::</span><span class="nf">create</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="nf">.map</span><span class="p">(</span><span class="nb">drop</span><span class="p">));</span>
+    <span class="nf">bench</span><span class="p">(</span><span class="n">remove_file</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="n">dir</span> <span class="k">in</span> <span class="n">dirs</span> <span class="p">{</span>
+        <span class="nf">remove_dir</span><span class="p">(</span><span class="n">dir</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>]]></content><author><name>Alex Saveau</name></author><category term="Projects" /><category term="Performance" /><category term="Files" /><category term="FUC" /><summary type="html"><![CDATA[Fast Unix Commands (FUC) is a project that aims to create the world’s fastest Unix commands. Currently, this means rm and cp replacements named rmz and cpz (the ‘z’ stands for “zippy”). When better performance cannot be achieved, the next highest priority is efficiency. In practice, rmz appears to be the fastest file deleter available while cpz wins in most cases, only losing in flat directory hierarchies.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">ForkFS: make changes to your file system without consequence</title><link href="https://alexsaveau.dev/blog/projects/performance/files/forkfs/forkfs" rel="alternate" type="text/html" title="ForkFS: make changes to your file system without consequence" /><published>2023-03-23T00:00:00+00:00</published><updated>2024-01-23T00:53:55+00:00</updated><id>https://alexsaveau.dev/blog/projects/performance/files/forkfs/forkfs</id><content type="html" xml:base="https://alexsaveau.dev/blog/projects/performance/files/forkfs/forkfs"><![CDATA[<p><a href="https://github.com/SUPERCILEX/forkfs">ForkFS</a> is a CLI app that redirects a process’s file
+operations to a sandbox.</p>
+
+<blockquote>
+  <p>Sandboxing usually has security connotations, so I want to be clear that ForkFS makes no security
+claims. A process can easily escape via some form of inter-process communication.</p>
+</blockquote>
+
+<h2 id="when-is-this-useful">When is this useful?</h2>
+
+<p>If you use one machine for long enough, your file system will end up full of leftover files from
+long forgotten programs. <a href="https://dev.yorhel.nl/ncdu">Ncdu</a> (sorted by modified time) is extremely
+helpful for finding these files, but what if you could avoid creating them in the first place?
+That’s the primary motivator for ForkFS: if you know you’ll be transiently fiddling around with a
+program, you can run it under ForkFS and throw away all of its files in one go. The sandbox even
+works with apt!</p>
+
+<p>ForkFS can also be used to test commands that may be destructive: run the command in the sandbox and
+then verify its results. Admittedly, this use case is probably best served by a snapshotting file
+system.</p>
+
+<p>In general, you can open up a shell with ForkFS to easily sandbox any command.</p>
+
+<h2 id="technical-overview">Technical overview</h2>
+
+<p>Originally, this project used a
+<a href="https://www.alfonsobeato.net/c/modifying-system-call-arguments-with-ptrace/">ptrace approach</a>:
+intercept every syscall and rewrite its arguments such that file paths are sandboxed. The fact that
+this is even possible is a little mind-blowing, but I quickly realized this approach wouldn’t scale:
+there are too many syscalls to handle and doing so performantly would be difficult.</p>
+
+<p>Instead, ForkFS is implemented as a simple wrapper over
+<a href="https://docs.kernel.org/filesystems/overlayfs.html">OverlayFS</a>. I discovered that this was possible
+from <a href="https://firejail.wordpress.com/">Firejail</a>’s
+<a href="https://github.com/netblue30/firejail/commit/fb9f2a5fb3ac1ebbb14302ecdf3c840b70b090da">defunct</a>
+<a href="https://github.com/netblue30/firejail/blob/master/src/firejail/fs_overlayfs.c">implementation</a>.
+In brief, ForkFS:</p>
+
+<ol>
+  <li>Mounts OverlayFS (and a few other FSs) into an internal directory such that the entire file
+system is overlaid.</li>
+  <li>Changes its root directory to the mounted one.</li>
+  <li>Executes the requested program.</li>
+</ol>
+
+<h3 id="root-privileges">Root privileges</h3>
+
+<p>Mounting new FSs requires admin privileges which is unfortunate. Initially, ForkFS was expected to
+be run with <code class="language-plaintext highlighter-rouge">sudo</code>, but this provides a subpar experience because your environment is changed.
+<code class="language-plaintext highlighter-rouge">sudo -E</code> helps by keeping environment variables, but the home directory envvar is still modified.</p>
+
+<p>Instead, ForkFS works just like sudo. To become another user (e.g. root), a file must be owned by
+that user and have its <code class="language-plaintext highlighter-rouge">s</code> permission bit set, meaning the file will take on the owner’s identity
+rather than the caller’s. Modern Linux applies this same idea to capabilities, meaning an executable
+can be granted access to do a limited set of privileged things. ForkFS supports both modes of
+operation.</p>
+
+<hr />
+
+<p>Happy experimenting!</p>]]></content><author><name>Alex Saveau</name></author><category term="Projects" /><category term="Performance" /><category term="Files" /><category term="ForkFS" /><summary type="html"><![CDATA[ForkFS is a CLI app that redirects a process’s file operations to a sandbox.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
