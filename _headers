@@ -1,0 +1,5 @@
+/**/*.@(png|jpg|jpeg|webp|avif|gif|svg|ico)
+  Cache-Control: public, max-age=31536000, immutable
+
+/**/*.@(pdf)
+  Cache-Control: public, max-age=432000

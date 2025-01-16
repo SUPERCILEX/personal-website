@@ -32,18 +32,10 @@ jobs:
           key: ${{ runner.os }}-v2-site-${{ hashFiles('assets/**') }}
           restore-keys: |
             ${{ runner.os }}-v2-site-
-      - name: Build and deploy preview
-        if: github.ref != 'refs/heads/master'
-        run: .build/deploy_preview_site.sh
-        env:
-          JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PAGES_REPO_NWO: ${{ github.repository }}
       - name: Build and deploy
         if: github.ref == 'refs/heads/master'
         run: .build/deploy_site.sh
         env:
           JEKYLL_PAT: ${{ secrets.USER_TOKEN }}
           JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PAGES_REPO_NWO: ${{ github.repository }}

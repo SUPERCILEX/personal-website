@@ -9,7 +9,5 @@ node_modules
 .idea
 *.iml
 .env
-.firebase
-/firebase.json
 /assets/resized
 venv

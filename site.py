@@ -63,10 +63,6 @@ def serve(prod, drafts, fast, live, expires, profile):
 
     if live:
         os.system(f'{env} bundle exec jekyll build {args}')
-
-        os.system('.build/node_modules/.bin/firebase '
-                  f'hosting:channel:deploy -e {expires} '
-                  '$(git branch --show-current)')
     else:
         os.system(f'{env} bundle exec jekyll serve {args} --livereload --open-url')
 

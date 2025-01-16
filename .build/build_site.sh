@@ -34,9 +34,6 @@ fi
 JEKYLL_ENV=production bundle exec jekyll build -s "$JEKYLL_SRC" -d build
 echo "Jekyll build done"
 
-# Make the firebase.json file available in Git, enabling human verification
-cp firebase.json build/.firebase.json
-
 # No need to have GitHub Pages to run Jekyll
 touch build/.nojekyll
 

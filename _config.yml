@@ -46,7 +46,10 @@ plugins:
 exclude:
   - .idea
   - site.py
-  - firebase.json
+
+include:
+  - _headers
+  - _redirects
 
 defaults:
   - scope:
