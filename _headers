@@ -1,5 +1,22 @@
-/**/*.@(png|jpg|jpeg|webp|avif|gif|svg|ico)
+/*.html
+  Cache-Control: max-age=3600
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+/*.avif
+  Cache-Control: public, max-age=31536000, immutable
+/*.gif
+  Cache-Control: public, max-age=31536000, immutable
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+/*.ico
   Cache-Control: public, max-age=31536000, immutable
 
-/**/*.@(pdf)
+/*.pdf
   Cache-Control: public, max-age=432000
