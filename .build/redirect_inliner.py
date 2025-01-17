@@ -1,4 +1,3 @@
-import json
 import os
 from html.parser import HTMLParser
 
@@ -20,13 +19,14 @@ def handle_file(file: str, output):
         contents: str = f.read()
         if 'http-equiv="refresh"' in contents:
             from_path: str = file.replace(site_dir, '', 1).replace('/index.html', '', 1)
-            parser = RedirectLinkExtractor(from_path, output)
+            parser = RedirectLinkExtractor(file, from_path, output)
             parser.feed(contents)
 
 
 class RedirectLinkExtractor(HTMLParser):
-    def __init__(self, from_path: str, output):
+    def __init__(self, input_file: str, from_path: str, output):
         super().__init__()
+        self.input_file = input_file
         self.from_path = from_path
         self.output = output
 
@@ -39,6 +39,8 @@ class RedirectLinkExtractor(HTMLParser):
             if url.startswith(site_url):
                 url = '/' + url.split('://')[1].split('/', 1)[1]
             self.output.write(f'{self.from_path} {url} 302\n')
+
+            os.remove(self.input_file)
 
 
 if __name__ == '__main__':
