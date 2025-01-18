@@ -98,7 +98,6 @@ jekyll_get_json:
     json: 'https://api.github.com/repos/yshrsmz/LicenseAdapter'
 
 social_media:
-  twitter: SUPERCILEX
   stackoverflow: 4548500
 
 jekyll-archives:
