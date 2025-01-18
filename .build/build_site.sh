@@ -34,7 +34,4 @@ fi
 JEKYLL_ENV=production bundle exec jekyll build -s "$JEKYLL_SRC" -d build
 echo "Jekyll build done"
 
-# No need to have GitHub Pages to run Jekyll
-touch build/.nojekyll
-
 exit $?
