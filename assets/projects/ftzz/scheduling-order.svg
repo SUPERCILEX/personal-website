@@ -1,0 +1,120 @@
+<svg id="diagramSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 367">
+    <style id="stylesheet">text {
+        text-anchor: middle;
+        font-size: small;
+        font-weight: bold;
+        }
+
+        rect {
+        fill: snow;
+        stroke: black;
+        opacity: 1;
+        stroke-width: 0.4;
+
+        }
+
+        line {
+        stroke: black;
+        opacity: 1;
+        stroke-width: 0.5;
+        stroke-dasharray: 3, 2;
+        }
+    </style>
+    <defs>
+        <marker id="arrowHead" viewBox="-10 -5 10 10" markerUnits="strokeWidth" markerWidth="6"
+                markerHeight="10" orient="auto">
+            <path d="M -10 -5 L 0 0 L -10 5 z"></path>
+        </marker>
+    </defs>
+    <g id="diagramGroup">
+        <rect x="364px" y="0px" width="70px" height="54px"></rect>
+        <text x="400px" y="0px">
+            <tspan x="400" dy="32.91935483870968">root</tspan>
+        </text>
+        <rect x="63px" y="104px" width="70px" height="54px"></rect>
+        <text x="98px" y="104px">
+            <tspan x="98" dy="32.91935483870968">1</tspan>
+        </text>
+        <line x1="382px" y1="54px" x2="98px" y2="104px" marker-end="url(#arrowHead)"></line>
+        <rect x="364px" y="104px" width="70px" height="54px"></rect>
+        <text x="400px" y="104px">
+            <tspan x="400" dy="32.91935483870968">2</tspan>
+        </text>
+        <line x1="400px" y1="54px" x2="400px" y2="104px" marker-end="url(#arrowHead)"></line>
+        <rect x="666px" y="104px" width="70px" height="54px"></rect>
+        <text x="701px" y="104px">
+            <tspan x="701" dy="32.91935483870968">3</tspan>
+        </text>
+        <line x1="417px" y1="54px" x2="701px" y2="104px" marker-end="url(#arrowHead)"></line>
+        <rect x="24px" y="208px" width="70px" height="54px"></rect>
+        <text x="59px" y="208px">
+            <tspan x="59" dy="32.91935483870968">4</tspan>
+        </text>
+        <line x1="86px" y1="159px" x2="59px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="101px" y="208px" width="70px" height="54px"></rect>
+        <text x="136px" y="208px">
+            <tspan x="136" dy="32.91935483870968">5</tspan>
+        </text>
+        <line x1="109px" y1="159px" x2="136px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="249px" y="208px" width="70px" height="54px"></rect>
+        <text x="284px" y="208px">
+            <tspan x="284" dy="32.91935483870968">7</tspan>
+        </text>
+        <line x1="378px" y1="159px" x2="284px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="326px" y="208px" width="70px" height="54px"></rect>
+        <text x="361px" y="208px">
+            <tspan x="361" dy="32.91935483870968">8</tspan>
+        </text>
+        <line x1="392px" y1="159px" x2="361px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="403px" y="208px" width="70px" height="54px"></rect>
+        <text x="438px" y="208px">
+            <tspan x="438" dy="32.91935483870968">9</tspan>
+        </text>
+        <line x1="407px" y1="159px" x2="438px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="480px" y="208px" width="70px" height="54px"></rect>
+        <text x="515px" y="208px">
+            <tspan x="515" dy="32.91935483870968">10</tspan>
+        </text>
+        <line x1="421px" y1="159px" x2="515px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="628px" y="208px" width="70px" height="54px"></rect>
+        <text x="663px" y="208px">
+            <tspan x="663" dy="32.91935483870968">14</tspan>
+        </text>
+        <line x1="690px" y1="159px" x2="663px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="705px" y="208px" width="70px" height="54px"></rect>
+        <text x="740px" y="208px">
+            <tspan x="740" dy="32.91935483870968">15</tspan>
+        </text>
+        <line x1="713px" y1="159px" x2="740px" y2="208px" marker-end="url(#arrowHead)"></line>
+        <rect x="98px" y="312px" width="70px" height="54px"></rect>
+        <text x="133px" y="312px">
+            <tspan x="133" dy="32.91935483870968">6</tspan>
+        </text>
+        <line x1="136px" y1="263px" x2="133px" y2="312px" marker-end="url(#arrowHead)"></line>
+        <rect x="175px" y="312px" width="70px" height="54px"></rect>
+        <text x="210px" y="312px">
+            <tspan x="210" dy="32.91935483870968">11</tspan>
+        </text>
+        <line x1="266px" y1="263px" x2="210px" y2="312px" marker-end="url(#arrowHead)"></line>
+        <rect x="252px" y="312px" width="70px" height="54px"></rect>
+        <text x="287px" y="312px">
+            <tspan x="287" dy="32.91935483870968">12</tspan>
+        </text>
+        <line x1="284px" y1="263px" x2="287px" y2="312px" marker-end="url(#arrowHead)"></line>
+        <rect x="329px" y="312px" width="70px" height="54px"></rect>
+        <text x="364px" y="312px">
+            <tspan x="364" dy="32.91935483870968">13</tspan>
+        </text>
+        <line x1="301px" y1="263px" x2="364px" y2="312px" marker-end="url(#arrowHead)"></line>
+        <rect x="589px" y="312px" width="70px" height="54px"></rect>
+        <text x="624px" y="312px">
+            <tspan x="624" dy="32.91935483870968">16</tspan>
+        </text>
+        <line x1="651px" y1="263px" x2="624px" y2="312px" marker-end="url(#arrowHead)"></line>
+        <rect x="666px" y="312px" width="70px" height="54px"></rect>
+        <text x="701px" y="312px">
+            <tspan x="701" dy="32.91935483870968">17</tspan>
+        </text>
+        <line x1="674px" y1="263px" x2="701px" y2="312px" marker-end="url(#arrowHead)"></line>
+    </g>
+</svg>
