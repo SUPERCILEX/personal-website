@@ -16,7 +16,7 @@ cd build
 # Is this a regular repo or an org.github.io type of repo
 case "${GITHUB_REPOSITORY}" in
   *.github.io) remote_branch="master" ;;
-  *)           remote_branch="built-site" ;;
+  *)           remote_branch="${PUBLISH_BRANCH:-built-site}" ;;
 esac
 
 if [ "${GITHUB_REF}" = "refs/heads/${remote_branch}" ]; then

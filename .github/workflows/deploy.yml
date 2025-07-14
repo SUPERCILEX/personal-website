@@ -39,3 +39,11 @@ jobs:
           JEKYLL_PAT: ${{ secrets.USER_TOKEN }}
           JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
           PAGES_REPO_NWO: ${{ github.repository }}
+      - name: Build and deploy dev
+        if: github.ref != 'refs/heads/master'
+        run: .build/deploy_site.sh
+        env:
+          JEKYLL_PAT: ${{ secrets.USER_TOKEN }}
+          JEKYLL_GITHUB_TOKEN: ${{ secrets.USER_TOKEN }}
+          PAGES_REPO_NWO: ${{ github.repository }}
+          PUBLISH_BRANCH: ${{ github.ref_name }}-built
