@@ -44,10 +44,6 @@
         {{ user.location }}
       </div>
     {% endif %}
-    <div class="{{ metadata_styles }}">
-      {% octicon heart height:20 class:"mr-2 v-align-middle icon-color" style:"flex-shrink:0" aria-label:heart %}
-      <span><a href="/sponsor">Support me on GitHub</a> and/or use my <a href="/wealthfront">Wealthfront referral code</a> to fund any account (equivalent to giving $12.5/yr)</span>
-    </div>
     {% if site.social_media %}
       <div class="d-flex flex-wrap flex-items-start">
         {% for account in site.social_media %}
