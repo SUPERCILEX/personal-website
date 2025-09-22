@@ -62,7 +62,7 @@ database: data can be deleted transparently.
 
 ## Background
 
-Ringboard has ancestral roots in my [Gnome Clipboard History](https://alexsaveau.dev/blog/gch) (GCH)
+Ringboard has ancestral roots in my [Gnome Clipboard History](/blog/projects/performance/clipboard/gnome/gch/gnome-clipboard-history) (GCH)
 extension which was implemented as an append-only log. GCH's log is unfortunately not
 [self-synchronizing](https://en.wikipedia.org/wiki/Self-synchronizing_code) as there are back
 pointers with arbitrary locations, meaning you have to read the entire log and apply operations
