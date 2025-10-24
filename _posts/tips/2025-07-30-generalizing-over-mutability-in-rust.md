@@ -9,7 +9,9 @@ You've seen us
 [generalize over buffer types](https://blog.sunfishcode.online/writingintouninitializedbuffersinrust/),
 now let's generalize over buffer mutability!
 
-I tried to write something like this in a project I'm working on:
+I tried to write
+[something like this](https://github.com/SUPERCILEX/lockness/blob/944b6f637db8fe5a59680d76c202fa96fc5cc820/bags/src/mpmc.rs#L552-L569)
+in a project I'm working on:
 
 ```rust
 fn process_items<T>(buf: &<mut> [T], mut f: impl FnMut(&<mut> T)) {
