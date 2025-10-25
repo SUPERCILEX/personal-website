@@ -39,6 +39,7 @@ class RedirectLinkExtractor(HTMLParser):
             if url.startswith(site_url):
                 url = '/' + url.split('://')[1].split('/', 1)[1]
             self.output.write(f'{self.from_path} {url} 302\n')
+            self.output.write(f'{self.from_path}/ {url} 302\n')
 
             os.remove(self.input_file)
 
