@@ -27,6 +27,8 @@ def compress(parent: str, file: str):
     parent = parent.removeprefix('build').removeprefix('/').removesuffix('/')
     parent = parent if file == 'index.html' or parent == '' else parent + '/'
     base_url = site_url + '/' + parent
+    if file == '404.html':
+        base_url = '.'
 
     check_call([
         html_minifier, path,
