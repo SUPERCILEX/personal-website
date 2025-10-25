@@ -29,7 +29,7 @@ over `&buf[i]` in one macro invocation and `&mut buf[i]` in another.
 
 Thus, it is with great (dis?)pleasure that I present to you: trait magic! Feast your eyes:
 
-**Edit:** a reader emailed me with a [better solution](#better-solution).
+> **Edit:** a reader emailed me with a [better solution](#better-solution).
 
 ```rust
 trait Buf<T> {
