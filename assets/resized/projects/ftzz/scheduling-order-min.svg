@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="diagramSvg" viewBox="0 0 800 367"><style id="stylesheet">text{text-anchor:middle;font-size:small;font-weight:700}line,rect{stroke:#000;opacity:1}rect{fill:snow;stroke-width:.4}line{stroke-width:.5;stroke-dasharray:3,2}</style><defs><marker id="arrowHead" markerHeight="10" markerUnits="strokeWidth" markerWidth="6" orient="auto" viewBox="-10 -5 10 10"><path d="M-10-5 0 0l-10 5z"/></marker></defs><g id="diagramGroup"><rect width="70" height="54" x="364"/><text x="400">
+            <tspan x="400" dy="32.919">root</tspan>
+        </text><rect width="70" height="54" x="63" y="104"/><text x="98" y="104">
+            <tspan x="98" dy="32.919">1</tspan>
+        </text><line x1="382" x2="98" y1="54" y2="104" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="364" y="104"/><text x="400" y="104">
+            <tspan x="400" dy="32.919">2</tspan>
+        </text><line x1="400" x2="400" y1="54" y2="104" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="666" y="104"/><text x="701" y="104">
+            <tspan x="701" dy="32.919">3</tspan>
+        </text><line x1="417" x2="701" y1="54" y2="104" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="24" y="208"/><text x="59" y="208">
+            <tspan x="59" dy="32.919">4</tspan>
+        </text><line x1="86" x2="59" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="101" y="208"/><text x="136" y="208">
+            <tspan x="136" dy="32.919">5</tspan>
+        </text><line x1="109" x2="136" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="249" y="208"/><text x="284" y="208">
+            <tspan x="284" dy="32.919">7</tspan>
+        </text><line x1="378" x2="284" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="326" y="208"/><text x="361" y="208">
+            <tspan x="361" dy="32.919">8</tspan>
+        </text><line x1="392" x2="361" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="403" y="208"/><text x="438" y="208">
+            <tspan x="438" dy="32.919">9</tspan>
+        </text><line x1="407" x2="438" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="480" y="208"/><text x="515" y="208">
+            <tspan x="515" dy="32.919">10</tspan>
+        </text><line x1="421" x2="515" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="628" y="208"/><text x="663" y="208">
+            <tspan x="663" dy="32.919">14</tspan>
+        </text><line x1="690" x2="663" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="705" y="208"/><text x="740" y="208">
+            <tspan x="740" dy="32.919">15</tspan>
+        </text><line x1="713" x2="740" y1="159" y2="208" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="98" y="312"/><text x="133" y="312">
+            <tspan x="133" dy="32.919">6</tspan>
+        </text><line x1="136" x2="133" y1="263" y2="312" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="175" y="312"/><text x="210" y="312">
+            <tspan x="210" dy="32.919">11</tspan>
+        </text><line x1="266" x2="210" y1="263" y2="312" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="252" y="312"/><text x="287" y="312">
+            <tspan x="287" dy="32.919">12</tspan>
+        </text><line x1="284" x2="287" y1="263" y2="312" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="329" y="312"/><text x="364" y="312">
+            <tspan x="364" dy="32.919">13</tspan>
+        </text><line x1="301" x2="364" y1="263" y2="312" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="589" y="312"/><text x="624" y="312">
+            <tspan x="624" dy="32.919">16</tspan>
+        </text><line x1="651" x2="624" y1="263" y2="312" marker-end="url(#arrowHead)"/><rect width="70" height="54" x="666" y="312"/><text x="701" y="312">
+            <tspan x="701" dy="32.919">17</tspan>
+        </text><line x1="674" x2="701" y1="263" y2="312" marker-end="url(#arrowHead)"/></g></svg>
