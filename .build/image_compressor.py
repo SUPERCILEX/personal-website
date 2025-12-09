@@ -10,7 +10,7 @@ from shared import site_dir, strip_compression_suffix, compressed_file_suffix
 assets_dir = 'assets'
 output_assets_dir = 'assets/resized'
 supported_files = ['.png', '.jpg', '.jpeg', '.svg']
-output_formats = ['jpg', 'webp', 'avif']
+output_formats = ['jpg', 'avif']
 svgo = '.build/node_modules/.bin/svgo'
 
 

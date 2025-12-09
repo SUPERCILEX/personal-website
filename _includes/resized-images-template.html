@@ -14,19 +14,6 @@
     <source srcset="{{ sources }}" sizes="{{ sizes }}" type="image/avif">
   {% endif %}
 
-  <!-- .webp images -->
-  {% if path contains '.png' or path contains '.jpg' or path contains '.jpeg' %}
-    {% capture sources %}
-      {% for i in resized %}
-        /assets/{{ i.dirname }}/{{ i.filename }}-min.webp {{ i.width }}w,
-      {% endfor %}
-
-      {{ original.dirname | prepend: '/assets/resized/' | append: '/' | append: original.filename | replace: '//', '/' }}-min.webp {{ original.width }}w
-    {% endcapture %}
-
-    <source srcset="{{ sources }}" sizes="{{ sizes }}" type="image/webp">
-  {% endif %}
-
   <!-- .jpg images -->
   {% if path contains '.png' or path contains '.jpg' or path contains '.jpeg' %}
     {% capture sources %}
