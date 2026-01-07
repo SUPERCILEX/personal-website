@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://alexsaveau.dev/feed.xml" rel="self" type="application/atom+xml" /><link href="https://alexsaveau.dev/" rel="alternate" type="text/html" /><updated>2026-01-07T01:00:39+00:00</updated><id>https://alexsaveau.dev/feed.xml</id><title type="html">Alex Saveau</title><subtitle>https://alexsaveau.dev</subtitle><author><name>Alex Saveau</name></author><entry><title type="html">The need for new instructions: atomic bit fill and drain</title><link href="https://alexsaveau.dev/blog/opinions/performance/lockness/atomic-bit-fill" rel="alternate" type="text/html" title="The need for new instructions: atomic bit fill and drain" /><published>2025-09-24T00:00:00+00:00</published><updated>2025-09-25T00:58:09+00:00</updated><id>https://alexsaveau.dev/blog/opinions/performance/lockness/atomic-bit-fill</id><content type="html" xml:base="https://alexsaveau.dev/blog/opinions/performance/lockness/atomic-bit-fill"><![CDATA[<p>In the <a href="/blog/opinions/performance/lockness/lockless-queues-are-not-queues">previous article</a>, I
+proposed a new lockless channel architecture based on two bit vectors. One is used to reserve access
+to a memory region, the other to commit changes. I showed promising theoretical performance
+improvements: whereas existing architectures pay the cost of linearizability without clients being
+able to take advantage of such consistency, lockless bags allow each element in the channel to be
+operated upon fully independently. In theory.</p>
+
+<p>In practice, hardware processes atomic operations by locking cache lines. Readers and writers in
+lockless bags need to modify both bit vectors, which means locking both cache lines and neutering
+any performance benefits offered by lockless bags. How can we fix this?</p>
+
+<p>Hardware needs to give software an efficient mechanism for locking memory regions.</p>
+
+<h2 id="new-instructions-atomic_bit_filldrain-and-atomic_bit_set">New instructions: <code class="language-plaintext highlighter-rouge">atomic_bit_{fill,drain}</code> and <code class="language-plaintext highlighter-rouge">atomic_bit_set</code></h2>
+
+<p>Here are the proposed signatures:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>atomic_bit_{fill,drain}: {cache line address, max # bits} =&gt; {changed bit mask}
+atomic_bit_set: {cache line address, bit mask} =&gt; {}
+</code></pre></div></div>
+
+<p>Given a cache line and a maximum number of bits <em>M</em> to fill, <code class="language-plaintext highlighter-rouge">atomic_bit_fill</code> scans the cache line
+for zeros and flips at most <em>M</em> of them to ones. It returns the mask of flipped bits.
+<code class="language-plaintext highlighter-rouge">atomic_bit_drain</code> operates identically except that it scans for ones and returns them to zero.
+These instructions could operate on machine words, but the more bits you have the deeper your
+channel queue can be. I assume it wouldn’t be too difficult to return 512-bit change masks and use
+AVX-512 instructions to compute indices out of the mask.</p>
+
+<h2 id="how-do-you-use-these-instructions">How do you use these instructions?</h2>
+
+<p>The concepts from lockless bags apply mechanically:</p>
+
+<ol>
+  <li>To prepare <em>M</em> elements, call <code class="language-plaintext highlighter-rouge">atomic_bit_fill</code> on the reservation bit vector.</li>
+  <li>Use the returned mask to write your elements into their corresponding array slots. An empty mask
+means the channel is full.</li>
+  <li>Once the elements have been written, call <code class="language-plaintext highlighter-rouge">atomic_bit_set</code> to update the commit bit vector.</li>
+</ol>
+
+<p>Receive elements by using <code class="language-plaintext highlighter-rouge">atomic_bit_drain</code> instead.</p>
+
+<h2 id="why-are-these-instructions-more-powerful-than-existing-atomics">Why are these instructions more powerful than existing atomics?</h2>
+
+<p><code class="language-plaintext highlighter-rouge">atomic_bit_{fill,drain}</code> offer novel acceleration opportunities: the key idea is that <strong>cores may
+issue requests without knowing the state of the bit vectors</strong>. This bears repeating: <code class="language-plaintext highlighter-rouge">cmpxchg</code> and
+atomic bitwise instructions require knowing the state of the word being operated upon prior to
+modification. On the other hand, <code class="language-plaintext highlighter-rouge">atomic_bit_{fill,drain}</code> instructions do not need to know the
+state of the word and therefore do not need to own the memory being operated upon, meaning <strong>cores
+can issue fill/drain requests in parallel</strong>.</p>
+
+<p>Put another way, cores never need to pull the cache lines down. A synchronization point to process
+incoming requests remains, but in the time it takes the on-chip network to return the resulting bit
+mask to the originating core, other requests may have been issued and serviced, changing the state
+of our bit vector.</p>
+
+<p>We’ve found a way to let cores communicate their ownership over memory regions concurrently! Global
+linearizability has been vanquished at last: operations over a particular element in the bit vectors
+are linearized, but each element’s operations are fully independent.</p>
+
+<p>That’s not all! We have a poor man’s
+<a href="https://dl.acm.org/doi/pdf/10.1145/3695053.3731026">Intel Dynamic Load Balancer</a>, but that doesn’t
+mean we can’t get a little fancy:</p>
+
+<ul>
+  <li>The L1 data pre-fetcher could intelligently start loading the corresponding cache lines of the
+array slots we claimed when executing an <code class="language-plaintext highlighter-rouge">atomic_bit_{fill,drain}</code> instruction.</li>
+  <li>The CPU could move the bit vector cache lines around dynamically based on load. For example the
+lines could be in L3 if most cores are using it, or moved into the L2 of a core near the main
+sources of request traffic.
+    <ul>
+      <li>Taking this idea further, the 512 bits could be dynamically partitioned by the CPU to local core
+complexes. Say your chip is organized such that groups of cores have faster means of
+communication amongst themselves than going to L3. Each group could get ownership over a slice
+of the 512 bits and fall back to asking other groups for bits only if the local partition is
+full/empty. Perhaps more interesting is partitioning across NUMA nodes.</li>
+    </ul>
+  </li>
+  <li>Cores could develop affinities/flows on a best effort basis. Say core A is frequently publishing
+data while another core B is frequently consuming data. The server handling fill/drain requests
+could learn this pattern and try to ensure B gets masks primarily containing A’s data to
+potentially improve locality.</li>
+</ul>
+
+<h2 id="the-nitty-gritty">The nitty-gritty</h2>
+
+<p>The instruction signatures I proposed above aren’t quite enough for a fully featured MPMC channel.</p>
+
+<p>To implement sleeping on an empty or full channel, hardware support is required (unless the
+fill/drain instructions are implemented on 32-bit words). A sleeping bit will need to be reserved
+somewhere in the cache line. The <code class="language-plaintext highlighter-rouge">atomic_bit_set</code> instruction will need to support setting the
+sleeping bit atomically with the changed mask and return the previous state of the sleeping bit.</p>
+
+<p>The fill/drain instructions also need to return a dead bit so channel disconnects can be handled
+properly.</p>
+
+<p>Both of these bits can be placed at the end of the cache line and normal atomic bitwise operations
+need to be supported on the last 32 bits of the cache line so these bits can be updated as needed
+and used as a futex.</p>
+
+<p>Additionally, the <code class="language-plaintext highlighter-rouge">atomic_bit_set</code> instruction doesn’t make sense as is: set the bits to what? So
+there could be two variants of the instruction, one to set the mask bits to zero and another to set
+them to one. Or the instruction could be expressed in terms of OR and AND operations, where the
+change mask is inverted when passed into the AND variant of the change mask update instruction.</p>
+
+<p>Finally, <code class="language-plaintext highlighter-rouge">atomic_bit_set</code> should support acquire/release memory orderings.</p>
+
+<h2 id="mpsc-channel-support">MPSC channel support</h2>
+
+<p>To support MPSC channels, additional hardware support is required. I couldn’t figure out a good way
+to maintain independence between
+<a href="/blog/opinions/performance/lockness/lockless-queues-are-not-queues#mpsc-queues-are-special">streams</a>,
+so we return to global linearizability by implementing software lockless queues in hardware. The
+hardware can reserve some bits to represent head/tail pointers in each bit vector’s cache line,
+marking where the next bits should be filled/drained. The <code class="language-plaintext highlighter-rouge">atomic_bit_drain</code> instruction would only
+be allowed to return a non-empty mask when the head points to filled bits. Note that this approach
+incurs the same problems as described in
+<a href="/blog/opinions/performance/lockness/lockless-queues-are-not-queues#lockless-queues-are-slow">the previous article</a>
+around unfortunately timed context switches blocking the entire channel.</p>
+
+<p>However, hardware acceleration maintains the advantage of supporting concurrent requests to add
+elements to the channel.</p>
+
+<h2 id="recap">Recap</h2>
+
+<p>Existing lockless channels can only operate as fast as the hardware can move a cache line between
+cores, which can be
+<a href="https://chipsandcheese.com/p/core-to-core-latency-data-on-large-systems">terribly slow</a>. This novel
+approach proposes a stateless hardware acceleration method for lockness channels: with it, cores can
+independently and concurrently request modification to the lockless channel. In essence, the new
+approach deeply pipelines updates while existing channels serialize updates.</p>
+
+<p>Please reach out if you’re building something like this, I’d be very interested in providing the
+software implementation.</p>]]></content><author><name>Alex Saveau</name></author><category term="Opinions" /><category term="Performance" /><category term="Lockness" /><summary type="html"><![CDATA[In the previous article, I proposed a new lockless channel architecture based on two bit vectors. One is used to reserve access to a memory region, the other to commit changes. I showed promising theoretical performance improvements: whereas existing architectures pay the cost of linearizability without clients being able to take advantage of such consistency, lockless bags allow each element in the channel to be operated upon fully independently. In theory.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Your MPSC/SPMC/MPMC queue is not a queue</title><link href="https://alexsaveau.dev/blog/opinions/performance/lockness/lockless-queues-are-not-queues" rel="alternate" type="text/html" title="Your MPSC/SPMC/MPMC queue is not a queue" /><published>2025-08-16T00:00:00+00:00</published><updated>2025-09-25T00:58:09+00:00</updated><id>https://alexsaveau.dev/blog/opinions/performance/lockness/lockless-queues-are-not-queues</id><content type="html" xml:base="https://alexsaveau.dev/blog/opinions/performance/lockness/lockless-queues-are-not-queues"><![CDATA[<p>Lockless queues let multiple cores communicate with each other without mutexes, typically to move
+work around for parallel processing. They come in four variants: <code class="language-plaintext highlighter-rouge">{single,multi}</code>-producer
+<code class="language-plaintext highlighter-rouge">{single,multi}</code>-consumer. A producer gives data to a consumer, each of which can be limited to a
+single thread (i.e. a single-<code class="language-plaintext highlighter-rouge">{producer,consumer}</code>) or shared across <strong>multi</strong>ple threads. But only
+the single-producer single-consumer (SPSC) queue is actually a queue!</p>
+
+<blockquote>
+  <p>This article is part of <a href="/blog/tags/lockness">a series</a> building
+<a href="https://github.com/SUPERCILEX/lockness/blob/master/README.md">Lockness</a>, a high-performance
+blocking task executor.</p>
+</blockquote>
+
+<style>.too-big img { max-height: 50vh }</style>
+
+<h2 id="spmcmpmc-queues-are-broken">SPMC/MPMC queues are broken</h2>
+
+<p>Consider the so-called SPMC queue. By definition, received messages cannot be processed in a total
+global order without additional external synchronization. First, the single, ordered input stream is
+arbitrarily split amongst each consumer. Then, each message is removed from the queue in the same
+order. But from this moment onwards, the consumer thread can be paused at any moment (even within
+the library implementation that is still copying the data into your code). Consequently, another
+thread can process an element from the future before your code has even had a chance to see that it
+claimed an element, now from the past.</p>
+
+<p>Acausality <em>within</em> consumers is the only upheld invariant: a consumer will not see any elements
+prior to the last element it has seen. This guarantee is almost certainly too weak to be useful as
+consumers have no control over which set of elements are seen, meaning arbitrary elements from the
+future may have been processed on other threads.</p>
+
+<div class="too-big">
+
+
+
+
+
+  <p>
+
+
+
+
+  <a href="/assets/resized/lockness/acausal-recv-min.svg"><img class="article-image" src="/assets/resized/lockness/acausal-recv-min.svg" width="721" height="955" alt="Diagram of a SPMC channel exhibiting non-queue-like behavior." loading="lazy" /></a>
+
+</p>
+  <div class="text-gray"><p class="caption">An example SPMC queue where element B is processed on thread 2 acausally before A on thread 1</p></div>
+
+
+</div>
+
+<p>Similar logic applies to MPMC channels with the additional weakening that different producer streams
+are processed in no particular order. To work around this, some implementations use many SPMC
+channels to make a MPMC channel. They introduce the concept of a token which lets consumers
+optionally choose a specific producer to consume. Were this token to guarantee exclusive access to
+the producer, you’ve just created a poor man’s SPSC queue. Without exclusivity, you get all the same
+problems as SPMC channels (items being processed out-of-order by other threads).</p>
+
+<h2 id="mpsc-queues-are-special">MPSC queues are special</h2>
+
+<p>While additional synchronization can be applied on top of SPMC and MPMC channels to provide ordering
+guarantees, the more useful abstraction is a stream. MPSC channels are special in that each producer
+can be thought of as its own stream, even though no ordering guarantees are provided between streams
+(producers). The consumer will see each stream in order with interleavings between streams. In
+hardware terms, it’s a multiplexer.</p>
+
+<p>Consumer threads can then be set up for specific purposes. For example,
+<a href="https://github.com/SUPERCILEX/clipboard-history/blob/master/README.md">Ringboard</a> uses two consumer
+threads following the actor model in its UI implementations. Any thread can request state changes
+and/or submit view updates, but state changes and view updates are each processed serially on their
+own threads. Since I only have two consumer threads, this is effectively a mini
+model-view-controller framework: the controller thread handles model updates and the main thread
+updates the view. Notice that order within streams is important: the controller should process user
+input in the order in which actions occurred. However, other updates (i.e. other streams/producers)
+like an image loader having finished retrieving an image from a background thread can be interleaved
+arbitrarily with the user input stream.</p>
+
+<p>Thus, MPSC channels as a whole aren’t queues, but each producer is its own queue which provides
+useful guarantees.</p>
+
+<h2 id="the-rundown">The rundown</h2>
+
+<p>To summarize, SPMC queues and by extension MPMC queues don’t have useful ordering guarantees—calling
+them queues is silly. MPSC queues can be thought of as a set of producer queues multiplexed
+together.</p>
+
+<blockquote>
+  <p>Note: I’ve left SPSC queues out of this discussion because they are real queues with a generally
+agreed upon optimal implementation: power-of-2 queue capacity backed by duplicated mmaps with
+cached head/tail pointers expressed in terms of elements written/read, and optional
+<a href="https://man7.org/linux/man-pages/man2/get_robust_list.2.html">get_robust_list</a> support to handle
+multiprocess shared memory dead counterparty notification.</p>
+</blockquote>
+
+<h2 id="lockless-queues-are-slow">Lockless queues are slow</h2>
+
+<p>Lockless queues are so named by virtue of being implemented with a queue, namely circular buffers or
+variations on linked lists. This is problematic because the queue linearizes updates to the channel
+where no such global ordering can be observed as explained above.</p>
+
+<div class="too-big" id="mpmc-diagram">
+
+
+
+
+
+  <p>
+
+
+
+
+  <a href="/assets/resized/lockness/mpmc-blocking-min.svg"><img class="article-image" src="/assets/resized/lockness/mpmc-blocking-min.svg" width="2352" height="2157" alt="Diagram of MPMC channel contention." loading="lazy" /></a>
+
+</p>
+  <div class="text-gray"><p class="caption">Blocked producers and consumers in a MPMC channel, due to linearization</p></div>
+
+
+</div>
+
+<p>The implementation of a lockless queue can be conceptualized through four pointers:</p>
+
+<ul>
+  <li>The tail: producers increment it to reserve a slot to work within.
+    <ul>
+      <li>Slots in <span style="text-decoration: underline; text-decoration-color: #e03131">red</span> are
+being written to without interfering with consumers.</li>
+    </ul>
+  </li>
+  <li>The committed pointer: producers have finished writing to all slots past this offset.
+    <ul>
+      <li>Slots in <span style="text-decoration: underline; text-decoration-color: #f08c00">orange</span>
+should be ready to be consumed, but the shaded slot hasn’t finished its write, thereby blocking
+consumers from accessing subsequent elements.</li>
+    </ul>
+  </li>
+  <li>The head: consumers increment it to claim a slot for consumption.
+    <ul>
+      <li>Slots in <span style="text-decoration: underline; text-decoration-color: #2f9e44">green</span>
+are ready to be read without interfering with producers.</li>
+    </ul>
+  </li>
+  <li>The consumed pointer: consumers have finished reading all slots past this offset.
+    <ul>
+      <li>Slots in <span style="text-decoration: underline; text-decoration-color: #1971c2">blue</span>
+should be ready to be written to, but the shaded slot hasn’t finished its read, thereby blocking
+producers from writing to subsequent elements.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>This approach is not wait-free: a context-switched producer or consumer in the middle of writing or
+reading a value will prevent further progress.</p>
+
+<h2 id="lockless-algorithm-fundamentals">Lockless algorithm fundamentals</h2>
+
+<p>The core problem in lockless algorithms is mediating access to shared memory. SPSC queues have it
+easy: they can prepare work and only commit it once they’re ready. Once you allow multiple threads
+to compete for the ability to access the same memory, they must go through stages:</p>
+
+<ol>
+  <li>A thread must exclude other competitors accessing a chunk of memory.</li>
+  <li>The thread uses the memory (non-atomically). This stage should be as fast as possible and is
+typically just a <code class="language-plaintext highlighter-rouge">memcpy</code>.</li>
+  <li>The thread commits (publishes) its change.</li>
+</ol>
+
+<p>Producers reserve memory to publish to consumers while consumers claim memory to be read and then
+released back to publishers.</p>
+
+<h2 id="lockless-bags-as-a-new-approach">Lockless bags as a new approach</h2>
+
+<p>We’ve established that queue-based lockless channels pay the cost of linearizability without being
+able to take advantage of it. We’ve also seen that the only true requirement for a lockless channel
+is the ability to lock a region of memory.</p>
+
+<p>Instead of a queue, let’s use a bag! What’s a bag? Well, uhhhh… It’s a bag. You can put stuff in,
+rummage around, and take stuff out. Notice that I said nothing about <em>what</em> you get out—if it’s in
+the bag, it’s a valid item to be taken out at any time (i.e. in an unspecified order).</p>
+
+<p>The fastest single-threaded bag implementation is of course a stack. But this is the multithreaded
+world, so let’s instead use an array and two bitvectors. The first bitvector will be our
+reservations: producers atomically set bits to gain exclusive access to the corresponding array
+slot. The second bitvector is the list of committed slots: once producers are done with a slot, they
+set its corresponding commit bit. Conversely, consumers unset commit bits to read the slot and unset
+the reservation bit to return the slot to producers.</p>
+
+<div class="too-big">
+
+
+
+
+
+  <p>
+
+
+
+
+  <a href="/assets/resized/lockness/mpmc-bag-min.svg"><img class="article-image" src="/assets/resized/lockness/mpmc-bag-min.svg" width="995" height="1210" alt="Diagram of a bag-based MPMC channel." loading="lazy" /></a>
+
+</p>
+  <div class="text-gray"><p class="caption">Threads in a lockless bag independently control their slots</p></div>
+
+
+</div>
+
+<p>In this scheme, every producer and consumer operates independently. If a thread is stuck between
+stages, it has no effect on the progress of other threads. We have ourselves a wait-free MPMC
+channel!</p>
+
+<h2 id="you-dont-need-unbounded-channels">You don’t need unbounded channels</h2>
+
+<p>Limitless anything doesn’t exist in the real world, as much as we love to pretend it does. Unbounded
+channels introduce a lot of complexity in an attempt to paper over poorly engineered systems. If
+consumers cannot keep up, producers must slow down. The best way to go about this is to apply
+backpressure, but sadly this is rarely an option. Dropping the messages is a possibility, though a
+distasteful one. Alternatively, producers can cheat and buffer messages locally while waiting for
+space to free up when consumers are full. This last approach is the one taken throughout Lockness,
+minimizing communication and therefore contention when it is most critical (the channel is
+overloaded).</p>
+
+<p>For this reason (and let’s be real mostly because unbounded channels are hard), the lockless bags
+I’ve implemented are unconfigurably bounded.</p>
+
+<h3 id="but-heres-an-idea-to-support-unbounded-lockless-bags">But here’s an idea to support unbounded lockless bags</h3>
+
+<p>Make it a tree! Right now, the bitset represents data slots in an array, but it could additionally
+allow pointers to sub-nodes. This feels like a reasonable approach, though I haven’t thought too
+hard about a precise implementation.</p>
+
+<h2 id="introducing-lockness-bags">Introducing Lockness Bags</h2>
+
+<p><a href="https://github.com/SUPERCILEX/lockness/blob/master/bags/README.md">Lock<strong>n</strong>ess Bags</a> implement the
+ideas described above and might be used to build the
+<a href="https://github.com/SUPERCILEX/lockness/blob/master/executor/README.md">Lockness Executor</a> should
+benchmarking show an advantage.</p>
+
+<h3 id="are-lockness-bags-fast">Are Lockness bags fast?</h3>
+
+<p>No :(</p>
+
+<p>Queue-based channel implementations win over bags on current hardware by disjointing their producer
+and consumer memory writes. Remember the <code class="language-plaintext highlighter-rouge">consumed</code> and <code class="language-plaintext highlighter-rouge">committed</code> pointers from
+<a href="#mpmc-diagram">the diagram</a>? In practice, these are implemented in a distributed fashion: each slot
+has a flag that marks it as readable or writable. To start, all slots are writable and transition to
+readable and back as you write and read the slots. The head pointer can only advance if its current
+slot is readable and conversely for the tail pointer. Crucially, this means consuming a slot almost
+never touches a cache line producers are actively working with.</p>
+
+<p>On the other hand, lockless bags are implemented with two atomics each representing a bitvector. To
+produce and consume a value, you must always update both bitvectors. This means producers <em>and</em>
+consumers are all contending over the same two cache lines. On the other hand, lockless queues limit
+contention for producers to the tail cache line and similarly consumers only contend on the head
+cache line.</p>
+
+<h2 id="the-future-hardware-accelerating-lockless-bags">The future: hardware accelerating lockless bags</h2>
+
+<p>The <a href="/blog/opinions/performance/lockness/atomic-bit-fill">next article</a> in the series explores the
+idea of novel instructions that would hardware accelerate lockless bags to significantly outperform
+all possible software channel implementations.</p>
+
+<h2 id="appendix-alternative-approaches-and-their-pitfalls">Appendix: alternative approaches and their pitfalls</h2>
+
+<p>This problem has been itching the back of my brain for close to five years now. As part of the
+journey, I’ve toyed with many different approaches that were rejected.</p>
+
+<h3 id="why-doesnt-a-stack-work-for-mpsc-channels">Why doesn’t a stack work for MPSC channels?</h3>
+
+<p>Instead of a circular buffer, couldn’t we use a stack? Producers would compete to place items at the
+top and the single consumer takes items down. Unfortunately, the consumer would need to block
+producers from raising the stack, otherwise the consumer could end up in a situation where it is
+trying to out an already stacked upon element. You can hack around this, but it doesn’t seem better
+than a queue.</p>
+
+<h3 id="why-not-use-many-spsc-queues-to-make-a-mpsc-channel">Why not use many SPSC queues to make a MPSC channel?</h3>
+
+<p>Generalizing the question, why not use multiple stricter channels to build a weaker one? On the
+surface, this appears to be a straightforward solution, but you run into two problems:</p>
+
+<ul>
+  <li>Load balancing: it is difficult to share resources. For example, consider using many SPMC channels
+to make a MPMC channel. If one producer has a spike in load while the others remain quiet, there
+is no way to use the available capacity of the other producers’ channels.</li>
+  <li>Poor scaling with high core counts: either producing or consuming values must scale linearly with
+the number of threads to scan across the individual queues. That said, this can be worked around
+by developing affinities, e.g. a consumer can keep reading from the same producer if it always has
+values. But if your load is so well-balanced that consumers could just pair with producers, you
+may as well do that instead.</li>
+</ul>
+
+<p>Additionally, orchestrating the addition/removal of individual queues in the channel and supporting
+sleeping becomes difficult.</p>
+
+<h3 id="why-are-tunnel-channels-bad">Why are tunnel channels bad?</h3>
+
+<p>Tunnels are the simplest MPMC channel: they hold no values and thus require a pairing between
+producer and consumer to transfer a value onto the consumer’s stack. Consequently, either the
+producer or consumer must sleep to accept the next value, every time. This is painfully slow.</p>
+
+<h3 id="why-not-store-machine-word-sized-elements-in-the-channel">Why not store machine-word sized elements in the channel?</h3>
+
+<p>Instead of supporting arbitrarily sized values in the channel, what if we only accepted values that
+could fit in an atomic? More specifically pointers? Surprisingly, this doesn’t really help. If your
+only state is the array of atomic pointers, there’s no easy way to find free/filled slots. Thus, you
+need to go back to a circular buffer which has the same contention problems when the head/tail are
+updated but the slot hasn’t been atomically swapped to its new value. An alternative could be to
+scan the array for empty/filled slots until one is found, but under contention you’ll be fighting
+over the same slots.</p>]]></content><author><name>Alex Saveau</name></author><category term="Opinions" /><category term="Performance" /><category term="Lockness" /><summary type="html"><![CDATA[Lockless queues let multiple cores communicate with each other without mutexes, typically to move work around for parallel processing. They come in four variants: {single,multi}-producer {single,multi}-consumer. A producer gives data to a consumer, each of which can be limited to a single thread (i.e. a single-{producer,consumer}) or shared across multiple threads. But only the single-producer single-consumer (SPSC) queue is actually a queue!]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Generalizing over mutability in Rust</title><link href="https://alexsaveau.dev/blog/tips/generalizing-over-mutability-in-rust" rel="alternate" type="text/html" title="Generalizing over mutability in Rust" /><published>2025-07-30T00:00:00+00:00</published><updated>2025-10-25T02:15:38+00:00</updated><id>https://alexsaveau.dev/blog/tips/generalizing-over-mutability-in-rust</id><content type="html" xml:base="https://alexsaveau.dev/blog/tips/generalizing-over-mutability-in-rust"><![CDATA[<p>You’ve seen us
+<a href="https://blog.sunfishcode.online/writingintouninitializedbuffersinrust/">generalize over buffer types</a>,
+now let’s generalize over buffer mutability!</p>
+
+<p>I tried to write
+<a href="https://github.com/SUPERCILEX/lockness/blob/1f221a1c5c1db2f478cdb7c42a5aa25c997c89f6/bags/src/mpmc.rs#L539-L556">something like this</a>
+in a project I’m working on:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="n">process_items</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buf</span><span class="p">:</span> <span class="o">&amp;&lt;</span><span class="k">mut</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="k">mut</span> <span class="n">f</span><span class="p">:</span> <span class="k">impl</span> <span class="nf">FnMut</span><span class="p">(</span><span class="o">&amp;&lt;</span><span class="k">mut</span><span class="o">&gt;</span> <span class="n">T</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="o">...</span>
+        <span class="nf">f</span><span class="p">(</span><span class="o">&amp;&lt;</span><span class="k">mut</span><span class="o">&gt;</span> <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">process_items</code> abstracts over complexity retrieving items from <code class="language-plaintext highlighter-rouge">buf</code> and needs to support
+processing items both mutably and immutably. Unfortunately, this isn’t possible in Rust as far as
+I’m aware. I first tried solving the problem with a macro, but couldn’t figure out how to generalize
+over <code class="language-plaintext highlighter-rouge">&amp;buf[i]</code> in one macro invocation and <code class="language-plaintext highlighter-rouge">&amp;mut buf[i]</code> in another.</p>
+
+<p>Thus, it is with great (dis?)pleasure that I present to you: trait magic! Feast your eyes:</p>
+
+<blockquote>
+  <p><strong>Edit:</strong> a reader emailed me with a <a href="#better-solution">better solution</a>.</p>
+</blockquote>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">trait</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">F</span><span class="p">;</span>
+
+    <span class="k">fn</span> <span class="nf">do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="k">Self</span><span class="p">::</span><span class="n">F</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="nf">FnMut</span><span class="p">(</span><span class="o">&amp;</span><span class="n">T</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">PhantomData</span><span class="o">&lt;</span><span class="n">F</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="p">;</span>
+
+    <span class="k">fn</span> <span class="nf">do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">F</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="p">;</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">buf</span><span class="nf">.len</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nf">f</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="k">true</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="nf">FnMut</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">T</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="k">for</span> <span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">PhantomData</span><span class="o">&lt;</span><span class="n">F</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="p">;</span>
+
+    <span class="k">fn</span> <span class="nf">do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">F</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="p">;</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">buf</span><span class="nf">.len</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nf">f</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="k">true</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="n">process_items</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="k">mut</span> <span class="n">buf</span><span class="p">:</span> <span class="n">B</span><span class="p">,</span> <span class="k">mut</span> <span class="n">f</span><span class="p">:</span> <span class="nn">B</span><span class="p">::</span><span class="n">F</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="o">!</span><span class="n">buf</span><span class="nf">.do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">f</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">foo</span> <span class="o">=</span> <span class="p">[</span><span class="s">"a"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"c"</span><span class="p">];</span>
+    <span class="nf">process_items</span><span class="p">((</span><span class="n">foo</span><span class="nf">.as_slice</span><span class="p">(),</span> <span class="n">PhantomData</span><span class="p">),</span> <span class="p">|</span><span class="n">item</span><span class="p">|</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"{item}"</span><span class="p">));</span>
+    <span class="nd">println!</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">bar</span> <span class="o">=</span> <span class="p">[</span><span class="s">"a"</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="s">"b"</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="s">"c"</span><span class="nf">.to_string</span><span class="p">()];</span>
+    <span class="nf">process_items</span><span class="p">((</span><span class="n">bar</span><span class="nf">.as_mut_slice</span><span class="p">(),</span> <span class="n">PhantomData</span><span class="p">),</span> <span class="p">|</span><span class="n">item</span><span class="p">|</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">item</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{item}{item}"</span><span class="p">)</span>
+    <span class="p">});</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{bar:?}"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s a
+<a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2024&amp;gist=3d3d91ab641902137364ebeac7bfe030">playground link</a>
+for your convenience.</p>
+
+<p>The example is contrived, but I hope it gets the trick across. If anybody knows of a simpler
+solution, I’d be very happy to hear it. :)</p>
+
+<h2 id="better-solution">Appendix: reader emailed suggestion</h2>
+
+<p>Courtesy of <a href="https://github.com/killingspark">Moritz Borcherding</a>, here is much nicer solution
+without the associated type or <code class="language-plaintext highlighter-rouge">PhantomData</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">trait</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">F</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="nf">FnMut</span><span class="p">(</span><span class="o">&amp;</span><span class="n">T</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="o">&gt;</span> <span class="k">for</span> <span class="o">&amp;</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">F</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="k">self</span><span class="nf">.len</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nf">f</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="k">true</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="nf">FnMut</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">T</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="o">&gt;</span> <span class="k">for</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">F</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="k">self</span><span class="nf">.len</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nf">f</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="k">true</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="n">process_items</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">Buf</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="k">mut</span> <span class="n">buf</span><span class="p">:</span> <span class="n">B</span><span class="p">,</span> <span class="k">mut</span> <span class="n">f</span><span class="p">:</span> <span class="n">F</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="o">!</span><span class="n">buf</span><span class="nf">.do_</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">f</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">foo</span> <span class="o">=</span> <span class="p">[</span><span class="s">"a"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"c"</span><span class="p">];</span>
+    <span class="nf">process_items</span><span class="p">(</span><span class="n">foo</span><span class="nf">.as_slice</span><span class="p">(),</span> <span class="p">|</span><span class="n">item</span><span class="p">|</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"{item}"</span><span class="p">));</span>
+    <span class="nd">println!</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">bar</span> <span class="o">=</span> <span class="p">[</span><span class="s">"a"</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="s">"b"</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="s">"c"</span><span class="nf">.to_string</span><span class="p">()];</span>
+    <span class="nf">process_items</span><span class="p">(</span><span class="n">bar</span><span class="nf">.as_mut_slice</span><span class="p">(),</span> <span class="p">|</span><span class="n">item</span><span class="p">|</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">item</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{item}{item}"</span><span class="p">)</span>
+    <span class="p">});</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{bar:?}"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>]]></content><author><name>Alex Saveau</name></author><category term="Tips" /><summary type="html"><![CDATA[You’ve seen us generalize over buffer types, now let’s generalize over buffer mutability!]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://alexsaveau.dev/assets/me2.jpg" /><media:content medium="image" url="https://alexsaveau.dev/assets/me2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
